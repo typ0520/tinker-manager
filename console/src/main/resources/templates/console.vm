@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+
+<html>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/main.css')" />
+<body>
+
+欢迎你 $!restR.data.user.username
+<br />
+
+<p>应用列表</p>
+
+</body>
+
+</html>
