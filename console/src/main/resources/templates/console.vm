@@ -4,11 +4,38 @@
 <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/main.css')" />
 <body>
 
-欢迎你 $!restR.data.user.username
+欢迎你: $!restR.data.user.username
+<br />
 <br />
 
-<p>应用列表</p>
+<a href="#springUrl('/app/create')">创建应用</a>
+<br />
 
+<h2>应用列表</h2>
+
+    <table>
+        <tr>
+            <th>应用名称</th>
+            <th>|</th>
+            <th>平台</th>
+            <th>|</th>
+            <th>App ID</th>
+            <th>|</th>
+            <th>操作</th>
+        </tr>
+
+        #foreach($appInfo in $restR.data.appInfoList)
+            <tr>
+                <th>$!appInfo.appname</th>
+                <th>|</th>
+                <th>$!appInfo.platform</th>
+                <th>|</th>
+                <th>$!appInfo.uid</th>
+                <th>|</th>
+                <th><a href="#springUrl('')/app?appUid=$!appInfo.uid">管理</a></th>
+            </tr>
+        #end
+    </table>
 </body>
 
 </html>

@@ -27,6 +27,6 @@
 
     <mvc:interceptors>
         <bean id="authInterceptor"
-              class="com.dx168.tinker.console.interceptor.AuthInterceptor"/>
+              class="tinker.console.interceptor.AuthInterceptor"/>
     </mvc:interceptors>
 </beans>

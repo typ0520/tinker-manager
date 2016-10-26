@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/main.css')" />
+<body>
+
+<p >$!restR.message</p>
+
+<form action="#springUrl('/patch/create')" method="post" enctype="multipart/form-data">
+    <input name="userId" type="hidden" value="$restR.data.appInfo.userId">
+    <input name="appUid" type="hidden" value="$restR.data.appInfo.appUid">
+    <input name="versionName" type="hidden" value="$restR.data.versionInfo.versionName">
+
+    描述<input name="description">
+    补丁文件<input name="file" type="file">
+    <input type="submit" value="提交">
+</form>
+
+<br />
+</body>
+
+</html>

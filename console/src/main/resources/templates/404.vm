@@ -1,0 +1,13 @@
+<title>404错误页面</title>
+
+<div>
+    <h1>抱歉，找不到您要的页面......</h1>
+    <h6 >Sorry,I can't the page you want.</h6>
+    <hr>
+    <h3>仔细找过啦，没有发现你要找的页面。最可能的原因是：</h3>
+    <ul>
+        <li>· 在地址中可能存在键入错误。</li>
+        <li>· 当你点击某个链接时，它可能已过期</li>
+    </ul>
+    <button onclick="location.href='#springUrl('')/console'">返回首页</button>
+</div>

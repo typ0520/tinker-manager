@@ -7,17 +7,13 @@
 
 <p >$!restR.message</p>
 
-<form action="#springUrl('/login')" method="post">
+<form action="#springUrl('/regist')" method="post">
     用户名<input name="username" >
     密码<input name="password">
 
     <input name="redirect" type="hidden" value="$restR.data.redirect">
-    <input type="submit" value="登录">
+    <input type="submit" value="注册">
 </form>
-
-<br />
-
-<a  href="#springUrl('')/regist?redirect=$restR.data.redirect">注册</a>
 </body>
 
 </html>

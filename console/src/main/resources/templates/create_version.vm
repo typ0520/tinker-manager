@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+
+<html>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/main.css')" />
+<body>
+
+
+<p >$!restR.message</p>
+
+<form action="#springUrl('/app/create_version')" method="post">
+    <input name="appUid" type="hidden" value="$restR.data.appUid">
+
+    版本号<input name="versionName">
+    <input type="submit" value="创建">
+</form>
+
+<br />
+</body>
+
+</html>

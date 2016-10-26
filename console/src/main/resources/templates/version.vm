@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<html>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/main.css')" />
+<body>
+
+    #if($restR.code == 200)
+        <h2>应用信息</h2>
+
+        应用名称: $!restR.data.appInfo.appname
+        <br />
+        应用描述: $!restR.data.appInfo.description
+        <br />
+        发布平台: $!restR.data.appInfo.platform
+        <br />
+        App ID:  $!restR.data.appInfo.uid
+        <br />
+        App Secret:$!restR.data.appInfo.secret
+        <br />
+        <br />
+        <br />
+
+    <h2>当前应用版本: $!restR.data.versionInfo.versionName</h2>
+
+    <br />
+        <a href="#springUrl('')/patch/create?appUid=$!restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName">添加新补丁</a>
+        <br />
+        <br />
+
+        #if (!$null.isNull($restR.data.versionList) && $restR.data.versionList.size > 0)
+            <h2>补丁列表</h2>
+            <br />
+
+            <table>
+                <tr>
+                    <th>版本号</th>
+                    <th>|</th>
+                    <th>创建时间</th>
+                    <th>|</th>
+                    <th>操作</th>
+                </tr>
+
+                #foreach($versionInfo in $restR.data.versionList)
+                    <tr>
+                        <th>$!versionInfo.versionName</th>
+                        <th>|</th>
+                        <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!versionInfo.createdAt)</th>
+                        <th>|</th>
+                        <th><a href="#springUrl('')/app/version?appUid=$restR.data.appInfo.uid&versionName=$!versionInfo.versionName">查看详情</a></th>
+                    </tr>
+                #end
+            </table>
+        #end
+    #else
+        $restR.message
+    #end
+
+</body>
+
+</html>

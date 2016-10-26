@@ -1,0 +1,146 @@
+package tinker.console.domain;
+
+import java.util.Date;
+
+/**
+ * Created by tong on 16/10/26.
+ */
+public class PatchInfo {
+    private Integer id;
+    private Integer userId;
+    private String appUid;
+    private String versionName;
+    private int patchVersion;
+    private int publishVersion;
+    private int status;//0 未发布 1 已发布
+    private int publishType;//0 灰度发布 1 正常发布
+    private String tags;//灰度发布的tag用，分割
+    private String storagePath;//存储路径
+    private long patchSize;
+    private String fileHash;
+    private String description;
+
+    private Date createdAt;
+    private Date updatedAt;
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getAppUid() {
+        return appUid;
+    }
+
+    public void setAppUid(String appUid) {
+        this.appUid = appUid;
+    }
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public void setVersionName(String versionName) {
+        this.versionName = versionName;
+    }
+
+    public int getPatchVersion() {
+        return patchVersion;
+    }
+
+    public void setPatchVersion(int patchVersion) {
+        this.patchVersion = patchVersion;
+    }
+
+    public int getPublishVersion() {
+        return publishVersion;
+    }
+
+    public void setPublishVersion(int publishVersion) {
+        this.publishVersion = publishVersion;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getPublishType() {
+        return publishType;
+    }
+
+    public void setPublishType(int publishType) {
+        this.publishType = publishType;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getStoragePath() {
+        return storagePath;
+    }
+
+    public void setStoragePath(String storagePath) {
+        this.storagePath = storagePath;
+    }
+
+    public long getPatchSize() {
+        return patchSize;
+    }
+
+    public void setPatchSize(long patchSize) {
+        this.patchSize = patchSize;
+    }
+
+    public String getFileHash() {
+        return fileHash;
+    }
+
+    public void setFileHash(String fileHash) {
+        this.fileHash = fileHash;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+}
