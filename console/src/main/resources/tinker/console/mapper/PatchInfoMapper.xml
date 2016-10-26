@@ -50,7 +50,7 @@
         #{patchVersion,jdbcType=INTEGER},
         #{publishVersion,jdbcType=INTEGER},
         #{status,jdbcType=INTEGER},
-        #{publish_type,jdbcType=INTEGER},
+        #{publishType,jdbcType=INTEGER},
         #{tags,jdbcType=VARCHAR},
         #{storagePath,jdbcType=VARCHAR},
         #{patchSize,jdbcType=BIGINT},

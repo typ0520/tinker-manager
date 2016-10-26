@@ -8,7 +8,7 @@
 
 <form action="#springUrl('/patch/create')" method="post" enctype="multipart/form-data">
     <input name="userId" type="hidden" value="$restR.data.appInfo.userId">
-    <input name="appUid" type="hidden" value="$restR.data.appInfo.appUid">
+    <input name="appUid" type="hidden" value="$restR.data.appInfo.uid">
     <input name="versionName" type="hidden" value="$restR.data.versionInfo.versionName">
 
     描述<input name="description">

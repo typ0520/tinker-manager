@@ -1,8 +1,7 @@
 package tinker.console.controller;
 
-import org.apache.tomcat.jni.File;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import tinker.console.common.BizAssert;
 import tinker.console.common.BizException;
 import tinker.console.common.Constants;
@@ -36,6 +35,12 @@ public class ConsoleController {
 
     @Autowired
     private PatchService patchService;
+
+    @RequestMapping(value = "/",method = RequestMethod.GET)
+    public ModelAndView index() {
+        return new ModelAndView("redirect:/console");
+    }
+
 
     @RequestMapping(value = "/console",method = RequestMethod.GET)
     public ModelAndView index(HttpServletRequest req) {
@@ -171,7 +176,7 @@ public class ConsoleController {
             BizAssert.notEpmty(versionName,"版本号不能为空");
 
             AppInfo appInfo = appService.findByUid(appUid);
-            if (appUid == null) {
+            if (appInfo == null) {
                 throw new BizException("该应用未找到");
             }
 
@@ -181,6 +186,7 @@ public class ConsoleController {
             }
             restR.getData().put("versionInfo",versionInfo);
             restR.getData().put("appInfo",appInfo);
+            restR.getData().put("versionName",versionName);
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());
@@ -189,7 +195,7 @@ public class ConsoleController {
     }
 
     @RequestMapping(value = "/patch/create",method = RequestMethod.POST)
-    public ModelAndView patch_create(String appUid,String versionName,String description,@RequestParam("file") CommonsMultipartFile multipartFile) {
+    public ModelAndView patch_create(String appUid,String versionName,String description,@RequestParam("file") MultipartFile multipartFile) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notEpmty(appUid,"应用号不能为空");
@@ -198,7 +204,7 @@ public class ConsoleController {
             BizAssert.notNull(multipartFile,"请选择文件");
 
             AppInfo appInfo = appService.findByUid(appUid);
-            if (appUid == null) {
+            if (appInfo == null) {
                 throw new BizException("该应用未找到");
             }
 
