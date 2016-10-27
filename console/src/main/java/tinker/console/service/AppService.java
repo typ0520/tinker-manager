@@ -11,7 +11,9 @@ import tinker.console.mapper.VersionInfoMapper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by tong on 16/10/26.
@@ -26,6 +28,10 @@ public class AppService {
 
     @Autowired
     private AccountService accountService;
+
+    private final Map<String,AppInfo> appInfoCache = new ConcurrentHashMap<>();
+
+    private final Map<String,VersionInfo> versionInfoCache = new ConcurrentHashMap<>();
 
     public AppInfo addApp(BasicUser basicUser,String appname,String description,String platform) {
         Integer rootUserId = accountService.getRootUserId(basicUser);
@@ -59,7 +65,15 @@ public class AppService {
     }
 
     public AppInfo findByUid(String uid) {
-        return appMapper.findByUid(uid);
+        AppInfo appInfo = appInfoCache.get(uid);
+        if (appInfo != null) {
+            return appInfo;
+        }
+        appInfo = appMapper.findByUid(uid);
+        if (appInfo != null) {
+            appInfoCache.put(uid,appInfo);
+        }
+        return appInfo;
     }
 
     public List<VersionInfo> findAllVersion(AppInfo appInfo) {
@@ -67,7 +81,15 @@ public class AppService {
     }
 
     public VersionInfo findVersionByUidAndVersionName(AppInfo appInfo, String versionName) {
-        return versionInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionName);
+        String cacheKey = appInfo.getUid() + "-" + versionName;
+        VersionInfo versionInfo = versionInfoCache.get(cacheKey);
+        if (versionInfo == null) {
+            versionInfo = versionInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionName);
+            if (versionInfo != null) {
+                versionInfoCache.put(cacheKey,versionInfo);
+            }
+        }
+        return versionInfo;
     }
 
     public void saveVersionInfo(VersionInfo versionInfo) {

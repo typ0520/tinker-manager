@@ -56,7 +56,7 @@ public class ApiController {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
-            BizAssert.notEpmty(token,"应用秘钥不能为空");
+            BizAssert.notEpmty(token,"令牌不能为空");
             BizAssert.notEpmty(versionName,"应用版本号不能为空");
 
             AppInfo appInfo = appService.findByUid(appUid);

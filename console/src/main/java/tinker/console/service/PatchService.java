@@ -11,10 +11,9 @@ import tinker.console.domain.AppInfo;
 import tinker.console.domain.PatchInfo;
 import tinker.console.domain.VersionInfo;
 import tinker.console.mapper.PatchInfoMapper;
-
 import java.io.*;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by tong on 16/10/25.
@@ -27,8 +26,20 @@ public class PatchService {
     @Value("${file_storage_path}")
     private String fileStoragePath;
 
+    private final Map<String,List<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
+
     public List<PatchInfo> findByUidAndVersionName(@Param("appUid") String appUid, @Param("versionName") String versionName) {
-        return patchInfoMapper.findByUidAndVersionName(appUid,versionName);
+        String cacheKey = appUid + "-" + versionName;
+        List<PatchInfo> patchInfoList = patchInfoCache.get(cacheKey);
+        if (patchInfoList == null) {
+            patchInfoList = patchInfoMapper.findByUidAndVersionName(appUid,versionName);
+            if (patchInfoList == null) {
+                patchInfoList = Collections.emptyList();
+            }
+
+            patchInfoCache.put(cacheKey,patchInfoList);
+        }
+        return patchInfoList;
     }
 
     public PatchInfo savePatch(AppInfo appInfo, VersionInfo versionInfo, String description, MultipartFile multipartFile) {
@@ -58,6 +69,8 @@ public class PatchService {
 
             Integer id = patchInfoMapper.insert(patchInfo);
             patchInfo.setId(id);
+
+            patchInfoCache.clear();
         } catch (IOException e) {
             e.printStackTrace();
             throw new BizException("文件保存失败");
@@ -88,10 +101,13 @@ public class PatchService {
     public void updateStatus(PatchInfo patchInfo) {
         patchInfo.setUpdatedAt(new Date());
         patchInfoMapper.updateStatus(patchInfo);
+
+        patchInfoCache.clear();
     }
 
     public void deletePatch(PatchInfo patchInfo) {
         patchInfoMapper.deleteById(patchInfo.getId());
+        patchInfoCache.clear();
         File file = new File(patchInfo.getStoragePath());
         try {
             file.delete();
