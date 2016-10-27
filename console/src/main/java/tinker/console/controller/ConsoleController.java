@@ -77,14 +77,16 @@ public class ConsoleController {
     @RequestMapping(value = "/app",method = RequestMethod.GET)
     public ModelAndView app(String appUid) {
         RestResponse restR = new RestResponse();
-        AppInfo appInfo = appService.findByUid(appUid);
-        if (appUid == null) {
-            restR.setCode(-1);
-            restR.setMessage("该应用未找到");
-        }
-        else {
+        try {
+            AppInfo appInfo = appService.findByUid(appUid);
+            if (appInfo == null) {
+                throw new BizException("应用不存在");
+            }
             restR.getData().put("appInfo",appInfo);
             restR.getData().put("versionList",appService.findAllVersion(appInfo));
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
         }
         return new ModelAndView("app","restR",restR);
     }
@@ -221,5 +223,32 @@ public class ConsoleController {
             restR.setMessage(e.getMessage());
             return new ModelAndView("redirect:/patch/create?appUid=" + appUid + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
         }
+    }
+
+    @RequestMapping(value = "/patch",method = RequestMethod.GET)
+    public ModelAndView patch_detail(Integer id) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(id,"参数不能为空");
+            PatchInfo patchInfo = patchService.findById(id);
+            if (patchInfo == null) {
+                throw new BizException("参数不正确");
+            }
+            AppInfo appInfo = appService.findByUid(patchInfo.getAppUid());
+            if (appInfo == null) {
+                throw new BizException("该应用未找到");
+            }
+            VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,patchInfo.getVersionName());
+            if (versionInfo == null) {
+                throw new BizException("该版本未找到: " + patchInfo.getVersionName());
+            }
+            restR.getData().put("appInfo",appInfo);
+            restR.getData().put("versionInfo",versionInfo);
+            restR.getData().put("patchInfo",patchInfo);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return new ModelAndView("patch","restR",restR);
     }
 }

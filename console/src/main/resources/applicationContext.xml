@@ -26,7 +26,7 @@
     <mvc:default-servlet-handler />
 
     <mvc:interceptors>
-        <bean id="authInterceptor"
-              class="tinker.console.interceptor.AuthInterceptor"/>
+        <bean id="authInterceptor" class="tinker.console.interceptor.AuthInterceptor"/>
+        <bean id="appUidInterceptor" class="tinker.console.interceptor.AppUidInterceptor"/>
     </mvc:interceptors>
 </beans>

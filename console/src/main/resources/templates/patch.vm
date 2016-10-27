@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/main.css')" />
+<body>
+
+    #if($restR.code == 200)
+        <h2>补丁详情</h2>
+
+        应用版本: $!restR.data.patchInfo.versionName
+        <br />
+        补丁版本: $!restR.data.patchInfo.patchVersion
+        <br />
+        补丁文件: $!restR.data.patchInfo.fileHash &nbsp;&nbsp; $!restR.data.patchInfo.formatPatchSize
+        <br />
+        补丁描述: $!restR.data.patchInfo.description
+        <br />
+        上传时间: $!date.format('yyyy-MM-dd HH:mm:ss',$!restR.data.patchInfo.createdAt)
+        <br />
+        <br />
+        <br />
+
+    #else
+        $restR.message
+    #end
+
+</body>
+</html>

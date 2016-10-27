@@ -13,4 +13,6 @@ public interface PatchInfoMapper {
     Integer insert(PatchInfo patchInfo);
 
     List<PatchInfo> findByUidAndVersionName(@Param("appUid") String appUid, @Param("versionName") String versionName);
+
+    PatchInfo findById(Integer id);
 }

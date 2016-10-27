@@ -52,7 +52,7 @@
     </insert>
 
     <select id="findAll" resultMap="BaseResultMap">
-        SELECT user_id, app_uid, version_name, created_at, updated_at
+        SELECT id,user_id, app_uid, version_name, created_at, updated_at
         FROM t_version_info
         order by created_at desc ;
     </select>

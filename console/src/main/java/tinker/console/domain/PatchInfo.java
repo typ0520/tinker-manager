@@ -1,5 +1,6 @@
 package tinker.console.domain;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ public class PatchInfo {
     private String versionName;
     private int patchVersion;
     private int publishVersion;
-    private int status;//0 未发布 1 已发布
+    private int status;//0 未发布 1 已发布 2已停止
     private int publishType;//0 灰度发布 1 正常发布
     private String tags;//灰度发布的tag用，分割
     private String storagePath;//存储路径
@@ -142,5 +143,24 @@ public class PatchInfo {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getFormatPatchSize() {
+        long fileS = getPatchSize();
+        if (fileS == 0) {
+            return "0k";
+        }
+        DecimalFormat df = new DecimalFormat("#.00");
+        String fileSizeString = "";
+        if (fileS < 1024) {
+            fileSizeString = df.format((double) fileS) + "B";
+        } else if (fileS < 1048576) {
+            fileSizeString = df.format((double) fileS / 1024) + "K";
+        } else if (fileS < 1073741824) {
+            fileSizeString = df.format((double) fileS / 1048576) + "M";
+        } else {
+            fileSizeString = df.format((double) fileS / 1073741824) + "G";
+        }
+        return fileSizeString;
     }
 }

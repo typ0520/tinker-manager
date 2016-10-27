@@ -27,30 +27,53 @@
         <br />
         <br />
 
-        #if (!$null.isNull($restR.data.versionList) && $restR.data.versionList.size > 0)
-            <h2>补丁列表</h2>
-            <br />
+    <h2>补丁列表</h2>
+    <br />
 
-            <table>
-                <tr>
-                    <th>版本号</th>
-                    <th>|</th>
-                    <th>创建时间</th>
-                    <th>|</th>
-                    <th>操作</th>
-                </tr>
+    <table>
+        <tr>
+            <th>补丁版本</th>
+            <th>|</th>
+            <th>补丁大小</th>
+            <th>|</th>
+            <th>补丁描述</th>
+            <th>|</th>
+            <th>上传时间</th>
+            <th>|</th>
+            <th>发布状态</th>
+            <th>|</th>
+            <th>操作</th>
+        </tr>
 
-                #foreach($versionInfo in $restR.data.versionList)
-                    <tr>
-                        <th>$!versionInfo.versionName</th>
-                        <th>|</th>
-                        <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!versionInfo.createdAt)</th>
-                        <th>|</th>
-                        <th><a href="#springUrl('')/app/version?appUid=$restR.data.appInfo.uid&versionName=$!versionInfo.versionName">查看详情</a></th>
-                    </tr>
-                #end
-            </table>
+        #foreach($patchInfo in $restR.data.patchInfoList)
+            <tr>
+                <th>$!patchInfo.patchVersion</th>
+                <th>|</th>
+                <th>$!patchInfo.formatPatchSize</th>
+                <th>|</th>
+                <th>$!patchInfo.description</th>
+                <th>|</th>
+                <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!patchInfo.createdAt)</th>
+                <th>|</th>
+                <th>
+                    #if($patchInfo.status == 0)
+                        未发布
+                    #elseif($patchInfo.status == 1)
+                        #if($patchInfo.publishType == 0)
+                            已灰度发布
+                        #else
+                            已全量发布
+                        #end
+                    #elseif($patchInfo.status == 2)
+                        已停止
+                    #end
+
+                </th>
+                <th>|</th>
+                <th><a href="#springUrl('')/patch?appUid=$restR.data.appInfo.uid&id=$!patchInfo.id">查看详情</a></th>
+            </tr>
         #end
+    </table>
     #else
         $restR.message
     #end

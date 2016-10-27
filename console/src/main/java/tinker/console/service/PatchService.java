@@ -78,4 +78,8 @@ public class PatchService {
         }
         return result;
     }
+
+    public PatchInfo findById(Integer id) {
+        return patchInfoMapper.findById(id);
+    }
 }
