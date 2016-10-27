@@ -8,7 +8,6 @@ import tinker.console.common.Constants;
 import tinker.console.common.RestResponse;
 import tinker.console.domain.AppInfo;
 import tinker.console.domain.BasicUser;
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +19,7 @@ import tinker.console.service.AccountService;
 import tinker.console.service.AppService;
 import tinker.console.service.PatchService;
 import tinker.console.utils.HttpRequestUtils;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -47,7 +47,7 @@ public class ConsoleController {
         RestResponse restR = new RestResponse();
 
         BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-        List<AppInfo> appInfoList = appService.findAll(basicUser);
+        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
         restR.getData().put("user",basicUser);
         restR.getData().put("appInfoList",appInfoList);
         return new ModelAndView("console","restR",restR);
@@ -61,7 +61,7 @@ public class ConsoleController {
     }
 
     @RequestMapping(value = "/app/create",method = RequestMethod.POST)
-    public ModelAndView app_create(HttpServletRequest req,String appname,String description) {
+    public ModelAndView app_create(HttpServletRequest req, String appname, String description) {
         try {
             BizAssert.notEpmty(appname,"应用名不能为空");
             BizAssert.notEpmty(description,"描述信息不能为空");
@@ -148,10 +148,6 @@ public class ConsoleController {
             BizAssert.notEpmty(versionName,"版本号不能为空");
 
             AppInfo appInfo = appService.findByUid(appUid);
-            if (appUid == null) {
-                throw new BizException("该应用未找到");
-            }
-
             VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,versionName);
             if (versionInfo == null) {
                 throw new BizException("该版本未找到: " + versionName);
@@ -178,10 +174,6 @@ public class ConsoleController {
             BizAssert.notEpmty(versionName,"版本号不能为空");
 
             AppInfo appInfo = appService.findByUid(appUid);
-            if (appInfo == null) {
-                throw new BizException("该应用未找到");
-            }
-
             VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,versionName);
             if (versionInfo == null) {
                 throw new BizException("该版本未找到: " + versionName);
@@ -206,10 +198,6 @@ public class ConsoleController {
             BizAssert.notNull(multipartFile,"请选择文件");
 
             AppInfo appInfo = appService.findByUid(appUid);
-            if (appInfo == null) {
-                throw new BizException("该应用未找到");
-            }
-
             VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,versionName);
             if (versionInfo == null) {
                 throw new BizException("该版本未找到: " + versionName);
@@ -226,18 +214,15 @@ public class ConsoleController {
     }
 
     @RequestMapping(value = "/patch",method = RequestMethod.GET)
-    public ModelAndView patch_detail(Integer id) {
+    public ModelAndView patch_detail(Integer id,String appUid) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(id,"参数不能为空");
-            PatchInfo patchInfo = patchService.findById(id);
+            PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
             if (patchInfo == null) {
                 throw new BizException("参数不正确");
             }
             AppInfo appInfo = appService.findByUid(patchInfo.getAppUid());
-            if (appInfo == null) {
-                throw new BizException("该应用未找到");
-            }
             VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,patchInfo.getVersionName());
             if (versionInfo == null) {
                 throw new BizException("该版本未找到: " + patchInfo.getVersionName());

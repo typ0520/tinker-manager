@@ -60,9 +60,9 @@
         )
     </insert>
 
-    <select id="findAll" resultMap="BaseResultMap">
+    <select id="findAllByUserId" resultMap="BaseResultMap">
         SELECT id, user_id, appname, platform,uid,description,secret,public_key,private_key, created_at, updated_at
-        FROM t_app_info
+        FROM t_app_info where user_id = #{userId}
         order by created_at desc ;
     </select>
 </mapper>

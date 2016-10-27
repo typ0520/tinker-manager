@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 
 <html>
-<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/main.css')" />
+<script type="text/javascript" src="#springUrl('/static/js/jquery.min.js')"></script>
 <body>
+
+<p >$!restR.message</p>
+
+</br>
 
     #if($restR.code == 200)
         <h2>补丁详情</h2>
@@ -20,9 +24,25 @@
         <br />
         <br />
 
-    #else
-        $restR.message
+        #if($!restR.data.patchInfo.status == 0)
+            当前处于未发布状态，请选择 &nbsp;&nbsp;
+            <a>灰度发布</a>  &nbsp;&nbsp;&nbsp; <a>全量发布</a>
+        #elseif($!restR.data.patchInfo.status == 1)
+            #if($!restR.data.patchInfo.publishType == 0)
+                <a>停止灰度发布</a>
+            #else
+                <a>停止发布</a>
+            #end
+        #elseif($!restR.data.patchInfo.status == 2)
+            <a>继续发布</a>  &nbsp;&nbsp;&nbsp; <a>选择回滚</a>
+        #end
     #end
 
+
+    <script>
+        $(document).ready(function(){
+            alert('aa')
+        });
+    </script>
 </body>
 </html>

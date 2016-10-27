@@ -54,8 +54,8 @@ public class AppService {
         return nowStr + "-" + (rootUserId + x);
     }
 
-    public List<AppInfo> findAll(BasicUser basicUser) {
-        return appMapper.findAll(accountService.getRootUserId(basicUser));
+    public List<AppInfo> findAllAppInfoByUser(BasicUser basicUser) {
+        return appMapper.findAllByUserId(accountService.getRootUserId(basicUser));
     }
 
     public AppInfo findByUid(String uid) {
@@ -63,7 +63,7 @@ public class AppService {
     }
 
     public List<VersionInfo> findAllVersion(AppInfo appInfo) {
-        return versionInfoMapper.findAll(appInfo.getUid());
+        return versionInfoMapper.findAllByAppUid(appInfo.getUid());
     }
 
     public VersionInfo findVersionByUidAndVersionName(AppInfo appInfo, String versionName) {

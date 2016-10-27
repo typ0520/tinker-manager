@@ -12,7 +12,7 @@ import java.util.List;
 public interface VersionInfoMapper {
     Integer insert(VersionInfo versionInfo);
 
-    List<VersionInfo> findAll(String appUid);
+    List<VersionInfo> findAllByAppUid(String appUid);
 
     VersionInfo findByUidAndVersionName(@Param("appUid") String appUid,@Param("versionName") String versionName);
 }

@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ImportResource;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -16,7 +15,6 @@ import java.util.Properties;
  */
 @SpringBootApplication
 @ComponentScan(value = {"tinker.console"})
-@ImportResource(value = {"classpath:applicationContext.xml"})
 public class WebApplication extends SpringBootServletInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(WebApplication.class);
 

@@ -82,4 +82,8 @@ public class PatchService {
     public PatchInfo findById(Integer id) {
         return patchInfoMapper.findById(id);
     }
+
+    public PatchInfo findByIdAndAppUid(Integer id, String appUid) {
+        return patchInfoMapper.findByIdAndAppUid(id,appUid);
+    }
 }

@@ -7,13 +7,14 @@ import tinker.console.common.RestResponse;
 import tinker.console.domain.BasicUser;
 import tinker.console.service.AccountService;
 import tinker.console.utils.HttpRequestUtils;
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by tong on 15/10/24.
@@ -32,7 +33,7 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public ModelAndView login(HttpServletRequest req,String redirect,String username, String password) {
+    public ModelAndView login(HttpServletRequest req, String redirect, String username, String password) {
         RestResponse restR = new RestResponse();
         boolean result = accountService.authenticate(username,password);
         if (result) {

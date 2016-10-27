@@ -27,7 +27,7 @@ public class ErrorController {
      * @param message
      * @return
      */
-    @RequestMapping(value = "/error", method = RequestMethod.GET)
+    @RequestMapping(value = "/500", method = RequestMethod.GET)
     public ModelAndView error(HttpServletRequest req,String message,ModelMap map) {
         RestResponse restR = new RestResponse();
         if (map != null) {
@@ -36,6 +36,9 @@ public class ErrorController {
 
         if (message != null) {
             message = HttpRequestUtils.urlDecode(message);
+        }
+        else {
+            message = "系统异常";
         }
 
         restR.setMessage(message);
@@ -55,7 +58,7 @@ public class ErrorController {
         return new ModelAndView("error", "restR", restR);
     }
 
-    @RequestMapping("/pageNotFound")
+    @RequestMapping("/404")
     public String pageNotFound() {
         return "404";
     }

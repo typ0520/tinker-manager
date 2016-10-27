@@ -14,7 +14,7 @@ public interface AppMapper {
 
     Integer insert(AppInfo appInfo);
 
-    List<AppInfo> findAll(Integer userId);
+    List<AppInfo> findAllByUserId(Integer userId);
 
     AppInfo findByUid(String uid);
 }

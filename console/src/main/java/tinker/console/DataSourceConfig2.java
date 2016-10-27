@@ -17,8 +17,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 @Configuration
 //daoMapper包(配置多数据源则，需要修改复制此文件，sqlSessionFactoryRef，transactionManager不同，事务时指定transactionManager)
 @MapperScan(basePackages="tinker.console.mapper",sqlSessionFactoryRef = "sqlSessionFactory")
-public class DatasourceConfig {
-	
+public class DataSourceConfig2 {
 	@Autowired
 	private Environment env;
 	

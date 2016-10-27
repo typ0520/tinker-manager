@@ -72,4 +72,10 @@
         FROM t_patch_info
         where id = #{id}
     </select>
+
+    <select id="findByIdAndAppUid" resultMap="BaseResultMap">
+        SELECT id,user_id, app_uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description, created_at, updated_at
+        FROM t_patch_info
+        where id = #{id} and app_uid = #{appUid}
+    </select>
 </mapper>

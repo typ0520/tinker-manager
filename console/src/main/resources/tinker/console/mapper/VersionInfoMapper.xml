@@ -51,9 +51,9 @@
         )
     </insert>
 
-    <select id="findAll" resultMap="BaseResultMap">
+    <select id="findAllByAppUid" resultMap="BaseResultMap">
         SELECT id,user_id, app_uid, version_name, created_at, updated_at
-        FROM t_version_info
+        FROM t_version_info where app_uid = #{appUid}
         order by created_at desc ;
     </select>
 </mapper>
