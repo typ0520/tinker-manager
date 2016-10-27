@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
 
 <head>
 
@@ -9,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin - Bootstrap Admin Template</title>
+    <title>Tinker-热修复</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
@@ -193,36 +192,3 @@
     </nav>
 
     <div id="page-wrapper">
-        <p >$!restR.message</p>
-
-        <form action="#springUrl('/login')" method="post">
-            用户名<input name="username" >
-            密码<input name="password">
-
-            <input name="redirect" type="hidden" value="$restR.data.redirect">
-            <input type="submit" value="登录">
-        </form>
-
-        <br />
-
-        <a  href="#springUrl('')/regist?redirect=$restR.data.redirect">注册</a>
-    </div>
-    <!-- /#page-wrapper -->
-
-</div>
-<!-- /#wrapper -->
-
-<!-- jQuery -->
-<script src="#springUrl('/static/js/jquery.js')"></script>
-
-<!-- Bootstrap Core JavaScript -->
-<script src="#springUrl('/static/js/bootstrap.min.js')"></script>
-
-<!-- Morris Charts JavaScript -->
-<script src="#springUrl('/static/js/plugins/morris/raphael.min.js')"></script>
-<script src="#springUrl('/static/js/plugins/morris/morris.min.js')"></script>
-<script src="#springUrl('/static/js/plugins/morris/morris-data.js')"></script>
-
-</body>
-
-</html>

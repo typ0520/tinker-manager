@@ -51,7 +51,7 @@ public class ApiController {
      * @param sdkVersion    sdk版本号
      * @return
      */
-    @RequestMapping(value = "/api/patch",method = RequestMethod.GET)
+    @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse gray_publish(String appUid, String token,String versionName,String tag,String platform,String osVersion,String model,String sdkVersion) {
         RestResponse restR = new RestResponse();
         try {

@@ -1,0 +1,20 @@
+</div>
+<!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<!-- jQuery -->
+<script src="#springUrl('/static/js/jquery.js')"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="#springUrl('/static/js/bootstrap.min.js')"></script>
+
+<!-- Morris Charts JavaScript -->
+<script src="#springUrl('/static/js/plugins/morris/raphael.min.js')"></script>
+<script src="#springUrl('/static/js/plugins/morris/morris.min.js')"></script>
+<script src="#springUrl('/static/js/plugins/morris/morris-data.js')"></script>
+
+</body>
+
+</html>
