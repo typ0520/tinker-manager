@@ -71,12 +71,16 @@ public class WebAppConfig extends WebMvcConfigurerAdapter implements HandlerExce
         }
 
         final String message = messageStr;
-        if (HttpRequestUtils.isAjax(request)) {
+        boolean apiRequest = false;
+        if (HttpRequestUtils.isAjax(request) || (apiRequest = HttpRequestUtils.isApiRequest(request))) {
             RestResponse restR = new RestResponse();
             restR.setCode(-1);
             restR.setMessage(message);
-
             Map model = BeanMapConvertUtil.convertBean2Map(restR);
+
+            if (apiRequest) {
+                model.put("data",null);
+            }
             if (logger.isInfoEnabled()) {
                 logger.info(">>>>>resolveException ajax model: " + model);
             }

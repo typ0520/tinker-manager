@@ -43,7 +43,7 @@ public class ErrorController {
 
         restR.setMessage(message);
 
-        if (HttpRequestUtils.isAjax(req)) {
+        if (HttpRequestUtils.isAjax(req) || HttpRequestUtils.isApiRequest(req)) {
             Map model = BeanMapConvertUtil.convertBean2Map(restR);
             if (logger.isInfoEnabled()) {
                 logger.info(">>>>>resolveException ajax model: " + model);

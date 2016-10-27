@@ -156,4 +156,9 @@ public class HttpRequestUtils {
 		}
 		return isInclude;
 	}
+
+	public static boolean isApiRequest(HttpServletRequest req) {
+		String uri = req.getRequestURI().replaceFirst(req.getContextPath(), "");
+		return HttpRequestUtils.isInclude(uri,"/api/**");
+	}
 }

@@ -11,8 +11,8 @@ import tinker.console.domain.AppInfo;
 import tinker.console.domain.PatchInfo;
 import tinker.console.domain.VersionInfo;
 import tinker.console.mapper.PatchInfoMapper;
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.Date;
 import java.util.List;
 
@@ -98,5 +98,41 @@ public class PatchService {
         } catch (Exception e) {
 
         }
+    }
+
+    public PatchInfo getLatestNormalPatchInfo(List<PatchInfo> patchInfoList) {
+        if (patchInfoList == null) {
+            return null;
+        }
+        PatchInfo result = null;
+        for (PatchInfo patchInfo : patchInfoList) {
+            if (patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED
+                    && patchInfo.getPublishType() == PatchInfo.PUBLISH_TYPE_NORMAL) {
+                if (result == null || patchInfo.getPatchVersion() > result.getPatchVersion()) {
+                    result = patchInfo;
+                }
+            }
+        }
+        return result;
+    }
+
+    public PatchInfo getLatestGrayPatchInfo(List<PatchInfo> patchInfoList, String tag) {
+        if (patchInfoList == null) {
+            return null;
+        }
+        PatchInfo result = null;
+        for (PatchInfo patchInfo : patchInfoList) {
+            if (patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED
+                    && patchInfo.getPublishType() == PatchInfo.PUBLISH_TYPE_GRAY) {
+                if ((result == null || patchInfo.getPatchVersion() > result.getPatchVersion()) && patchInfo.getTags().contains(tag)) {
+                    result = patchInfo;
+                }
+            }
+        }
+        return result;
+    }
+
+    public InputStream getDownloadStream(PatchInfo patchInfo) throws FileNotFoundException {
+        return new FileInputStream(patchInfo.getStoragePath());
     }
 }
