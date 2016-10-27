@@ -45,14 +45,14 @@ public class ApiController {
      * @param token         app的秘钥
      * @param versionName   应用版本号
      * @param tag           标记(用于灰度发布)
+     * @param platform      平台(Android|iOS)
      * @param osVersion     系统的版本号
      * @param model         手机型号
-     * @param romModel      rom类型
-     * @param romVersion    rom版本
+     * @param sdkVersion    sdk版本号
      * @return
      */
     @RequestMapping(value = "/api/patch",method = RequestMethod.GET)
-    public @ResponseBody RestResponse gray_publish(String appUid, String token,String versionName,String tag,String osVersion,String model,String romModel,String romVersion) {
+    public @ResponseBody RestResponse gray_publish(String appUid, String token,String versionName,String tag,String platform,String osVersion,String model,String sdkVersion) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
