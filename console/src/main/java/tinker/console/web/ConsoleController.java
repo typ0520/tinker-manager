@@ -1,6 +1,7 @@
-package tinker.console.controller;
+package tinker.console.web;
 
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import tinker.console.common.BizAssert;
 import tinker.console.common.BizException;
@@ -235,5 +236,88 @@ public class ConsoleController {
             restR.setMessage(e.getMessage());
         }
         return new ModelAndView("patch","restR",restR);
+    }
+
+    @RequestMapping(value = "/patch/normal_publish",method = RequestMethod.POST)
+    public @ResponseBody RestResponse normal_publish(String appUid,Integer id) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(id,"参数不能为空");
+            PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
+            if (patchInfo == null) {
+                throw new BizException("参数不正确");
+            }
+            if (patchInfo.getStatus() != PatchInfo.STATUS_PUBLISHED
+                    || (patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED && patchInfo.getPublishType() == PatchInfo.PUBLISH_TYPE_GRAY)) {
+                patchInfo.setStatus(PatchInfo.STATUS_PUBLISHED);
+                patchInfo.setPublishType(PatchInfo.PUBLISH_TYPE_NORMAL);
+                patchService.updateStatus(patchInfo);
+            }
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return restR;
+    }
+
+    @RequestMapping(value = "/patch/stop_publish",method = RequestMethod.POST)
+    public @ResponseBody RestResponse stop_publish(String appUid,Integer id) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(id,"参数不能为空");
+            PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
+            if (patchInfo == null) {
+                throw new BizException("参数不正确");
+            }
+            if (patchInfo.getStatus() != PatchInfo.STATUS_STOPPED) {
+                patchInfo.setStatus(PatchInfo.STATUS_STOPPED);
+                patchService.updateStatus(patchInfo);
+            }
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return restR;
+    }
+
+    @RequestMapping(value = "/patch/delete",method = RequestMethod.POST)
+    public @ResponseBody RestResponse delete_patch(String appUid,Integer id) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(id,"参数不能为空");
+            PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
+            if (patchInfo != null) {
+                patchService.deletePatch(patchInfo);
+            }
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return restR;
+    }
+
+    @RequestMapping(value = "/patch/gray_publish",method = RequestMethod.POST)
+    public @ResponseBody RestResponse gray_publish(String appUid,Integer id,String tags) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(id,"参数不能为空");
+            BizAssert.notEpmty(tags,"tags不能为空");
+
+            PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
+            if (patchInfo == null) {
+                throw new BizException("参数不正确");
+            }
+
+            if (patchInfo.getStatus() != PatchInfo.STATUS_PUBLISHED) {
+                patchInfo.setStatus(PatchInfo.STATUS_PUBLISHED);
+                patchInfo.setPublishType(PatchInfo.PUBLISH_TYPE_GRAY);
+                patchInfo.setTags(tags);
+                patchService.updateStatus(patchInfo);
+            }
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return restR;
     }
 }

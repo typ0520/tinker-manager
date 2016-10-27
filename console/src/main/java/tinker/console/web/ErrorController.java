@@ -1,4 +1,4 @@
-package tinker.console.controller;
+package tinker.console.web;
 
 import tinker.console.common.RestResponse;
 import tinker.console.utils.BeanMapConvertUtil;

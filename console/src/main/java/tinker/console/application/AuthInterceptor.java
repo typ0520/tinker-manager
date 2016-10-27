@@ -1,8 +1,9 @@
-package tinker.console.interceptor;
+package tinker.console.application;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import tinker.console.common.Constants;
 import tinker.console.utils.HttpRequestUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
@@ -13,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Component
 public class AuthInterceptor extends HandlerInterceptorAdapter {
-    @Value("${login.url}")
-    private String loginUrl;
+    @Autowired
+    private ServerProperties serverProperties;
 
     @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) throws Exception {
@@ -44,6 +45,6 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             redirect = redirect + "?" + req.getQueryString();
             redirect = HttpRequestUtils.urlEncode(redirect);
         }
-        return loginUrl + "?redirect=" + redirect;
+        return serverProperties.getServletPrefix() + "/login?redirect=" + redirect;
     }
 }

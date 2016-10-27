@@ -17,4 +17,10 @@ public interface PatchInfoMapper {
     PatchInfo findById(Integer id);
 
     PatchInfo findByIdAndAppUid(@Param("id") Integer id,@Param("appUid") String appUid);
+
+//    void updateStatus(@Param("id") Integer id,@Param("status") int status);
+
+    void updateStatus(PatchInfo patchInfo);
+
+    void deleteById(Integer id);
 }

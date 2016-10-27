@@ -7,6 +7,27 @@ import java.util.Date;
  * Created by tong on 16/10/26.
  */
 public class PatchInfo {
+    /**
+     * 未发布
+     */
+    public static final int STATUS_UNPUBLISHED = 0;
+    /**
+     * 已发布
+     */
+    public static final int STATUS_PUBLISHED = 1;
+    /**
+     * 已停止
+     */
+    public static final int STATUS_STOPPED = 2;
+    /**
+     * 灰度发布
+     */
+    public static final int PUBLISH_TYPE_GRAY = 0;
+    /**
+     * 正常发布
+     */
+    public static final int PUBLISH_TYPE_NORMAL = 1;
+
     private Integer id;
     private Integer userId;
     private String appUid;

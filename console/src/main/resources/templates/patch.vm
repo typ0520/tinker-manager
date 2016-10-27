@@ -25,23 +25,119 @@
         <br />
 
         #if($!restR.data.patchInfo.status == 0)
-            当前处于未发布状态，请选择 &nbsp;&nbsp;
-            <a>灰度发布</a>  &nbsp;&nbsp;&nbsp; <a>全量发布</a>
+
+        <div id="gray_publish_container">
+
+            请输入用于灰度发布的tag(如果有多个tag用分号(;)分隔)
+            <input type="text" id="gray_tags" style="width:700px">
+        </div>
+
+            <br />
+            <input type="button" id="gray_publish" value="灰度发布" />  &nbsp;&nbsp;&nbsp;
+
+        <br />
+        <br />
+        <input type="button" id="normal_publish" value="全量发布" />
+
+            <br />
+            <br />
         #elseif($!restR.data.patchInfo.status == 1)
             #if($!restR.data.patchInfo.publishType == 0)
-                <a>停止灰度发布</a>
+                当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
+                <br />
+                <br />
+                <input type="button" id="stop_publish" value="停止灰度发布" /> &nbsp;&nbsp;&nbsp; <input type="button" id="normal_publish" value="全量发布" />
             #else
-                <a>停止发布</a>
+                <input type="button" id="stop_publish" value="停止发布" />
             #end
         #elseif($!restR.data.patchInfo.status == 2)
-            <a>继续发布</a>  &nbsp;&nbsp;&nbsp; <a>选择回滚</a>
+             <input type="button" id="normal_publish" value="继续发布(全量))" /> &nbsp;&nbsp;&nbsp; <input type="button" id="del_patch" value="删除当前patch" />
+##             &nbsp;&nbsp;&nbsp; <input type="button" id="rollback" value="选择回滚" />
         #end
     #end
 
-
     <script>
         $(document).ready(function(){
-            alert('aa')
+            $("#normal_publish").click(function(){
+                jQuery.ajax({
+                    url:  "#springUrl('')/patch/normal_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        console.log(res);
+                        if (res.code == 200) {
+                            alert('发布成功!');
+                            window.location.href = window.location.href;
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        alert("系统异常");
+                    }
+                });
+            });
+
+            $("#stop_publish").click(function(){
+                jQuery.ajax({
+                    url:  "#springUrl('')/patch/stop_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        console.log(res);
+                        if (res.code == 200) {
+                            alert('已停止发布!');
+                            window.location.href = window.location.href;
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        alert("系统异常");
+                    }
+                });
+            });
+
+            $("#del_patch").click(function(){
+                jQuery.ajax({
+                    url:  "#springUrl('')/patch/delete?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        console.log(res);
+                        if (res.code == 200) {
+                            alert('删除成功!');
+                            window.location.href = "#springUrl('')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        alert("系统异常");
+                    }
+                });
+            });
+
+            $("#gray_publish").click(function(){
+                if ($("#gray_tags").val().length == 0) {
+                    alert('tag列表不能为空');
+                    return;
+                }
+
+                jQuery.ajax({
+                    url:  "#springUrl('')/patch/gray_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id&tags=" + $("#gray_tags").val(),
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        console.log(res);
+                        if (res.code == 200) {
+                            alert('灰度发布成功!');
+                            window.location.href = window.location.href;
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        alert("系统异常");
+                    }
+                });
+            });
         });
     </script>
 </body>

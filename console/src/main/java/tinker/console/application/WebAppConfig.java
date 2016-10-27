@@ -1,4 +1,4 @@
-package tinker.console;
+package tinker.console.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +18,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import tinker.console.common.BizException;
 import tinker.console.common.RestResponse;
-import tinker.console.interceptor.AppUidInterceptor;
-import tinker.console.interceptor.AuthInterceptor;
 import tinker.console.utils.BeanMapConvertUtil;
 import tinker.console.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;

@@ -6,13 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import tinker.console.common.BizException;
 import tinker.console.domain.AppInfo;
 import tinker.console.domain.PatchInfo;
 import tinker.console.domain.VersionInfo;
 import tinker.console.mapper.PatchInfoMapper;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -85,5 +83,20 @@ public class PatchService {
 
     public PatchInfo findByIdAndAppUid(Integer id, String appUid) {
         return patchInfoMapper.findByIdAndAppUid(id,appUid);
+    }
+
+    public void updateStatus(PatchInfo patchInfo) {
+        patchInfo.setUpdatedAt(new Date());
+        patchInfoMapper.updateStatus(patchInfo);
+    }
+
+    public void deletePatch(PatchInfo patchInfo) {
+        patchInfoMapper.deleteById(patchInfo.getId());
+        File file = new File(patchInfo.getStoragePath());
+        try {
+            file.delete();
+        } catch (Exception e) {
+
+        }
     }
 }

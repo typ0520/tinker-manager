@@ -78,4 +78,22 @@
         FROM t_patch_info
         where id = #{id} and app_uid = #{appUid}
     </select>
+
+    <update id="updateStatus" parameterType="PatchInfo" >
+        UPDATE  t_patch_info
+        SET status = #{status,jdbcType=VARCHAR}, publish_type = #{publishType,jdbcType=VARCHAR}
+        <if test="updatedAt != null">
+            ,updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+        </if>
+
+        <if test="tags != null">
+            ,tags = #{tags,jdbcType=TIMESTAMP}
+        </if>
+        WHERE
+        id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteById" >
+        DELETE FROM t_patch_info where id = #{id}
+    </delete>
 </mapper>

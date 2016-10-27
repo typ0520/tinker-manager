@@ -1,4 +1,4 @@
-package tinker.console.controller;
+package tinker.console.web;
 
 import tinker.console.common.BizAssert;
 import tinker.console.common.BizException;

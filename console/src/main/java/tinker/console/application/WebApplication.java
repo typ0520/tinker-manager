@@ -1,4 +1,4 @@
-package tinker.console;
+package tinker.console.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
