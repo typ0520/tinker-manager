@@ -72,19 +72,14 @@ public class ConsoleController {
     @RequestMapping(value = "/app",method = RequestMethod.GET)
     public ModelAndView app(HttpServletRequest req, String appUid) {
         RestResponse restR = new RestResponse();
-        try {
-            BizAssert.notEpmty(appUid,"应用编号不能为空");
-            AppInfo appInfo = appService.findByUid(appUid);
-            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-            List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
-            restR.getData().put("user",basicUser);
-            restR.getData().put("appInfo",appInfo);
-            restR.getData().put("appInfoList",appInfoList);
-            restR.getData().put("versionList",appService.findAllVersion(appInfo));
-        } catch (BizException e) {
-            restR.setCode(-1);
-            restR.setMessage(e.getMessage());
-        }
+        BizAssert.notEpmty(appUid,"应用编号不能为空");
+        AppInfo appInfo = appService.findByUid(appUid);
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+        restR.getData().put("user",basicUser);
+        restR.getData().put("appInfo",appInfo);
+        restR.getData().put("appInfoList",appInfoList);
+        restR.getData().put("versionList",appService.findAllVersion(appInfo));
         return new ModelAndView("app","restR",restR);
     }
 
@@ -115,54 +110,33 @@ public class ConsoleController {
     }
 
     @RequestMapping(value = "/app/version",method = RequestMethod.GET)
-    public ModelAndView app_version(String appUid,String versionName) {
+    public ModelAndView app_version(HttpServletRequest req, String appUid, String versionName) {
         RestResponse restR = new RestResponse();
-        try {
-            BizAssert.notEpmty(appUid,"应用号不能为空");
-            BizAssert.notEpmty(versionName,"版本号不能为空");
+        BizAssert.notEpmty(appUid,"应用号不能为空");
+        BizAssert.notEpmty(versionName,"版本号不能为空");
 
-            AppInfo appInfo = appService.findByUid(appUid);
-            VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,versionName);
-            if (versionInfo == null) {
-                throw new BizException("该版本未找到: " + versionName);
-            }
-            //加载所有patch信息
-            List<PatchInfo> patchInfoList = patchService.findByUidAndVersionName(appUid,versionName);
-
-            restR.getData().put("appInfo",appInfo);
-            restR.getData().put("versionInfo",versionInfo);
-            restR.getData().put("patchInfoList",patchInfoList);
-        } catch (BizException e) {
-            restR.setCode(-1);
-            restR.setMessage(e.getMessage());
+        AppInfo appInfo = appService.findByUid(appUid);
+        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,versionName);
+        if (versionInfo == null) {
+            throw new BizException("该版本未找到: " + versionName);
         }
+        //加载所有patch信息
+        List<PatchInfo> patchInfoList = patchService.findByUidAndVersionName(appUid,versionName);
+
+        restR.getData().put("appInfo",appInfo);
+        restR.getData().put("versionInfo",versionInfo);
+        restR.getData().put("patchInfoList",patchInfoList);
+
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+        restR.getData().put("user",basicUser);
+        restR.getData().put("appInfoList",appInfoList);
+        restR.getData().put("versionList",appService.findAllVersion(appInfo));
+
         return new ModelAndView("version","restR",restR);
     }
 
-    @RequestMapping(value = "/patch/create",method = RequestMethod.GET)
-    public ModelAndView patch_create(String appUid,String versionName,String msg) {
-        RestResponse restR = new RestResponse();
-        restR.setMessage(msg);
-        try {
-            BizAssert.notEpmty(appUid,"应用号不能为空");
-            BizAssert.notEpmty(versionName,"版本号不能为空");
-
-            AppInfo appInfo = appService.findByUid(appUid);
-            VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,versionName);
-            if (versionInfo == null) {
-                throw new BizException("该版本未找到: " + versionName);
-            }
-            restR.getData().put("versionInfo",versionInfo);
-            restR.getData().put("appInfo",appInfo);
-            restR.getData().put("versionName",versionName);
-        } catch (BizException e) {
-            restR.setCode(-1);
-            restR.setMessage(e.getMessage());
-        }
-        return new ModelAndView("create_patch","restR",restR);
-    }
-
-    @RequestMapping(value = "/patch/create",method = RequestMethod.POST)
+    @RequestMapping(value = "/patch/add",method = RequestMethod.POST)
     public ModelAndView patch_create(String appUid,String versionName,String description,@RequestParam("file") MultipartFile multipartFile) {
         RestResponse restR = new RestResponse();
         try {
@@ -183,7 +157,7 @@ public class ConsoleController {
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());
-            return new ModelAndView("redirect:/patch/create?appUid=" + appUid + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
+            return new ModelAndView("redirect:/app/version?appUid=" + appUid + "&versionName=" + versionName + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
         }
     }
 

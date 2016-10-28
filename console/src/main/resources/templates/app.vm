@@ -153,7 +153,7 @@
                 <tr>
                     <th>版本号</th>
                     <th>创建时间</th>
-                    <th>App ID</th>
+                    <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>

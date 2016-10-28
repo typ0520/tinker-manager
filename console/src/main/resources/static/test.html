@@ -51,6 +51,7 @@
 <div class="bd-example">
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">Open modal for @getbootstrap</button>
 
+
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -58,16 +59,21 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h4 class="modal-title" id="exampleModalLabel">新增版本</h4>
+                    <h4 class="modal-title" id="exampleModalLabel">上传patch</h4>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="create_patch_form" action="http://localhost:9010/patch/create">
                         <div class="form-group">
-                            <label for="app-version" class="form-control-label">版本号:</label>
-                            <input type="text" class="form-control" id="app-version">
+                            <label for="description" class="form-control-label">补丁描述:</label>
+                            <input type="text" class="form-control" id="description" name="description">
                         </div>
 
-                        <p class="text-center"><font color="#dc143c" id="err_msg">sss</font></p>
+                        <div class="form-group">
+                            <label for="patch_file" class="form-control-label">补丁文件:</label>
+                            <input type="file" class="form-control" id="patch_file" name="file">
+                        </div>
+
+                        <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
                     </form>
                 </div>
 
@@ -82,15 +88,24 @@
 </div>
 
 <script>
-
-    console.log('ddd');
     $(document).ready(function(){
         $("#create_app").click(function () {
-            if ($("#app-version").val().length == 0) {
+            if ($("#description").val().length == 0) {
                 $("#err_msg").text('请输入版本号');
                 return
             }
+            if ($("#patch_file").val().length == 0) {
+                $("#err_msg").text('请选择补丁文件');
+                return
+            }
+
+            if ($("#patch_file").val().lastIndexOf('patch_signed_7zip.apk') == -1) {
+                $("#err_msg").text('补丁文件的名字必须是patch_signed_7zip.apk');
+                $("#patch_file").val('');
+                return;
+            }
             $("#err_msg").text('');
+            $("#create_patch_form").submit();
         });
     });
 </script>
