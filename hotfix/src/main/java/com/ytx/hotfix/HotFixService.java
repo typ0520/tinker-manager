@@ -1,6 +1,5 @@
 package com.ytx.hotfix;
 
-import com.ytx.hotfix.bean.AppInfo;
 import com.ytx.hotfix.bean.PatchInfo;
 
 import java.util.concurrent.TimeUnit;
@@ -10,8 +9,8 @@ import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 import retrofit2.http.Url;
 import rx.Observable;
 
@@ -19,7 +18,6 @@ import rx.Observable;
  * Created by jianjun.lin on 16/7/14.
  */
 public class HotFixService {
-
 
     private static IHotFixService sHotFixService;
 
@@ -33,7 +31,7 @@ public class HotFixService {
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(okHttpClient)
-                    .baseUrl("http://test.v.dx168.com/")
+                    .baseUrl("http://127.0.0.1/")
                     .build()
                     .create(IHotFixService.class);
         }
@@ -42,12 +40,19 @@ public class HotFixService {
 
     public interface IHotFixService {
 
-        @GET("http://test.v.dx168.com/live-apis/api/app/zp/plan/getUserTradePlan")
-        Observable<PatchInfo> queryPatch(@Body AppInfo appInfo);
+        @GET("http://192.168.16.166:9010/api/patch")
+        Observable<PatchInfo> queryPatch(@Query("appUid") String appId,
+                                         @Query("token") String token,
+                                         @Query("tag") String tag,
+                                         @Query("versionName") String versionName,
+                                         @Query("versionCode") int versionCode,
+                                         @Query("platform") String platform,
+                                         @Query("osVersion") String osVersion,
+                                         @Query("model") String model,
+                                         @Query("sdkVersion") String sdkVersion);
 
         @GET
         Observable<ResponseBody> downloadFile(@Url String fileUrl);
     }
-
 
 }

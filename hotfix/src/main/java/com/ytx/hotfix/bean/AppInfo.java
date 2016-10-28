@@ -1,23 +1,33 @@
 package com.ytx.hotfix.bean;
 
+import android.os.Build;
+
 import com.google.gson.annotations.SerializedName;
+import com.ytx.hotfix.BuildConfig;
 
 /**
  * Created by jianjun.lin on 2016/10/27.
  */
 public class AppInfo {
 
-    private String versionName;
-    private int versionCode;
-
     @SerializedName("appUid")
     private String appId;
-    private String appSecret;
+    private String token;
     private String tag;
+    private String versionName;
+    private int versionCode;
+    private String platform = "Android";
+    private final String osVersion = Build.VERSION.RELEASE;
+    private final String model = Build.MODEL;
+    private String sdkVersion = BuildConfig.SDK_VERSION;
 
-    private String osVersion;
-    private boolean isX86CPU;
-    private String phoneNumber;
+    public String getSdkVersion() {
+        return sdkVersion;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
 
     public String getVersionName() {
         return versionName;
@@ -43,12 +53,12 @@ public class AppInfo {
         this.appId = appId;
     }
 
-    public String getAppSecret() {
-        return appSecret;
+    public String getToken() {
+        return token;
     }
 
-    public void setAppSecret(String appSecret) {
-        this.appSecret = appSecret;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getTag() {
@@ -63,23 +73,8 @@ public class AppInfo {
         return osVersion;
     }
 
-    public void setOsVersion(String osVersion) {
-        this.osVersion = osVersion;
+    public String getModel() {
+        return model;
     }
 
-    public boolean isX86CPU() {
-        return isX86CPU;
-    }
-
-    public void setX86CPU(boolean x86CPU) {
-        isX86CPU = x86CPU;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 }

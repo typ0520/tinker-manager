@@ -17,16 +17,17 @@
 package com.ytx.hotfix.tinker;
 
 import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.MessageQueue;
-import android.widget.Toast;
 
 import com.tencent.tinker.lib.reporter.DefaultLoadReporter;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
+import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -34,7 +35,9 @@ import java.io.File;
  * Created by zhangshaowen on 16/4/13.
  */
 public class SampleLoadReporter extends DefaultLoadReporter {
-    private Handler handler = new Handler();
+
+    private static final String TAG = "Tinker";
+    private Timer timer;
 
     public SampleLoadReporter(Context context) {
         super(context);
@@ -45,13 +48,18 @@ public class SampleLoadReporter extends DefaultLoadReporter {
         super.onLoadPatchListenerReceiveFail(patchFile, errorCode, isUpgrade);
         switch (errorCode) {
             case ShareConstants.ERROR_PATCH_NOTEXIST:
-                Toast.makeText(context, "patch file is not exist", Toast.LENGTH_LONG).show();
+                TinkerLog.e(TAG, "patch file is not exist");
                 break;
             case ShareConstants.ERROR_PATCH_RUNNING:
                 // try later
                 // only retry for upgrade patch
                 if (isUpgrade) {
-                    handler.postDelayed(new Runnable() {
+                    if (timer != null) {
+                        timer.cancel();
+                        timer.purge();
+                    }
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             TinkerInstaller.onReceiveUpgradePatch(context, patchFile.getAbsolutePath());
@@ -60,7 +68,7 @@ public class SampleLoadReporter extends DefaultLoadReporter {
                 }
                 break;
             case Utils.ERROR_PATCH_ROM_SPACE:
-                Toast.makeText(context, "rom space is not enough", Toast.LENGTH_LONG).show();
+                TinkerLog.e(TAG, "rom space is not enough");
                 break;
         }
         SampleTinkerReport.onTryApplyFail(errorCode);

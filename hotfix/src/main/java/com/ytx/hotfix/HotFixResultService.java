@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.ytx.hotfix.tinker;
+package com.ytx.hotfix;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
 import com.tencent.tinker.lib.service.PatchResult;
@@ -37,19 +37,36 @@ import java.io.File;
  * optional, you can just use DefaultTinkerResultService
  * we can restart process when we are at background or screen off
  * Created by zhangshaowen on 16/4/13.
+ * Updated by jianjun.lin on 16/10/28.
  */
-public class SampleResultService extends DefaultTinkerResultService {
-    private static final String TAG = "Tinker.SampleResultService";
-
+public class HotFixResultService extends DefaultTinkerResultService {
+    private static final String TAG = "Tinker.HotFixResultService";
 
     @Override
     public void onPatchResult(final PatchResult result) {
+        PatchListener patchListener = HotFixManager.getInstance().getPatchListener();
         if (result == null) {
-            TinkerLog.e(TAG, "SampleResultService received null result!!!!");
+            TinkerLog.e(TAG, "HotFixResultService received null result!!!!");
+            if (patchListener != null) {
+                patchListener.onApplyFailure("");
+            }
+            HotFixManager.free();
             return;
         }
-        TinkerLog.i(TAG, "SampleResultService receive result: %s", result.toString());
-
+        TinkerLog.i(TAG, " receive result: %s", result.toString());
+        if (patchListener != null) {
+            if (result.isSuccess) {
+                SharedPreferences sp = getSharedPreferences(HotFixManager.SP_NAME, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString(HotFixManager.SP_KEY_USING_PATCH, result.rawPatchFilePath);
+                editor.apply();
+                //TODO report to server
+                patchListener.onApplySuccess();
+            } else {
+                patchListener.onApplyFailure("");
+            }
+        }
+        HotFixManager.free();
         //first, we want to kill the recover process
         TinkerServiceInternals.killTinkerPatchServiceProcess(getApplicationContext());
 
@@ -58,9 +75,9 @@ public class SampleResultService extends DefaultTinkerResultService {
             @Override
             public void run() {
                 if (result.isSuccess) {
-                    Toast.makeText(getApplicationContext(), "patch success, please restart process", Toast.LENGTH_LONG).show();
+                    TinkerLog.i(TAG, "patch success, please restart process");
                 } else {
-                    Toast.makeText(getApplicationContext(), "patch fail, please check reason", Toast.LENGTH_LONG).show();
+                    TinkerLog.e(TAG, "patch fail, please check reason");
                 }
             }
         });
@@ -75,7 +92,7 @@ public class SampleResultService extends DefaultTinkerResultService {
             //not like TinkerResultService, I want to restart just when I am at background!
             //if you have not install com.ytx.hotfix.tinker this moment, you can use TinkerApplicationHelper api
             if (checkIfNeedKill(result)) {
-                if (Utils.isBackground()) {
+                if (com.ytx.hotfix.tinker.Utils.isBackground()) {
                     TinkerLog.i(TAG, "it is in background, just restart process");
                     restartProcess();
                 } else {
