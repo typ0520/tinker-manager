@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Tinker热修复-后台</title>
+    <title>Tinker热修复-补丁管理</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
@@ -22,6 +22,8 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+
+    <script src="http://bootboxjs.com/bootbox.js"></script>
 </head>
 
 <body>
@@ -123,7 +125,7 @@
 
                 <div id="gray_publish_container">
 
-                    请输入用于灰度发布的tag(如果有多个tag用分号(;)分隔)
+                    请输入用于灰度发布的tag(如果有多个tag用;分隔)
                     <input type="text" id="gray_tags" style="width:700px">
                 </div>
 
@@ -158,83 +160,161 @@
 <script>
     $(document).ready(function(){
         $("#normal_publish").click(function(){
-            jQuery.ajax({
-                url:  "#springUrl('')/patch/normal_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
-                type: 'post',
-                success:function(res, textStatus, jqXHR){
-                    console.log(res);
-                    if (res.code == 200) {
-                        alert('发布成功!');
-                        window.location.href = window.location.href;
-                    } else {
-                        alert(res.message);
+            var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function(){
+                jQuery.ajax({
+                    url:  "#springUrl('')/patch/normal_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        if (res.code == 200) {
+                            dialog.find('.bootbox-body').html('发布成功!');
+
+                            setTimeout(function(){
+                                window.location.href = window.location.href;
+                            }, 1500);
+                        } else {
+                            dialog.find('.bootbox-body').html(res.message);
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        dialog.find('.bootbox-body').html('系统异常!');
                     }
-                },
-                error:function(XMLHttpRequest, textStatus, errorThrown){
-                    alert("系统异常");
-                }
+                });
             });
         });
 
         $("#stop_publish").click(function(){
-            jQuery.ajax({
-                url:  "#springUrl('')/patch/stop_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
-                type: 'post',
-                success:function(res, textStatus, jqXHR){
-                    console.log(res);
-                    if (res.code == 200) {
-                        alert('已停止发布!');
-                        window.location.href = window.location.href;
-                    } else {
-                        alert(res.message);
+            bootbox.confirm({
+                message: "确定停止发布这个补丁吗?",
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
                     }
                 },
-                error:function(XMLHttpRequest, textStatus, errorThrown){
-                    alert("系统异常");
+                callback: function (result) {
+                    console.log('This was logged in the callback: ' + result);
+
+                    if (!result) {
+                        return;
+                    }
+
+                    var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                        message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+                    });
+                    dialog.init(function(){
+                        jQuery.ajax({
+                            url:  "#springUrl('')/patch/stop_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                            type: 'post',
+                            success:function(res, textStatus, jqXHR){
+                                console.log(res);
+                                if (res.code == 200) {
+                                    dialog.find('.bootbox-body').html('已停止发布!');
+
+                                    setTimeout(function(){
+                                        window.location.href = window.location.href;
+                                    }, 1500);
+                                } else {
+                                    dialog.find('.bootbox-body').html(res.message);
+                                }
+                            },
+                            error:function(XMLHttpRequest, textStatus, errorThrown){
+                                dialog.find('.bootbox-body').html('系统异常!');
+                            }
+                        });
+                    });
                 }
             });
         });
 
         $("#del_patch").click(function(){
-            jQuery.ajax({
-                url:  "#springUrl('')/patch/delete?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
-                type: 'post',
-                success:function(res, textStatus, jqXHR){
-                    console.log(res);
-                    if (res.code == 200) {
-                        alert('删除成功!');
-                        window.location.href = "#springUrl('')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
-                    } else {
-                        alert(res.message);
+            bootbox.confirm({
+                message: "确定停止发布这个补丁吗?",
+                buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
                     }
                 },
-                error:function(XMLHttpRequest, textStatus, errorThrown){
-                    alert("系统异常");
+                callback: function (result) {
+                    console.log('This was logged in the callback: ' + result);
+
+                    if (!result) {
+                        return;
+                    }
+
+                    var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                        message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+                    });
+                    dialog.init(function(){
+                        jQuery.ajax({
+                            url:  "#springUrl('')/patch/delete?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                            type: 'post',
+                            success:function(res, textStatus, jqXHR){
+                                if (res.code == 200) {
+                                    dialog.find('.bootbox-body').html('删除成功!');
+
+                                    setTimeout(function(){
+                                        window.location.href = "#springUrl('')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
+                                    }, 1500);
+                                } else {
+                                    dialog.find('.bootbox-body').html(res.message);
+                                }
+                            },
+                            error:function(XMLHttpRequest, textStatus, errorThrown){
+                                dialog.find('.bootbox-body').html('系统异常!');
+                            }
+                        });
+                    });
                 }
             });
         });
 
         $("#gray_publish").click(function(){
             if ($("#gray_tags").val().length == 0) {
-                alert('tag列表不能为空');
+                bootbox.alert({
+                    message: "tag列表不能为空!",
+                    size: 'small'
+                });
                 return;
             }
 
-            jQuery.ajax({
-                url:  "#springUrl('')/patch/gray_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id&tags=" + $("#gray_tags").val(),
-                type: 'post',
-                success:function(res, textStatus, jqXHR){
-                    console.log(res);
-                    if (res.code == 200) {
-                        alert('灰度发布成功!');
-                        window.location.href = window.location.href;
-                    } else {
-                        alert(res.message);
+            var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function(){
+                jQuery.ajax({
+                    url:  "#springUrl('')/patch/gray_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id&tags=" + $("#gray_tags").val(),
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        if (res.code == 200) {
+                            dialog.find('.bootbox-body').html('灰度发布成功!');
+
+                            setTimeout(function(){
+                                window.location.href = window.location.href;
+                            }, 1500);
+                        } else {
+                            dialog.find('.bootbox-body').html(res.message);
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        dialog.find('.bootbox-body').html('系统异常!');
                     }
-                },
-                error:function(XMLHttpRequest, textStatus, errorThrown){
-                    alert("系统异常");
-                }
+                });
             });
         });
     });

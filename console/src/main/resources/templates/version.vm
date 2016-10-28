@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Tinker热修复-后台</title>
+    <title>Tinker热修复-版本管理</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
@@ -138,7 +138,7 @@
                         <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid">应用管理</a>
                     </p>
 
-                    <p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">上传补丁</button></p>
+                    <p><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">上传补丁</button></p>
 
                 </div>
             </div>
@@ -146,6 +146,7 @@
         <!-- /.container-fluid -->
 
         <div class="container-fluid">
+            应用版本号: &nbsp;&nbsp;
             <div class="btn-group">
                 <button type="button" class="btn btn-default dropdown-toggle"
                         data-toggle="dropdown">
@@ -160,7 +161,6 @@
 
 
             <table class="table table-bordered" style="margin-top: 15px;">
-                <thead>
                 <tr>
                     <th>补丁版本</th>
                     <th>补丁大小</th>
@@ -169,9 +169,8 @@
                     <th>发布状态</th>
                     <th>操作</th>
                 </tr>
-                </thead>
-                <tbody>
-                    #foreach($patchInfo in $restR.data.patchInfoList)
+
+                #foreach($patchInfo in $restR.data.patchInfoList)
                     <tr>
                         <th>$!patchInfo.patchVersion</th>
                         <th>$!patchInfo.formatPatchSize</th>
@@ -193,9 +192,12 @@
                         </th>
                         <th><a href="#springUrl('')/patch?appUid=$restR.data.appInfo.uid&id=$!patchInfo.id">查看详情</a></th>
                     </tr>
-                    #end
-                </tbody>
+                #end
             </table>
+
+            #if($restR.data.patchInfoList.isEmpty())
+                <div class="text-center">请上传补丁!</div>
+            #end
         </div>
     </div>
     <!-- /#page-wrapper -->

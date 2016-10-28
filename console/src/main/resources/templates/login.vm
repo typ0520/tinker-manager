@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="#springUrl('/static/favicon.ico')">
 
-    <title>Tinker管理后台-登录</title>
+    <title>Tinker热修复-登录</title>
 
     <!-- Bootstrap core CSS -->
     <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">

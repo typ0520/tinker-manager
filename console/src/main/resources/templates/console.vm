@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Tinker热修复-后台</title>
+    <title>Tinker热修复-应用列表</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
@@ -133,7 +133,9 @@
 
 ##                    <p><a href="#springUrl('/app/create')">创建应用</a></p>
 
-                    <p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">创建应用</button></p>
+                    <p>
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">创建应用</button>
+                    </p>
 
                 </div>
             </div>
@@ -142,25 +144,26 @@
 
         <div class="container-fluid">
             <table class="table table-bordered">
-                <thead>
                 <tr>
                     <th>应用名称</th>
                     <th>平台</th>
                     <th>App ID</th>
                     <th>操作</th>
                 </tr>
-                </thead>
-                <tbody>
-                    #foreach($appInfo in $restR.data.appInfoList)
+
+                #foreach($appInfo in $restR.data.appInfoList)
                     <tr>
                         <th>$!appInfo.appname</th>
                         <th>$!appInfo.platform</th>
                         <th>$!appInfo.uid</th>
                         <th><p><a href="#springUrl('')/app?appUid=$!appInfo.uid">管理</a></p></th>
                     </tr>
-                    #end
-                </tbody>
+                #end
             </table>
+
+            #if($restR.data.appInfoList.isEmpty())
+                <div class="text-center">请添加应用!</div>
+            #end
         </div>
     </div>
     <!-- /#page-wrapper -->
