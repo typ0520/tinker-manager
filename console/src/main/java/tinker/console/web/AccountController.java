@@ -42,7 +42,7 @@ public class AccountController {
             req.getSession().setAttribute(Constants.SESSION_LOGIN_USER, basicUser);
 
             if (StringUtils.isEmpty(redirect)) {
-                return new ModelAndView("redirect:/console");
+                return new ModelAndView("redirect:/app/list");
             }
             else {
                 return new ModelAndView("redirect:" + redirect);

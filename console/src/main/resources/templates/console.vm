@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
 
 <head>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
 
     <title>Tinker热修复-后台</title>
 
@@ -17,18 +14,56 @@
     <!-- Custom CSS -->
     <link href="#springUrl('/static/css/sb-admin.css')" rel="stylesheet">
 
-    <!-- Morris Charts CSS -->
-    <link href="#springUrl('/static/css/plugins/morris.css')" rel="stylesheet">
-
     <!-- Custom Fonts -->
     <link href="#springUrl('/static/font-awesome/css/font-awesome.min.css')" rel="stylesheet" type="text/css">
 
+    <!-- jQuery -->
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.js')"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
 </head>
 
 <body>
 
-<div id="wrapper">
+<div class="bd-example">
 
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">创建应用</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="app-name" class="form-control-label">应用名称:</label>
+                            <input type="text" class="form-control" id="app-name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="app-desc" class="form-control-label">应用描述:</label>
+                            <input type="text" class="form-control" id="app-desc">
+                        </div>
+
+                        <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
+                    </form>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="create_app">创建</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wrapper">
     <!-- Navigation -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -44,7 +79,7 @@
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> $!restR.data.user.user <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li>
                         <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
@@ -59,19 +94,23 @@
                     <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> 全部应用 <i class="fa fa-fw fa-caret-down"></i></a>
                     <ul id="demo" class="collapse">
                         <li>
-                            <a href="#">全部应用</a>
+                            <a href="#springUrl('/app/list')">全部应用</a>
                         </li>
-                        <li>
-                            <a href="#">Dropdown Item</a>
-                        </li>
+
+                        #foreach($appInfo in $restR.data.appInfoList)
+                            <li>
+                                <a href="#springUrl('')/app?appUid=$!appInfo.uid">$!appInfo.appname</a>
+                            </li>
+                        #end
                     </ul>
                 </li>
 
-                <li>
-                    <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> 应用管理</a>
-                </li>
+##                <li>
+##                    <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> 应用管理</a>
+##                </li>
+
                 <li class="active">
-                    <a href="#springUrl('/console')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
+                    <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
                 </li>
             </ul>
         </div>
@@ -89,10 +128,12 @@
                         应用列表 <small></small>
                     </h2>
 
-                    <p><a href="#springUrl('/console')">首页</a></p>
+##                    <p><a href="#springUrl('/console')">首页</a></p>
 
 
-                    <p><a href="#springUrl('/app/create')">创建应用</a></p>
+##                    <p><a href="#springUrl('/app/create')">创建应用</a></p>
+
+                    <p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">创建应用</button></p>
 
                 </div>
             </div>
@@ -123,22 +164,40 @@
         </div>
     </div>
     <!-- /#page-wrapper -->
-
 </div>
-<!-- /#wrapper -->
 
-<!-- jQuery -->
-<script src="#springUrl('/static/js/jquery.js')"></script>
+<script>
+    console.log('ddd');
+    $(document).ready(function(){
+        $("#create_app").click(function () {
+            if ($("#app-name").val().length == 0) {
+                $("#err_msg").text('请输入应用名称');
+                return;
+            }
+            if ($("#app-desc").val().length == 0) {
+                $("#err_msg").text('请输入应用描述');
+                return;
+            }
+            $("#err_msg").text('');
 
-<!-- Bootstrap Core JavaScript -->
-<script src="#springUrl('/static/js/bootstrap.min.js')"></script>
-
-<!-- Morris Charts JavaScript -->
-<script src="#springUrl('/static/js/plugins/morris/raphael.min.js')"></script>
-<script src="#springUrl('/static/js/plugins/morris/morris.min.js')"></script>
-<script src="#springUrl('/static/js/plugins/morris/morris-data.js')"></script>
-
-
+            jQuery.ajax({
+                url:  "#springUrl('')/app/create?appname=" + $("#app-name").val() + "&description=" + $("#app-desc").val(),
+                type: 'post',
+                success:function(res, textStatus, jqXHR){
+                    console.log(res);
+                    if (res.code == 200) {
+                        window.location.href = window.location.href;
+                    } else {
+                        $("#err_msg").text(res.message);
+                    }
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                    $("#err_msg").text(系统异常);
+                }
+            });
+        });
+    });
+</script>
 </body>
 
 </html>

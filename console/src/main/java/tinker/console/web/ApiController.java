@@ -19,6 +19,8 @@ import tinker.console.domain.VersionInfo;
 import tinker.console.dto.PatchInfoDto;
 import tinker.console.service.AppService;
 import tinker.console.service.PatchService;
+import tinker.console.utils.BeanMapConvertUtil;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,7 +97,7 @@ public class ApiController {
                     patchInfoDto.setDownloadUrl(serverPath + "/api/patch/" + resultInfo.getId());
                 }
 
-                restR.getData().put("patchInfo", patchInfoDto);
+                restR.getData().putAll(BeanMapConvertUtil.convertBean2Map(patchInfoDto));
             }
             else {
                 restR.setData(null);
