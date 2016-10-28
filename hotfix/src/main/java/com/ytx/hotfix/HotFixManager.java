@@ -8,7 +8,6 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
@@ -21,19 +20,22 @@ import okhttp3.ResponseBody;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
-import static android.R.attr.versionName;
-
 /**
  * Created by jianjun.lin on 2016/10/26.
  */
-public class HotFixManager {
+public final class HotFixManager {
+
+    private static HotFixManager instance;
 
     public static HotFixManager getInstance() {
-        return HotFixManagerHolder.INSTANCE;
+        if (instance == null) {
+            instance = new HotFixManager();
+        }
+        return instance;
     }
 
-    private static final class HotFixManagerHolder {
-        static final HotFixManager INSTANCE = new HotFixManager();
+    static void free() {
+        instance = null;
     }
 
     public static final String SP_NAME = "HotFix";
@@ -43,19 +45,16 @@ public class HotFixManager {
     private String patchDirPath;
     private AppInfo appInfo;
 
-    public void init(Context context, String appId) {
+    public void init(Context context, String appId, String appSecret) {
         this.context = context;
+        if (!Tinker.with(context).isMainProcess()) {
+            return;
+        }
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
-
-        appInfo.setOsVersion(Utils.getSystemVersion());
-        appInfo.setX86CPU(Utils.isX86CPU());
-        appInfo.setPhoneNumber(Utils.getPhoneNumber(context));
-
         //TODO
         appInfo.setTag("");
-        appInfo.setAppSecret("");
-
+        appInfo.setToken(appSecret);
         PackageManager packageManager = context.getPackageManager();
         try {
             PackageInfo pkgInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
@@ -63,7 +62,7 @@ public class HotFixManager {
             appInfo.setVersionCode(pkgInfo.versionCode);
             String appName = pkgInfo.applicationInfo.loadLabel(context.getPackageManager()).toString();
             String hotFixDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + appName + File.separator + "HotFix";
-            patchDirPath = hotFixDirPath + File.separator + versionName;
+            patchDirPath = hotFixDirPath + File.separator + appInfo.getVersionName();
             File hotFixDir = new File(hotFixDirPath);
             if (hotFixDir.exists()) {
                 for (File patchDir : hotFixDir.listFiles()) {
@@ -78,6 +77,12 @@ public class HotFixManager {
         }
     }
 
+    private PatchListener patchListener;
+
+    public PatchListener getPatchListener() {
+        return patchListener;
+    }
+
     public void queryAndApplyPatch() {
         queryAndApplyPatch(null);
     }
@@ -86,8 +91,14 @@ public class HotFixManager {
         if (context == null) {
             throw new NullPointerException("HotFix must be init before using");
         }
+        if (!Tinker.with(context).isMainProcess()) {
+            return;
+        }
+        this.patchListener = patchListener;
         HotFixService.get()
-                .queryPatch(appInfo)
+                .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
+                        appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
+                        appInfo.getOsVersion(), appInfo.getModel(), appInfo.getSdkVersion())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<PatchInfo>() {
                     @Override
@@ -105,12 +116,14 @@ public class HotFixManager {
 
                     @Override
                     public void onNext(final PatchInfo patchInfo) {
+                        if (patchInfo.getCode() != 200) {
+                            if (patchListener != null) {
+                                patchListener.onQueryFailure(new Exception("code=" + patchInfo.getCode()));
+                            }
+                            return;
+                        }
                         if (patchListener != null) {
                             patchListener.onQuerySuccess(patchInfo.toString());
-                        }
-                        if (patchInfo.getCode() != 200) {
-                            Toast.makeText(context, patchInfo.getMessage(), Toast.LENGTH_SHORT).show();
-                            return;
                         }
                         if (patchInfo.getData() == null) {
                             File patchDir = new File(patchDirPath);
@@ -131,21 +144,22 @@ public class HotFixManager {
                             for (File patch : patchDir.listFiles()) {
                                 if (TextUtils.equals(patch.getName(), patchInfo.getData().getPatchVersion() + ".apk")) {
                                     TinkerInstaller.cleanPatch(context);
-                                    HotFixPatchReporter patchReporter = (HotFixPatchReporter) Tinker.with(context).getPatchReporter();
-                                    patchReporter.setPatchListener(patchListener);
                                     TinkerInstaller.onReceiveUpgradePatch(context, patch.getAbsolutePath());
                                     return;
                                 }
                             }
                         }
-                        downloadAndApplyPatch(newPatchPath, patchInfo.getData().getUrl(), patchListener);
+                        downloadAndApplyPatch(newPatchPath, patchInfo.getData().getDownloadUrl(), patchListener);
                     }
 
                 });
+
+
     }
 
     private void downloadAndApplyPatch(final String newPatchPath, String url, final PatchListener patchListener) {
         HotFixService.get().downloadFile(url)
+                .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override
                     public void onCompleted() {
@@ -167,10 +181,7 @@ public class HotFixManager {
                             patchListener.onDownloadSuccess(newPatchPath);
                         }
                         //TODO report to server
-                        HotFixPatchReporter patchReporter = (HotFixPatchReporter) Tinker.with(context).getPatchReporter();
-                        patchReporter.setPatchListener(patchListener);
                         TinkerInstaller.onReceiveUpgradePatch(context, newPatchPath);
-
                     }
                 });
     }

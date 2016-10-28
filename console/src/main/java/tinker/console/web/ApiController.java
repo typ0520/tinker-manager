@@ -19,6 +19,8 @@ import tinker.console.domain.VersionInfo;
 import tinker.console.dto.PatchInfoDto;
 import tinker.console.service.AppService;
 import tinker.console.service.PatchService;
+import tinker.console.utils.BeanMapConvertUtil;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +53,7 @@ public class ApiController {
      * @param sdkVersion    sdk版本号
      * @return
      */
-    @RequestMapping(value = "/api/patch",method = RequestMethod.GET)
+    @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse gray_publish(String appUid, String token,String versionName,String tag,String platform,String osVersion,String model,String sdkVersion) {
         RestResponse restR = new RestResponse();
         try {
@@ -95,7 +97,7 @@ public class ApiController {
                     patchInfoDto.setDownloadUrl(serverPath + "/api/patch/" + resultInfo.getId());
                 }
 
-                restR.getData().put("patchInfo", patchInfoDto);
+                restR.getData().putAll(BeanMapConvertUtil.convertBean2Map(patchInfoDto));
             }
             else {
                 restR.setData(null);

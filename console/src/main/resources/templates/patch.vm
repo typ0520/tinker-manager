@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html>
-<script type="text/javascript" src="#springUrl('/static/js/jquery.min.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.js')"></script>
 <body>
 
 <p >$!restR.message</p>

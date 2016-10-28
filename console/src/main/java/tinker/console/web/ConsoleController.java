@@ -39,11 +39,11 @@ public class ConsoleController {
 
     @RequestMapping(value = "/",method = RequestMethod.GET)
     public ModelAndView index() {
-        return new ModelAndView("redirect:/console");
+        return new ModelAndView("redirect:/app/list");
     }
 
 
-    @RequestMapping(value = "/console",method = RequestMethod.GET)
+    @RequestMapping(value = {"/console","/app/list"},method = RequestMethod.GET)
     public ModelAndView index(HttpServletRequest req) {
         RestResponse restR = new RestResponse();
 
@@ -54,36 +54,32 @@ public class ConsoleController {
         return new ModelAndView("console","restR",restR);
     }
 
-    @RequestMapping(value = "/app/create",method = RequestMethod.GET)
-    public ModelAndView app_create(String msg) {
-        RestResponse restR = new RestResponse();
-        restR.setMessage(HttpRequestUtils.urlDecode(msg));
-        return new ModelAndView("create_app","restR",restR);
-    }
-
     @RequestMapping(value = "/app/create",method = RequestMethod.POST)
-    public ModelAndView app_create(HttpServletRequest req, String appname, String description) {
+    public @ResponseBody RestResponse app_create(HttpServletRequest req, String appname, String description) {
+        RestResponse restR = new RestResponse();
         try {
             BizAssert.notEpmty(appname,"应用名不能为空");
             BizAssert.notEpmty(description,"描述信息不能为空");
-
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
             appService.addApp(basicUser,appname,description,"Android");
-            return new ModelAndView("redirect:/console");
         } catch (BizException e) {
-            return new ModelAndView("redirect:/app/create?msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
         }
+        return restR;
     }
 
     @RequestMapping(value = "/app",method = RequestMethod.GET)
-    public ModelAndView app(String appUid) {
+    public ModelAndView app(HttpServletRequest req, String appUid) {
         RestResponse restR = new RestResponse();
         try {
+            BizAssert.notEpmty(appUid,"应用编号不能为空");
             AppInfo appInfo = appService.findByUid(appUid);
-            if (appInfo == null) {
-                throw new BizException("应用不存在");
-            }
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+            restR.getData().put("user",basicUser);
             restR.getData().put("appInfo",appInfo);
+            restR.getData().put("appInfoList",appInfoList);
             restR.getData().put("versionList",appService.findAllVersion(appInfo));
         } catch (BizException e) {
             restR.setCode(-1);
@@ -92,53 +88,30 @@ public class ConsoleController {
         return new ModelAndView("app","restR",restR);
     }
 
-    @RequestMapping(value = "/app/create_version",method = RequestMethod.GET)
-    public ModelAndView addVersion(String appUid,String msg) {
-        RestResponse restR = new RestResponse();
-        restR.setMessage(HttpRequestUtils.urlDecode(msg));
-        try {
-            BizAssert.notEpmty(appUid,"应用号不能为空");
-
-            AppInfo appInfo = appService.findByUid(appUid);
-            if (appInfo == null) {
-                throw new BizException("此应用不存在");
-            }
-            restR.getData().put("appUid",appUid);
-        } catch (BizException e) {
-            restR.setCode(-1);
-            restR.setMessage(e.getMessage());
-        }
-        return new ModelAndView("create_version","restR",restR);
-    }
-
     @RequestMapping(value = "/app/create_version",method = RequestMethod.POST)
-    public ModelAndView addVersion(HttpServletRequest req,String appUid,String versionName) {
+    public @ResponseBody RestResponse addVersion(HttpServletRequest req,String appUid,String versionName) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notEpmty(appUid,"应用号不能为空");
             BizAssert.notEpmty(versionName,"版本号不能为空");
             restR.getData().put("appUid",appUid);
-
             AppInfo appInfo = appService.findByUid(appUid);
-            if (appInfo == null) {
-                throw new BizException("此应用不存在");
-            }
             VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,versionName);
             if (versionInfo != null) {
                 throw new BizException("此版本已存在");
             }
-
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
             versionInfo = new VersionInfo();
             versionInfo.setUserId(accountService.getRootUserId(basicUser));
             versionInfo.setAppUid(appUid);
             versionInfo.setVersionName(versionName);
             appService.saveVersionInfo(versionInfo);
-
-            return new ModelAndView("redirect:/app?appUid=" + appUid);
         } catch (BizException e) {
-            return new ModelAndView("redirect:/app/create_version?appUid=" + appUid + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
         }
+
+        return restR;
     }
 
     @RequestMapping(value = "/app/version",method = RequestMethod.GET)

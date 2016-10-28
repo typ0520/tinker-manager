@@ -10,7 +10,6 @@ import tinker.console.domain.BasicUser;
 import tinker.console.service.AccountService;
 import tinker.console.service.AppService;
 import tinker.console.utils.HttpRequestUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

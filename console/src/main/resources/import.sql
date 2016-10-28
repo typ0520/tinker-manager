@@ -68,8 +68,3 @@ CREATE TABLE `t_patch_info` (
   FOREIGN KEY(user_id) REFERENCES t_user(id),
   FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-/*
-insert into t_patch_info (user_id, app_uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description created_at, updated_at) values (1,'20161026215852575-7123','1.0.0',1,0,0,0,'','/Users/tong/.tinker-console/20161026215852575-7123/1.0.0/1/patch.apk',113004,'ecf9503ea549eb5502d247990e03a401',         'dssf',null,null)
-*/

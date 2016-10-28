@@ -42,7 +42,7 @@ public class AccountController {
             req.getSession().setAttribute(Constants.SESSION_LOGIN_USER, basicUser);
 
             if (StringUtils.isEmpty(redirect)) {
-                return new ModelAndView("redirect:/console");
+                return new ModelAndView("redirect:/app/list");
             }
             else {
                 return new ModelAndView("redirect:" + redirect);
@@ -81,7 +81,7 @@ public class AccountController {
             basicUser.setPassword(password);
             accountService.save(basicUser);
             req.getSession().setAttribute(Constants.SESSION_LOGIN_USER,basicUser);
-            return new ModelAndView("redirect:/login?redirect=" + redirect + "&msg=" + HttpRequestUtils.urlEncode("注册成功"));
+            return new ModelAndView("redirect:/");
         } catch (BizException e) {
             return new ModelAndView("redirect:/regist?redirect=" + redirect + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
         }

@@ -24,12 +24,12 @@ public class Utils {
         return TextUtils.isEmpty(deviceId) ? "" : deviceId;
     }
 
-    public static boolean isX86CPU() {
-        return Build.CPU_ABI.toLowerCase().contains("x86");
+    public static String getOsVersion() {
+        return Build.VERSION.RELEASE;
     }
 
-    public static String getSystemVersion() {
-        return Build.VERSION.RELEASE;
+    public static String getDeviceModel() {
+        return Build.MODEL;
     }
 
     public static String getPhoneNumber(Context context) {
@@ -42,6 +42,9 @@ public class Utils {
     public static boolean writeToDisk(ResponseBody body, String targetPath) {
         try {
             File targetFile = new File(targetPath);
+            if (!targetFile.getParentFile().exists()) {
+                targetFile.getParentFile().mkdirs();
+            }
             InputStream inputStream = null;
             OutputStream outputStream = null;
             try {

@@ -9,5 +9,5 @@
         <li>· 在地址中可能存在键入错误。</li>
         <li>· 当你点击某个链接时，它可能已过期</li>
     </ul>
-    <button onclick="location.href='#springUrl('')/console'">返回首页</button>
+    <button onclick="location.href='#springUrl('')/app/list'">返回首页</button>
 </div>

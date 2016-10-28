@@ -34,9 +34,11 @@ public class PatchInfo {
     }
 
     public class Data {
+
         private String versionName;
         private String patchVersion;
-        private String url;
+        private String downloadUrl;
+        private long patchSize;
 
         public String getVersionName() {
             return versionName;
@@ -54,22 +56,31 @@ public class PatchInfo {
             this.patchVersion = patchVersion;
         }
 
-        public String getUrl() {
-            return url;
+        public String getDownloadUrl() {
+            return downloadUrl;
         }
 
-        public void setUrl(String url) {
-            this.url = url;
+        public void setDownloadUrl(String downloadUrl) {
+            this.downloadUrl = downloadUrl;
+        }
+
+        public long getPatchSize() {
+            return patchSize;
+        }
+
+        public void setPatchSize(long patchSize) {
+            this.patchSize = patchSize;
         }
 
         @Override
         public String toString() {
-            return "{versionName:" + versionName + ", patchVersion:" + patchVersion + ", url:" + url + "}";
+            return "{patchVersion:" + patchVersion + ", patchSize:" + patchSize + ", downloadUrl:" + downloadUrl + "}";
         }
     }
 
     @Override
     public String toString() {
-        return "{code:" + code + ", message:" + message + ", data:" + data == null ? null : data.toString() + "}";
+        String dataString = data == null ? null : data.toString();
+        return "{code:" + code + ", message:" + message + ", data:" + dataString + "}";
     }
 }
