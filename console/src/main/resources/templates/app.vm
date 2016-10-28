@@ -85,8 +85,8 @@
         <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
-                <li>
-                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> 全部应用 <i class="fa fa-fw fa-caret-down"></i></a>
+                <li class="active">
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
                     <ul id="demo" class="collapse">
                         <li>
                             <a href="#springUrl('/app/list')">全部应用</a>
@@ -100,11 +100,11 @@
                     </ul>
                 </li>
 
-            ##                <li>
-            ##                    <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> 应用管理</a>
-            ##                </li>
+                <li>
+                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
+                </li>
 
-                <li class="active">
+                <li>
                     <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
                 </li>
             </ul>
@@ -120,13 +120,12 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h2 class="page-header">
-                        应用列表 <small></small>
+                        应用管理 <small></small>
                     </h2>
 
-                ##                    <p><a href="#springUrl('/console')">首页</a></p>
-
-
-                ##                    <p><a href="#springUrl('/app/create')">创建应用</a></p>
+                    <p>
+                        <a href="#springUrl('/app/list')">首页</a>
+                    </p>
 
                     <p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">新增版本</button></p>
 

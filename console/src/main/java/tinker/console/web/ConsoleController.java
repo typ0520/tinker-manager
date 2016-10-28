@@ -162,26 +162,27 @@ public class ConsoleController {
     }
 
     @RequestMapping(value = "/patch",method = RequestMethod.GET)
-    public ModelAndView patch_detail(Integer id,String appUid) {
+    public ModelAndView patch_detail(HttpServletRequest req,Integer id,String appUid) {
         RestResponse restR = new RestResponse();
-        try {
-            BizAssert.notNull(id,"参数不能为空");
-            PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
-            if (patchInfo == null) {
-                throw new BizException("参数不正确");
-            }
-            AppInfo appInfo = appService.findByUid(patchInfo.getAppUid());
-            VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,patchInfo.getVersionName());
-            if (versionInfo == null) {
-                throw new BizException("该版本未找到: " + patchInfo.getVersionName());
-            }
-            restR.getData().put("appInfo",appInfo);
-            restR.getData().put("versionInfo",versionInfo);
-            restR.getData().put("patchInfo",patchInfo);
-        } catch (BizException e) {
-            restR.setCode(-1);
-            restR.setMessage(e.getMessage());
+        BizAssert.notNull(id,"参数不能为空");
+        PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
+        if (patchInfo == null) {
+            throw new BizException("参数不正确");
         }
+        AppInfo appInfo = appService.findByUid(patchInfo.getAppUid());
+        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,patchInfo.getVersionName());
+        if (versionInfo == null) {
+            throw new BizException("该版本未找到: " + patchInfo.getVersionName());
+        }
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+
+        restR.getData().put("user",basicUser);
+        restR.getData().put("appInfoList",appInfoList);
+        restR.getData().put("appInfo",appInfo);
+        restR.getData().put("versionInfo",versionInfo);
+        restR.getData().put("patchInfo",patchInfo);
+
         return new ModelAndView("patch","restR",restR);
     }
 

@@ -1,144 +1,244 @@
 <!DOCTYPE html>
 
-<html>
-<script type="text/javascript" src="#springUrl('/static/js/jquery.js')"></script>
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Tinker热修复-后台</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="#springUrl('/static/css/sb-admin.css')" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="#springUrl('/static/font-awesome/css/font-awesome.min.css')" rel="stylesheet" type="text/css">
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.js')"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+</head>
+
 <body>
 
-<p >$!restR.message</p>
-
-</br>
-
-    #if($restR.code == 200)
-        <h2>补丁详情</h2>
-
-        应用版本: $!restR.data.patchInfo.versionName
-        <br />
-        补丁版本: $!restR.data.patchInfo.patchVersion
-        <br />
-        补丁文件: $!restR.data.patchInfo.fileHash &nbsp;&nbsp; $!restR.data.patchInfo.formatPatchSize
-        <br />
-        补丁描述: $!restR.data.patchInfo.description
-        <br />
-        上传时间: $!date.format('yyyy-MM-dd HH:mm:ss',$!restR.data.patchInfo.createdAt)
-        <br />
-        <br />
-        <br />
-
-        #if($!restR.data.patchInfo.status == 0)
-
-        <div id="gray_publish_container">
-
-            请输入用于灰度发布的tag(如果有多个tag用分号(;)分隔)
-            <input type="text" id="gray_tags" style="width:700px">
+<div id="wrapper">
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html">Tinker热修复-后台</a>
         </div>
+        <!-- Top Menu Items -->
+        <ul class="nav navbar-right top-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> $!restR.data.user.user <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav side-nav">
+                <li class="active">
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
+                    <ul id="demo" class="collapse">
+                        <li>
+                            <a href="#springUrl('/app/list')">全部应用</a>
+                        </li>
 
-            <br />
-            <input type="button" id="gray_publish" value="灰度发布" />  &nbsp;&nbsp;&nbsp;
+                        #foreach($appInfo in $restR.data.appInfoList)
+                            <li>
+                                <a href="#springUrl('')/app?appUid=$!appInfo.uid">$!appInfo.appname</a>
+                            </li>
+                        #end
+                    </ul>
+                </li>
 
-        <br />
-        <br />
-        <input type="button" id="normal_publish" value="全量发布" />
+                <li>
+                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
+                </li>
 
-            <br />
-            <br />
-        #elseif($!restR.data.patchInfo.status == 1)
-            #if($!restR.data.patchInfo.publishType == 0)
-                当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
+                <li>
+                    <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </nav>
+
+    <div id="page-wrapper" style="height: 1000px">
+
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">
+                        补丁详情 <small></small>
+                    </h2>
+
+                    <p>
+                        <a href="#springUrl('/app/list')">首页</a>
+                        /
+                        <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid">应用管理</a>
+                        /
+                        <a href="#springUrl('')/app/version?appUid=$!restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName">版本详情</a>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+
+        <div class="container-fluid">
+            <table class="table table-bordered">
+                <tr>
+                    <td>应用名称: $!restR.data.appInfo.appname</td>
+                    <td>应用版本: $!restR.data.versionInfo.versionName</td>
+                    <td>补丁版本: $!restR.data.patchInfo.patchVersion</td>
+                </tr>
+
+                <tr>
+                    <td>补丁描述: $!restR.data.patchInfo.description</td>
+                    <td>上传时间: $!date.format('yyyy-MM-dd HH:mm:ss',$!restR.data.patchInfo.createdAt)</td>
+                    <td>补丁文件: $!restR.data.patchInfo.formatPatchSize &nbsp;&nbsp; $!restR.data.patchInfo.fileHash</td>
+                </tr>
+            </table>
+
+            #if($!restR.data.patchInfo.status == 0)
+
+                <div id="gray_publish_container">
+
+                    请输入用于灰度发布的tag(如果有多个tag用分号(;)分隔)
+                    <input type="text" id="gray_tags" style="width:700px">
+                </div>
+
+                <br />
+                <input type="button" id="gray_publish" value="灰度发布" />  &nbsp;&nbsp;&nbsp;
+
                 <br />
                 <br />
-                <input type="button" id="stop_publish" value="停止灰度发布" /> &nbsp;&nbsp;&nbsp; <input type="button" id="normal_publish" value="全量发布" />
-            #else
-                <input type="button" id="stop_publish" value="停止发布" />
+                <input type="button" id="normal_publish" value="全量发布" />
+
+                <br />
+                <br />
+            #elseif($!restR.data.patchInfo.status == 1)
+                #if($!restR.data.patchInfo.publishType == 0)
+                    当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
+                    <br />
+                    <br />
+                    <input type="button" id="stop_publish" value="停止灰度发布" /> &nbsp;&nbsp;&nbsp; <input type="button" id="normal_publish" value="全量发布" />
+                #else
+                    <input type="button" id="stop_publish" value="停止发布" />
+                #end
+            #elseif($!restR.data.patchInfo.status == 2)
+                <input type="button" id="normal_publish" value="继续发布(全量)" /> &nbsp;&nbsp;&nbsp; <input type="button" id="del_patch" value="删除当前patch" />
+            ##             &nbsp;&nbsp;&nbsp; <input type="button" id="rollback" value="选择回滚" />
             #end
-        #elseif($!restR.data.patchInfo.status == 2)
-             <input type="button" id="normal_publish" value="继续发布(全量))" /> &nbsp;&nbsp;&nbsp; <input type="button" id="del_patch" value="删除当前patch" />
-##             &nbsp;&nbsp;&nbsp; <input type="button" id="rollback" value="选择回滚" />
-        #end
-    #end
 
-    <script>
-        $(document).ready(function(){
-            $("#normal_publish").click(function(){
-                jQuery.ajax({
-                    url:  "#springUrl('')/patch/normal_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
-                    type: 'post',
-                    success:function(res, textStatus, jqXHR){
-                        console.log(res);
-                        if (res.code == 200) {
-                            alert('发布成功!');
-                            window.location.href = window.location.href;
-                        } else {
-                            alert(res.message);
-                        }
-                    },
-                    error:function(XMLHttpRequest, textStatus, errorThrown){
-                        alert("系统异常");
+        </div>
+    </div>
+    <!-- /#page-wrapper -->
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("#normal_publish").click(function(){
+            jQuery.ajax({
+                url:  "#springUrl('')/patch/normal_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                type: 'post',
+                success:function(res, textStatus, jqXHR){
+                    console.log(res);
+                    if (res.code == 200) {
+                        alert('发布成功!');
+                        window.location.href = window.location.href;
+                    } else {
+                        alert(res.message);
                     }
-                });
-            });
-
-            $("#stop_publish").click(function(){
-                jQuery.ajax({
-                    url:  "#springUrl('')/patch/stop_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
-                    type: 'post',
-                    success:function(res, textStatus, jqXHR){
-                        console.log(res);
-                        if (res.code == 200) {
-                            alert('已停止发布!');
-                            window.location.href = window.location.href;
-                        } else {
-                            alert(res.message);
-                        }
-                    },
-                    error:function(XMLHttpRequest, textStatus, errorThrown){
-                        alert("系统异常");
-                    }
-                });
-            });
-
-            $("#del_patch").click(function(){
-                jQuery.ajax({
-                    url:  "#springUrl('')/patch/delete?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
-                    type: 'post',
-                    success:function(res, textStatus, jqXHR){
-                        console.log(res);
-                        if (res.code == 200) {
-                            alert('删除成功!');
-                            window.location.href = "#springUrl('')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
-                        } else {
-                            alert(res.message);
-                        }
-                    },
-                    error:function(XMLHttpRequest, textStatus, errorThrown){
-                        alert("系统异常");
-                    }
-                });
-            });
-
-            $("#gray_publish").click(function(){
-                if ($("#gray_tags").val().length == 0) {
-                    alert('tag列表不能为空');
-                    return;
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                    alert("系统异常");
                 }
-
-                jQuery.ajax({
-                    url:  "#springUrl('')/patch/gray_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id&tags=" + $("#gray_tags").val(),
-                    type: 'post',
-                    success:function(res, textStatus, jqXHR){
-                        console.log(res);
-                        if (res.code == 200) {
-                            alert('灰度发布成功!');
-                            window.location.href = window.location.href;
-                        } else {
-                            alert(res.message);
-                        }
-                    },
-                    error:function(XMLHttpRequest, textStatus, errorThrown){
-                        alert("系统异常");
-                    }
-                });
             });
         });
-    </script>
+
+        $("#stop_publish").click(function(){
+            jQuery.ajax({
+                url:  "#springUrl('')/patch/stop_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                type: 'post',
+                success:function(res, textStatus, jqXHR){
+                    console.log(res);
+                    if (res.code == 200) {
+                        alert('已停止发布!');
+                        window.location.href = window.location.href;
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                    alert("系统异常");
+                }
+            });
+        });
+
+        $("#del_patch").click(function(){
+            jQuery.ajax({
+                url:  "#springUrl('')/patch/delete?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                type: 'post',
+                success:function(res, textStatus, jqXHR){
+                    console.log(res);
+                    if (res.code == 200) {
+                        alert('删除成功!');
+                        window.location.href = "#springUrl('')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                    alert("系统异常");
+                }
+            });
+        });
+
+        $("#gray_publish").click(function(){
+            if ($("#gray_tags").val().length == 0) {
+                alert('tag列表不能为空');
+                return;
+            }
+
+            jQuery.ajax({
+                url:  "#springUrl('')/patch/gray_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id&tags=" + $("#gray_tags").val(),
+                type: 'post',
+                success:function(res, textStatus, jqXHR){
+                    console.log(res);
+                    if (res.code == 200) {
+                        alert('灰度发布成功!');
+                        window.location.href = window.location.href;
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                    alert("系统异常");
+                }
+            });
+        });
+    });
+</script>
 </body>
+
 </html>
