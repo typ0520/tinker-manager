@@ -20,9 +20,6 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-    <typeAliases>
-        <package name="tinker.console.domain"/>
-    </typeAliases>
     <mappers>
         <mapper resource="tinker/console/mapper/UserMapper.xml"/>
         <mapper resource="tinker/console/mapper/AppMapper.xml"/>

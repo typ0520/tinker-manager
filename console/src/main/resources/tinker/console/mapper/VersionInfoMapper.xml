@@ -30,7 +30,7 @@
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
-    <select id="findByUidAndVersionName" resultType="VersionInfo" resultMap="BaseResultMap" >
+    <select id="findByUidAndVersionName" resultType="tinker.console.domain.VersionInfo" resultMap="BaseResultMap" >
         select * from t_version_info
         where app_uid = #{appUid} and version_name = #{versionName}
     </select>

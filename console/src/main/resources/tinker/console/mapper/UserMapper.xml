@@ -28,7 +28,7 @@
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
-    <select id="findByUsername" resultType="BasicUser" resultMap="BaseResultMap" >
+    <select id="findByUsername" resultType="tinker.console.domain.BasicUser" resultMap="BaseResultMap" >
         select * from t_user where username = #{username}
     </select>
 

@@ -3,7 +3,6 @@ package tinker.console.web;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,7 @@ import tinker.console.dto.PatchInfoDto;
 import tinker.console.service.AppService;
 import tinker.console.service.PatchService;
 import tinker.console.utils.BeanMapConvertUtil;
-
+import tinker.console.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +37,8 @@ public class ApiController {
     @Autowired
     private PatchService patchService;
 
-    @Value("${server_path}")
-    private String serverPath;
+//    @Value("${server_path}")
+//    private String serverPath;
 
     /**
      * 获取最新的补丁包信息
@@ -54,7 +53,7 @@ public class ApiController {
      * @return
      */
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
-    public @ResponseBody RestResponse gray_publish(String appUid, String token,String versionName,String tag,String platform,String osVersion,String model,String sdkVersion) {
+    public @ResponseBody RestResponse gray_publish(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model, String sdkVersion) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
@@ -90,13 +89,12 @@ public class ApiController {
                 BeanUtils.copyProperties(resultInfo,patchInfoDto);
                 patchInfoDto.setHash(DigestUtils.md5DigestAsHex((appUid + "_" + token + "_" + resultInfo.getFileHash()).getBytes()));
                 patchInfoDto.setCreatedTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(resultInfo.getCreatedAt()));
-                if (serverPath.endsWith("/")) {
-                    patchInfoDto.setDownloadUrl(serverPath + "api/patch/" + resultInfo.getId());
-                }
-                else {
-                    patchInfoDto.setDownloadUrl(serverPath + "/api/patch/" + resultInfo.getId());
+                String serverPath = HttpRequestUtils.getBasePath(req);
+                if (!serverPath.endsWith("/")) {
+                    serverPath = serverPath + "/";
                 }
 
+                patchInfoDto.setDownloadUrl(serverPath + "api/patch/" + resultInfo.getId());
                 restR.getData().putAll(BeanMapConvertUtil.convertBean2Map(patchInfoDto));
             }
             else {

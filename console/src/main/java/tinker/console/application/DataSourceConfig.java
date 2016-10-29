@@ -20,6 +20,9 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 public class DataSourceConfig {
 	@Autowired
 	private Environment env;
+
+    @Autowired
+    private DataSource dataSource;
 	
 	@Bean
     public DataSource dataSource() {
@@ -67,9 +70,7 @@ public class DataSourceConfig {
 	@Bean(name="sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
-        //映射的实体包
-        sessionFactory.setTypeAliasesPackage("tinker.console.domain");
+        sessionFactory.setDataSource(dataSource);
         return sessionFactory.getObject();
     }
 }

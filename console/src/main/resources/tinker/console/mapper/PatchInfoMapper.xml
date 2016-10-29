@@ -79,7 +79,7 @@
         where id = #{id} and app_uid = #{appUid}
     </select>
 
-    <update id="updateStatus" parameterType="PatchInfo" >
+    <update id="updateStatus" parameterType="tinker.console.domain.PatchInfo" >
         UPDATE  t_patch_info
         SET status = #{status,jdbcType=VARCHAR}, publish_type = #{publishType,jdbcType=VARCHAR}
         <if test="updatedAt != null">

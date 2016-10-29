@@ -37,11 +37,15 @@ public class ConsoleController {
     @Autowired
     private PatchService patchService;
 
+    @RequestMapping("/404")
+    public String pageNotFound() {
+        return "404";
+    }
+
     @RequestMapping(value = "/",method = RequestMethod.GET)
     public ModelAndView index() {
         return new ModelAndView("redirect:/app/list");
     }
-
 
     @RequestMapping(value = {"/console","/app/list"},method = RequestMethod.GET)
     public ModelAndView index(HttpServletRequest req) {

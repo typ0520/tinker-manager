@@ -23,7 +23,7 @@
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
 
-    <script src="http://bootboxjs.com/bootbox.js"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
 </head>
 
 <body>
@@ -237,7 +237,7 @@
 
         $("#del_patch").click(function(){
             bootbox.confirm({
-                message: "确定停止发布这个补丁吗?",
+                message: "确定删除这个补丁吗?",
                 buttons: {
                     confirm: {
                         label: 'Yes',

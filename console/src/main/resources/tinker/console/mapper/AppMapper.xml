@@ -29,12 +29,12 @@
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
-    <select id="findByUserIdAndName" resultType="AppInfo" resultMap="BaseResultMap" >
+    <select id="findByUserIdAndName" resultType="tinker.console.domain.AppInfo" resultMap="BaseResultMap" >
         select * from t_app_info
         where user_id = #{userId} and appname = #{appname}
     </select>
 
-    <select id="findByUid" resultType="AppInfo" resultMap="BaseResultMap" >
+    <select id="findByUid" resultType="tinker.console.domain.AppInfo" resultMap="BaseResultMap" >
         select * from t_app_info
         where uid = #{uid}
     </select>

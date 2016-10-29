@@ -8,7 +8,7 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="#springUrl('/static/favicon.ico')">
+    <link rel="icon" href="#springUrl('/static/img/favicon.ico')">
 
     <title>Tinker热修复-注册</title>
 
