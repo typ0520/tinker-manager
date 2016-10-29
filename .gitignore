@@ -99,7 +99,7 @@ build/
 gradle-app.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+
 
 db
 
@@ -110,7 +110,7 @@ db
 .mtj.tmp/
 
 # Package Files #
-*.jar
+.gradle*
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
