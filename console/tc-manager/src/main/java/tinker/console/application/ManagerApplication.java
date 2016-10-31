@@ -15,20 +15,20 @@ import java.util.Properties;
  */
 @SpringBootApplication
 @ComponentScan(value = {"tinker.console"})
-public class WebApplication extends SpringBootServletInitializer {
-    private static final Logger LOG = LoggerFactory.getLogger(WebApplication.class);
+public class ManagerApplication extends SpringBootServletInitializer {
+    private static final Logger LOG = LoggerFactory.getLogger(ManagerApplication.class);
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(WebApplication.class).properties(getSpringExtentionConfig(null));
+        return application.sources(ManagerApplication.class).properties(getSpringExtentionConfig(null));
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(WebApplication.class, args);
+        SpringApplication.run(ManagerApplication.class, args);
     }
 
     public static Properties getSpringExtentionConfig(String defaultPath) {
-        InputStream inputStream = WebApplication.class.getClassLoader().getResourceAsStream("location.properties");
+        InputStream inputStream = ManagerApplication.class.getClassLoader().getResourceAsStream("location.properties");
         Properties props = new Properties();
         try {
             props.load(inputStream);

@@ -27,7 +27,7 @@ import java.util.List;
  * Created by tong on 15/10/24.
  */
 @Controller
-public class ConsoleController {
+public class ManagerController {
     @Autowired
     private AppService appService;
 
@@ -55,7 +55,7 @@ public class ConsoleController {
         List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
         restR.getData().put("user",basicUser);
         restR.getData().put("appInfoList",appInfoList);
-        return new ModelAndView("console","restR",restR);
+        return new ModelAndView("app_list","restR",restR);
     }
 
     @RequestMapping(value = "/app/create",method = RequestMethod.POST)
