@@ -40,7 +40,7 @@ public final class TinkerManager {
         instance = null;
     }
 
-    public static final String SP_NAME = "HotFix";
+    public static final String SP_NAME = "tmsdk";
     public static final String SP_KEY_USING_PATCH = "using_patch";
 
     private Context context;
@@ -62,7 +62,7 @@ public final class TinkerManager {
             appInfo.setVersionName(pkgInfo.versionName);
             appInfo.setVersionCode(pkgInfo.versionCode);
             String appName = pkgInfo.applicationInfo.loadLabel(context.getPackageManager()).toString();
-            String hotFixDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + appName + File.separator + "HotFix";
+            String hotFixDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + appName + File.separator + "tmsdk";
             patchDirPath = hotFixDirPath + File.separator + appInfo.getVersionName();
             File hotFixDir = new File(hotFixDirPath);
             if (hotFixDir.exists()) {
@@ -79,8 +79,11 @@ public final class TinkerManager {
     }
 
     public void setTag(String tag) {
+        if (!Tinker.with(context).isMainProcess()) {
+            return;
+        }
         if (appInfo == null) {
-            throw new NullPointerException("HotFix must be init before using");
+            throw new NullPointerException("TinkerManager must be init before using");
         }
         appInfo.setTag(tag);
     }
@@ -97,7 +100,7 @@ public final class TinkerManager {
 
     public void queryAndApplyPatch(final TinkerManagerListener patchListener) {
         if (context == null) {
-            throw new NullPointerException("HotFix must be init before using");
+            throw new NullPointerException("TinkerManager must be init before using");
         }
         if (!Tinker.with(context).isMainProcess()) {
             return;
