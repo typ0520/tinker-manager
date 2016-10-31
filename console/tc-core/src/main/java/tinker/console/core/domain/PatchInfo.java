@@ -192,4 +192,26 @@ public class PatchInfo {
         }
         return fileSizeString;
     }
+
+    @Override
+    public String toString() {
+        return "PatchInfo{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", appUid='" + appUid + '\'' +
+                ", uid='" + uid + '\'' +
+                ", versionName='" + versionName + '\'' +
+                ", patchVersion=" + patchVersion +
+                ", publishVersion=" + publishVersion +
+                ", status=" + status +
+                ", publishType=" + publishType +
+                ", tags='" + tags + '\'' +
+                ", storagePath='" + storagePath + '\'' +
+                ", patchSize=" + patchSize +
+                ", fileHash='" + fileHash + '\'' +
+                ", description='" + description + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

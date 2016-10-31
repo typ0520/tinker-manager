@@ -1,4 +1,5 @@
 dependencies {
     compile project(':tc-core')
     compile("org.springframework.boot:spring-boot-starter-velocity")
+    compile("commons-io:commons-io:2.2")
 }

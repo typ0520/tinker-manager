@@ -60,4 +60,16 @@ public class VersionInfo {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        return "VersionInfo{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", appUid='" + appUid + '\'' +
+                ", versionName='" + versionName + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

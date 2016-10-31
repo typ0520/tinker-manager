@@ -105,4 +105,22 @@ public class AppInfo {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+
+    @Override
+    public String toString() {
+        return "AppInfo{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", appname='" + appname + '\'' +
+                ", platform='" + platform + '\'' +
+                ", uid='" + uid + '\'' +
+                ", description='" + description + '\'' +
+                ", secret='" + secret + '\'' +
+                ", publicKey='" + publicKey + '\'' +
+                ", privateKey='" + privateKey + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

@@ -24,6 +24,9 @@ public class PatchService {
     @Value("${file_storage_path}")
     private String fileStoragePath;
 
+    @Autowired
+    private FacadeService facadeService;
+
     public List<PatchInfo> findByUidAndVersionName(String appUid,String versionName) {
         return patchInfoMapper.findByUidAndVersionName(appUid,versionName);
     }
@@ -60,6 +63,8 @@ public class PatchService {
             e.printStackTrace();
             throw new BizException("文件保存失败");
         }
+
+        facadeService.clearCache();
         return patchInfo;
     }
 
@@ -82,6 +87,8 @@ public class PatchService {
     public void updateStatus(PatchInfo patchInfo) {
         patchInfo.setUpdatedAt(new Date());
         patchInfoMapper.updateStatus(patchInfo);
+
+        facadeService.clearCache();
     }
 
     public void deletePatch(PatchInfo patchInfo) {
@@ -92,5 +99,7 @@ public class PatchService {
 //        } catch (Exception e) {
 //
 //        }
+
+        facadeService.clearCache();
     }
 }

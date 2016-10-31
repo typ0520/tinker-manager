@@ -1,5 +1,9 @@
 package tinker.console.facade.service;
 
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tinker.console.core.utils.CacheEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tinker.console.core.domain.AppInfo;
@@ -8,17 +12,20 @@ import tinker.console.core.domain.VersionInfo;
 import tinker.console.core.mapper.AppMapper;
 import tinker.console.core.mapper.PatchInfoMapper;
 import tinker.console.core.mapper.VersionInfoMapper;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import tinker.console.facade.web.ApiController;
+import java.io.*;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by tong on 16/10/31.
  */
 @Service
 public class ApiService {
+    private static final Logger LOG = LoggerFactory.getLogger(ApiController.class);
+
     @Autowired
     private VersionInfoMapper versionInfoMapper;
 
@@ -28,24 +35,79 @@ public class ApiService {
     @Autowired
     private PatchInfoMapper patchInfoMapper;
 
-    public AppInfo findAppByUid(String uid) {
-        return appMapper.findByUid(uid);
+    private final Map<String,CacheEntry<AppInfo>> appInfoCache = new ConcurrentHashMap<>();
+    private final Map<String,CacheEntry<VersionInfo>> versionInfoCache = new ConcurrentHashMap<>();
+    private final Map<String,CacheEntry<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
+    private final Map<String,CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
+    private final Map<Integer,byte[]> fileCache = new ConcurrentHashMap<>();
+
+    public AppInfo findAppInfo(String uid) {
+        CacheEntry<AppInfo> cacheEntry = appInfoCache.get(uid);
+        AppInfo appInfo = null;
+        if (cacheEntry != null) {
+            appInfo = cacheEntry.getEntry();
+        }
+        if (appInfo == null) {
+            appInfo = appMapper.findByUid(uid);
+            if (appInfo != null) {
+                LOG.info("new app cache: " + appInfo.toString());
+                appInfoCache.put(uid,new CacheEntry<>(appInfo, TimeUnit.MINUTES,10));
+            }
+        }
+        return appInfo;
     }
 
-    public VersionInfo findVersionByUidAndVersionName(AppInfo appInfo, String versionName) {
-        return versionInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionName);
+    public VersionInfo findVersionInfo(String appUid, String versionName) {
+        CacheEntry<VersionInfo> cacheEntry = versionInfoCache.get(appUid + "-" + versionName);
+        VersionInfo versionInfo = null;
+        if (cacheEntry != null) {
+            versionInfo = cacheEntry.getEntry();
+        }
+        if (versionInfo == null) {
+            versionInfo = versionInfoMapper.findByUidAndVersionName(appUid,versionName);
+            if (versionInfo != null) {
+                LOG.info("new version cache: " + versionInfo.toString());
+                versionInfoCache.put(appUid + "-" + versionName,new CacheEntry<>(versionInfo, TimeUnit.MINUTES,10));
+            }
+        }
+        return versionInfo;
     }
 
-    public List<PatchInfo> findByUidAndVersionName(String appUid,String versionName) {
-        return patchInfoMapper.findByUidAndVersionName(appUid,versionName);
+    public PatchInfo findPatchInfo(String uid) {
+        CacheEntry<PatchInfo> cacheEntry = patchInfoCache.get(uid);
+        PatchInfo patchInfo = null;
+        if (cacheEntry != null) {
+            patchInfo = cacheEntry.getEntry();
+        }
+        if (patchInfo == null) {
+            patchInfo = patchInfoMapper.findByUid(uid);
+            if (patchInfo != null) {
+                LOG.info("new patch cache: " + patchInfo.toString());
+                patchInfoCache.put(uid,new CacheEntry<>(patchInfo, TimeUnit.MINUTES,10));
+            }
+        }
+        return patchInfo;
     }
 
-    public PatchInfo findPatchInfoByUid(String uid) {
-        return patchInfoMapper.findByUid(uid);
+    public List<PatchInfo> findPatchInfos(String appUid, String versionName) {
+        CacheEntry<List<PatchInfo>> cacheEntry = patchInfoListCache.get(appUid + "-" + versionName);
+        List<PatchInfo> patchInfoList = null;
+        if (cacheEntry != null) {
+            patchInfoList = cacheEntry.getEntry();
+        }
+        if (patchInfoList == null) {
+            patchInfoList = patchInfoMapper.findByUidAndVersionName(appUid,versionName);
+            if (patchInfoList != null) {
+                LOG.info("new patch list cache: " + patchInfoList.toString());
+                patchInfoListCache.put(appUid + "-" + versionName,new CacheEntry<>(patchInfoList, TimeUnit.MINUTES,10));
+            }
+        }
+
+        return patchInfoList;
     }
 
     public PatchInfo getLatestNormalPatchInfo(List<PatchInfo> patchInfoList) {
-        if (patchInfoList == null) {
+        if (patchInfoList == null || patchInfoList.isEmpty()) {
             return null;
         }
         PatchInfo result = null;
@@ -61,7 +123,7 @@ public class ApiService {
     }
 
     public PatchInfo getLatestGrayPatchInfo(List<PatchInfo> patchInfoList, String tag) {
-        if (patchInfoList == null) {
+        if (patchInfoList == null || patchInfoList.isEmpty()) {
             return null;
         }
         PatchInfo result = null;
@@ -76,7 +138,23 @@ public class ApiService {
         return result;
     }
 
-    public InputStream getDownloadStream(PatchInfo patchInfo) throws FileNotFoundException {
-        return new FileInputStream(patchInfo.getStoragePath());
+    public InputStream getDownloadStream(PatchInfo patchInfo) throws IOException {
+        byte[] fileContent = fileCache.get(patchInfo.getId());
+        if (fileContent == null) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copy(new FileInputStream(patchInfo.getStoragePath()), bos);
+
+            LOG.info("new file cache: " + patchInfo.getId());
+            fileCache.put(patchInfo.getId(),bos.toByteArray());
+        }
+        return new ByteArrayInputStream(fileContent);
+    }
+
+    public void clearCache() {
+//        appInfoCache.clear();
+//        versionInfoCache.clear();
+        patchInfoCache.clear();
+        patchInfoListCache.clear();
+        //fileCache.clear();
     }
 }

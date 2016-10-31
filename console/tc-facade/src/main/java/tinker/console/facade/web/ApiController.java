@@ -1,6 +1,9 @@
 package tinker.console.facade.web;
 
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +30,8 @@ import java.util.List;
  */
 @Controller
 public class ApiController {
+    private static final Logger LOG = LoggerFactory.getLogger(ApiController.class);
+
     @Autowired
     private ApiService apiService;
 
@@ -50,7 +55,7 @@ public class ApiController {
             BizAssert.notEpmty(token,"令牌不能为空");
             BizAssert.notEpmty(versionName,"应用版本号不能为空");
 
-            AppInfo appInfo = apiService.findAppByUid(appUid);
+            AppInfo appInfo = apiService.findAppInfo(appUid);
             if (appInfo == null) {
                 throw new BizException("应用不存在");
             }
@@ -59,12 +64,12 @@ public class ApiController {
                 throw new BizException("校验失败");
             }
 
-            VersionInfo versionInfo = apiService.findVersionByUidAndVersionName(appInfo,versionName);
+            VersionInfo versionInfo = apiService.findVersionInfo(appUid,versionName);
             if (versionInfo == null) {
                 throw new BizException("版本信息不正确");
             }
 
-            List<PatchInfo> patchInfoList = apiService.findByUidAndVersionName(appUid,versionName);
+            List<PatchInfo> patchInfoList = apiService.findPatchInfos(appUid,versionName);
             //查询最新的正常发布的补丁信息
             PatchInfo normalPatchInfo = apiService.getLatestNormalPatchInfo(patchInfoList);
             PatchInfo grayPatchInfo = null;
@@ -104,9 +109,16 @@ public class ApiController {
 
     @RequestMapping(value = "/api/getPatch", method = RequestMethod.GET)
     public void patch_download(String id,HttpServletResponse response) throws Exception {
-        PatchInfo patchInfo = apiService.findPatchInfoByUid(id);
+        PatchInfo patchInfo = apiService.findPatchInfo(id);
         InputStream is = apiService.getDownloadStream(patchInfo);
-        org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+        IOUtils.copy(is, response.getOutputStream());
         response.flushBuffer();
+    }
+
+    @RequestMapping(value = "/api/clearCache", method = RequestMethod.GET)
+    public @ResponseBody RestResponse clearCache() throws Exception {
+        apiService.clearCache();
+        LOG.info("clear cache.......");
+        return new RestResponse();
     }
 }
