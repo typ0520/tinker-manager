@@ -1,4 +1,0 @@
-dependencies {
-    compile project(':tc-core')
-    compile 'commons-fileupload:commons-fileupload:1.3'
-}

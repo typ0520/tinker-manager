@@ -1,0 +1,6 @@
+apply plugin: 'war'
+
+dependencies {
+    compile project(':tm-core')
+    compile 'commons-fileupload:commons-fileupload:1.3'
+}

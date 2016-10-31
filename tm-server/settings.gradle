@@ -1,0 +1,12 @@
+rootProject.name = 'tm-server'
+
+include ':tm-core'
+include ':tm-facade'
+include ':tm-manager'
+
+
+
+
+
+
+
