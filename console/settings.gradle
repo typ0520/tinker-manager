@@ -16,6 +16,15 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'console'
+rootProject.name = 'tconsole'
+
+include ':tc-core'
+include ':tc-facade'
+include ':tc-manager'
+
+
+
+
+
 
 

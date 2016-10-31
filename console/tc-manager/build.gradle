@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':tc-core')
+    compile("org.springframework.boot:spring-boot-starter-velocity")
+}

@@ -16,21 +16,25 @@ buildscript {
     }
 }
 
-// Apply the java plugin to add support for Java
-apply plugin: 'idea'
-apply plugin: 'java'
-apply plugin: 'spring-boot'
-
-repositories {
-    jcenter()
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
 
-dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.boot:spring-boot-starter-velocity")
-    compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.1.1")
-    compile 'mysql:mysql-connector-java:5.1.31'
-    compile 'commons-fileupload:commons-fileupload:1.3'
+//---sub project common config ---
+subprojects {
+    // Apply the java plugin to add support for Java
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'spring-boot'
 
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        compile("org.springframework.boot:spring-boot-starter-web")
+
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
 }
+
