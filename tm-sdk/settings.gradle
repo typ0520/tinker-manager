@@ -1,0 +1,3 @@
+rootProject.name = 'com.dx168.tmsdk'
+
+include ':tmsdk', ':sample'
