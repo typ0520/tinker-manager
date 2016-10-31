@@ -12,6 +12,7 @@ public class AppInfo {
 
     @SerializedName("appUid")
     private String appId;
+    private String appSecret;
     private String token;
     private String tag;
     private String versionName;
@@ -77,4 +78,11 @@ public class AppInfo {
         return model;
     }
 
+    public String getAppSecret() {
+        return appSecret;
+    }
+
+    public void setAppSecret(String appSecret) {
+        this.appSecret = appSecret;
+    }
 }

@@ -40,7 +40,7 @@ public class HotFixService {
 
     public interface IHotFixService {
 
-        @GET("http://192.168.16.166:9010/api/patch")
+        @GET("http://192.168.16.166:9011/api/patch")
         Observable<PatchInfo> queryPatch(@Query("appUid") String appId,
                                          @Query("token") String token,
                                          @Query("tag") String tag,

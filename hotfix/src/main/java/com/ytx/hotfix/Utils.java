@@ -8,10 +8,10 @@ import android.text.TextUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-
-import okhttp3.ResponseBody;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by jianjun.lin on 2016/10/27.
@@ -39,40 +39,45 @@ public class Utils {
     }
 
 
-    public static boolean writeToDisk(ResponseBody body, String targetPath) {
+    public static boolean writeToDisk(byte[] bytes, String targetPath) {
         try {
             File targetFile = new File(targetPath);
             if (!targetFile.getParentFile().exists()) {
                 targetFile.getParentFile().mkdirs();
             }
-            InputStream inputStream = null;
             OutputStream outputStream = null;
             try {
-                byte[] buf = new byte[32 * 1024];
-                inputStream = body.byteStream();
                 outputStream = new FileOutputStream(targetFile);
-                while (true) {
-                    int read = inputStream.read(buf);
-                    if (read == -1) {
-                        break;
-                    }
-                    outputStream.write(buf, 0, read);
-                }
+                outputStream.write(bytes, 0, bytes.length);
                 outputStream.flush();
                 return true;
             } catch (IOException e) {
+                e.printStackTrace();
                 return false;
             } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
                 if (outputStream != null) {
                     outputStream.close();
                 }
             }
         } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
+    }
+
+    public static String md5(String string) {
+        return md5(string.getBytes());
+    }
+
+    public static String md5(byte[] bytes) {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        md.update(bytes);
+        return new BigInteger(1, md.digest()).toString(16);
     }
 
 }

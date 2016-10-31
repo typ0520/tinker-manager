@@ -39,6 +39,7 @@ public class PatchInfo {
         private String patchVersion;
         private String downloadUrl;
         private long patchSize;
+        private String hash;
 
         public String getVersionName() {
             return versionName;
@@ -72,9 +73,17 @@ public class PatchInfo {
             this.patchSize = patchSize;
         }
 
+        public String getHash() {
+            return hash;
+        }
+
+        public void setHash(String hash) {
+            this.hash = hash;
+        }
+
         @Override
         public String toString() {
-            return "{patchVersion:" + patchVersion + ", patchSize:" + patchSize + ", downloadUrl:" + downloadUrl + "}";
+            return "{patchVersion:" + patchVersion + ", patchSize:" + patchSize + ", downloadUrl:" + downloadUrl + ", hash:" + hash + "}";
         }
     }
 

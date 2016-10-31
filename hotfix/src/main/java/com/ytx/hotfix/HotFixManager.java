@@ -11,19 +11,25 @@ import android.text.TextUtils;
 
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
+import com.tencent.tinker.lib.util.TinkerLog;
 import com.ytx.hotfix.bean.AppInfo;
 import com.ytx.hotfix.bean.PatchInfo;
 
 import java.io.File;
+import java.io.IOException;
 
 import okhttp3.ResponseBody;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
+import static com.ytx.hotfix.Utils.md5;
+
 /**
  * Created by jianjun.lin on 2016/10/26.
  */
 public final class HotFixManager {
+
+    private static final String TAG = "HotFixManager";
 
     private static HotFixManager instance;
 
@@ -52,9 +58,8 @@ public final class HotFixManager {
         }
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
-        //TODO
-        appInfo.setTag("");
-        appInfo.setToken(appSecret);
+        appInfo.setAppSecret(appSecret);
+        appInfo.setToken(md5(appId + "_" + appSecret));
         PackageManager packageManager = context.getPackageManager();
         try {
             PackageInfo pkgInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
@@ -77,9 +82,16 @@ public final class HotFixManager {
         }
     }
 
+    public void setTag(String tag) {
+        if (appInfo == null) {
+            throw new NullPointerException("HotFix must be init before using");
+        }
+        appInfo.setTag(tag);
+    }
+
     private PatchListener patchListener;
 
-    public PatchListener getPatchListener() {
+    PatchListener getPatchListener() {
         return patchListener;
     }
 
@@ -149,15 +161,14 @@ public final class HotFixManager {
                                 }
                             }
                         }
-                        downloadAndApplyPatch(newPatchPath, patchInfo.getData().getDownloadUrl(), patchListener);
+                        downloadAndApplyPatch(newPatchPath, patchInfo.getData().getDownloadUrl(), patchInfo.getData().getHash());
                     }
 
                 });
 
-
     }
 
-    private void downloadAndApplyPatch(final String newPatchPath, String url, final PatchListener patchListener) {
+    private void downloadAndApplyPatch(final String newPatchPath, String url, final String hash) {
         HotFixService.get().downloadFile(url)
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
@@ -176,14 +187,29 @@ public final class HotFixManager {
 
                     @Override
                     public void onNext(ResponseBody body) {
-                        Utils.writeToDisk(body, newPatchPath);
+                        byte[] bytes = null;
+                        try {
+                            bytes = body.bytes();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (!checkPatch(bytes, hash)) {
+                            TinkerLog.e(TAG, "wrong hash");
+                            return;
+                        }
+                        Utils.writeToDisk(bytes, newPatchPath);
+                        //TODO report to server
                         if (patchListener != null) {
                             patchListener.onDownloadSuccess(newPatchPath);
                         }
-                        //TODO report to server
                         TinkerInstaller.onReceiveUpgradePatch(context, newPatchPath);
                     }
                 });
+    }
+
+    private boolean checkPatch(byte[] bytes, String hash) {
+        String downloadFileHash = Utils.md5(appInfo.getAppId() + "_" + appInfo.getAppSecret() + "_" + Utils.md5(bytes));
+        return TextUtils.equals(downloadFileHash, hash);
     }
 
     @NonNull
