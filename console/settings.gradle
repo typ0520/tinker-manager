@@ -16,7 +16,7 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'tconsole'
+rootProject.name = 'tinker-console'
 
 include ':tc-core'
 include ':tc-facade'
