@@ -182,6 +182,7 @@ public class PatchService {
         sb.append("\n");
         sb.append("操作时间: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         sb.append("\n");
+        sb.append("http://www.dx168.com  |  http://www.98.cn");
         try {
             MimeMessage mail = javaMailSender.createMimeMessage();
             try {
