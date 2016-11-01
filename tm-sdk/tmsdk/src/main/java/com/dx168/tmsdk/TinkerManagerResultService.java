@@ -24,15 +24,12 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.dx168.tmsdk.tinker.SampleUtils;
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.lib.util.TinkerServiceInternals;
-import com.tencent.tinker.loader.shareutil.SharePatchFileUtil;
-import com.dx168.tmsdk.tinker.SampleUtils;
-
-import java.io.File;
 
 /**
  * optional, you can just use DefaultTinkerResultService
@@ -86,11 +83,13 @@ public class TinkerManagerResultService extends DefaultTinkerResultService {
         // is success and newPatch, it is nice to delete the raw file, and restart at once
         // for old patch, you can't delete the patch file
         if (result.isSuccess && result.isUpgradePatch) {
+            /*
             File rawFile = new File(result.rawPatchFilePath);
             if (rawFile.exists()) {
                 TinkerLog.i(TAG, "save delete raw patch file");
                 SharePatchFileUtil.safeDeleteFile(rawFile);
             }
+             */
             //not like TinkerResultService, I want to restart just when I am at background!
             //if you have not install com.dx168.tmsdk.tinker this moment, you can use TinkerApplicationHelper api
             if (checkIfNeedKill(result)) {
