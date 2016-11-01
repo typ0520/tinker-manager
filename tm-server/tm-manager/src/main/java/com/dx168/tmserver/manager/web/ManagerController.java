@@ -117,13 +117,33 @@ public class ManagerController {
             }
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
             tester = new Tester();
-            tester.setId(accountService.getRootUserId(basicUser));
+            tester.setUserId(accountService.getRootUserId(basicUser));
             tester.setAppUid(appUid);
             tester.setTag(tag);
             tester.setEmail(email);
             tester.setDescription(description);
 
             testerService.save(tester);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
+    @RequestMapping(value = "/tester/del",method = RequestMethod.POST)
+    public @ResponseBody RestResponse delTester(HttpServletRequest req,Integer testerId) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(testerId,"id不能为空");
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Tester tester = testerService.findById(testerId);
+            if (tester == null || accountService.getRootUserId(basicUser) != tester.getUserId()) {
+                throw new BizException("信息不存在");
+            }
+            testerService.deleteById(testerId);
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());

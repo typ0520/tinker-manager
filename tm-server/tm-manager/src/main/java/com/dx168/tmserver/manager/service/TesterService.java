@@ -48,4 +48,12 @@ public class TesterService {
     public Tester findByTagAndUid(String tag,String appUid) {
         return testerMapper.findByTagAndUid(tag,appUid);
     }
+
+    public void deleteById(Integer testerId) {
+        testerMapper.deleteById(testerId);
+    }
+
+    public Tester findById(Integer testerId) {
+        return testerMapper.findById(testerId);
+    }
 }

@@ -7,6 +7,7 @@ CREATE TABLE `t_user` (
   `email` varchar(32) DEFAULT NULL COMMENT '邮箱',
   `password` varchar(32) NOT NULL COMMENT '登录密码',
   `avatar` varchar(128) DEFAULT NULL COMMENT '头像',
+  `account_type` int DEFAULT NULL COMMENT '账户类型 0: admin 1: 开发人员 1: 测试人员',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),

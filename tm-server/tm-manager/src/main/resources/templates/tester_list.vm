@@ -22,6 +22,8 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
 </head>
 
 <body>
@@ -158,7 +160,8 @@
                     <th>TAG</th>
                     <th>邮箱</th>
                     <th>描述</th>
-##                    <th>操作</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
                 </tr>
 
                 #foreach($testerInfo in $restR.data.testerList)
@@ -166,7 +169,8 @@
                         <th>$!testerInfo.tag</th>
                         <th>$!testerInfo.email</th>
                         <th>$!testerInfo.description</th>
-##                        <th><a href="#">删除</a></th>
+                        <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!testerInfo.createdAt)</th>
+                        <th><a onclick="delTester($!testerInfo.id)">删除</a></th>
                     </tr>
                 #end
             </table>
@@ -180,7 +184,56 @@
 </div>
 
 <script>
-    console.log('ddd');
+    function delTester(tester_id) {
+        bootbox.confirm({
+            message: "确定删除这个测试人员吗?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                console.log('This was logged in the callback: ' + result);
+
+                if (!result) {
+                    return;
+                }
+
+                var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> 正在删除...</p>'
+                });
+                dialog.init(function(){
+                    jQuery.ajax({
+                        url:  "#springUrl('')/tester/del?testerId=" + tester_id,
+                        type: 'post',
+                        success:function(res, textStatus, jqXHR){
+                            if (res.code == 200) {
+                                dialog.find('.bootbox-body').html('删除成功!');
+
+                                console.log("删除成功!")
+                                setTimeout(function(){
+                                    console.log("刷新页面")
+                                    window.location.href = window.location.href;
+                                }, 1500);
+                            } else {
+                                dialog.find('.bootbox-body').html(res.message);
+                            }
+                        },
+                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                            dialog.find('.bootbox-body').html('系统异常!');
+                        }
+                    });
+                });
+            }
+        });
+    }
+
     $(document).ready(function(){
         $("#create_app").click(function () {
             if ($("#tester-tag").val().length == 0) {
@@ -206,7 +259,6 @@
                 url:  "#springUrl('')/tester/add?appUid=$!restR.data.appInfo.uid&tag=" + $("#tester-tag").val() + "&email=" + $("#tester-email").val()+ "&description=" + $("#tester-description").val(),
                 type: 'post',
                 success:function(res, textStatus, jqXHR){
-                    console.log(res);
                     if (res.code == 200) {
                         window.location.href = window.location.href;
                     } else {

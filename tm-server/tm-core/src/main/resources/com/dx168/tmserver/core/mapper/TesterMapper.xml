@@ -29,6 +29,10 @@
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
+    <select id="findById" resultType="com.dx168.tmserver.core.domain.Tester" resultMap="BaseResultMap" >
+        select * from t_tester where id = #{id}
+    </select>
+
     <select id="findAllByAppUid" resultMap="BaseResultMap">
         select * from t_tester where app_uid = #{appUid}
     </select>
@@ -54,4 +58,8 @@
         #{updatedAt,jdbcType=TIMESTAMP}
         )
     </insert>
+
+    <delete id="deleteById" >
+        DELETE FROM t_tester where id = #{id}
+    </delete>
 </mapper>

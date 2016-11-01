@@ -15,4 +15,8 @@ public interface TesterMapper {
     Tester findByTagAndUid(@Param("tag") String tag, @Param("appUid") String appUid);
 
     List<Tester> findAllByAppUid(String appUid);
+
+    void deleteById(Integer id);
+
+    Tester findById(Integer id);
 }
