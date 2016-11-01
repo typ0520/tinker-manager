@@ -20,37 +20,36 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dx168.tmserver.core.mapper.UserMapper">
-    <resultMap id="BaseResultMap" type="com.dx168.tmserver.core.domain.BasicUser" >
+<mapper namespace="com.dx168.tmserver.core.mapper.TesterMapper">
+    <resultMap id="BaseResultMap" type="com.dx168.tmserver.core.domain.Tester" >
         <id column="id" property="id" jdbcType="INTEGER" />
-        <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="app_uid" property="appUid" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
-    <select id="findByUsername" resultType="com.dx168.tmserver.core.domain.BasicUser" resultMap="BaseResultMap" >
-        select * from t_user where username = #{username}
+    <select id="findAllByAppUid" resultMap="BaseResultMap">
+        select * from t_tester where app_uid = #{appUid}
     </select>
 
-    <select id="findById" resultType="com.dx168.tmserver.core.domain.BasicUser" resultMap="BaseResultMap" >
-        select * from t_user where id = #{id}
+    <select id="findByTagAndUid" resultType="com.dx168.tmserver.core.domain.Tester" resultMap="BaseResultMap" >
+        select * from t_tester where app_uid = #{appUid} and tag = #{tag}
     </select>
 
-
-    <insert id="insert" parameterType="com.dx168.tmserver.core.domain.BasicUser">
+    <insert id="insert" parameterType="com.dx168.tmserver.core.domain.Tester">
         <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
-        insert into t_user (
-        parent_id, username, mobile,email,password,avatar, created_at, updated_at
+        insert into t_tester (
+        user_id, app_uid, tag,email,description, created_at, updated_at
         )
         values (
-        #{parentId,jdbcType=INTEGER},
-        #{username,jdbcType=VARCHAR},
-        #{mobile,jdbcType=VARCHAR},
+        #{userId,jdbcType=INTEGER},
+        #{appUid,jdbcType=VARCHAR},
+        #{tag,jdbcType=VARCHAR},
         #{email,jdbcType=VARCHAR},
-        #{password,jdbcType=VARCHAR},
-        #{avatar,jdbcType=VARCHAR},
+        #{description,jdbcType=VARCHAR},
         #{createdAt,jdbcType=TIMESTAMP},
         #{updatedAt,jdbcType=TIMESTAMP}
         )

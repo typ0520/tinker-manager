@@ -193,6 +193,14 @@ public class PatchInfo {
         return fileSizeString;
     }
 
+    public String getStatusDesc() {
+        return getStatusDesc(getStatus());
+    }
+
+    public String getPublishTypeDesc() {
+        return getPublishTypeDesc(getPublishType());
+    }
+
     @Override
     public String toString() {
         return "PatchInfo{" +
@@ -213,5 +221,33 @@ public class PatchInfo {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
+    }
+
+
+    public static String getStatusDesc(int status) {
+        if (status == PatchInfo.STATUS_UNPUBLISHED) {
+            return "未发布";
+        }
+        else if (status == PatchInfo.STATUS_PUBLISHED) {
+            return "已发布";
+        }
+        else if (status == PatchInfo.STATUS_STOPPED) {
+            return "已停止";
+        }
+        else {
+            throw new IllegalArgumentException("无法识别的状态: " + status);
+        }
+    }
+
+    public static String getPublishTypeDesc(int publishType) {
+        if (publishType == PUBLISH_TYPE_GRAY) {
+            return "灰度发布";
+        }
+        else if (publishType == PUBLISH_TYPE_NORMAL) {
+            return "全量发布";
+        }
+        else {
+            throw new IllegalArgumentException("无法识别的发布类型: " + publishType);
+        }
     }
 }

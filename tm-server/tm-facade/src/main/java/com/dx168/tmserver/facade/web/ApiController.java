@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.dx168.tmserver.core.domain.AppInfo;
 import com.dx168.tmserver.core.domain.PatchInfo;
 import com.dx168.tmserver.core.domain.VersionInfo;
-import com.dx168.tmserver.core.dto.PatchInfoDto;
+import com.dx168.tmserver.facade.dto.PatchInfoDto;
 import com.dx168.tmserver.core.utils.BizAssert;
 import com.dx168.tmserver.core.utils.BizException;
 import com.dx168.tmserver.core.utils.HttpRequestUtils;

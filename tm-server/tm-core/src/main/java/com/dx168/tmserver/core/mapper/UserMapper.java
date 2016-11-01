@@ -10,5 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface UserMapper {
     BasicUser findByUsername(String username);
 
+    BasicUser findById(Integer id);
+
     Integer insert(BasicUser basicUser);
 }

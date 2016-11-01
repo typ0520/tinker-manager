@@ -3,5 +3,7 @@ apply plugin: 'war'
 dependencies {
     compile project(':tm-core')
     compile("org.springframework.boot:spring-boot-starter-velocity")
+    compile("org.springframework.boot:spring-boot-starter-mail")
+
     compile("commons-io:commons-io:2.2")
 }
