@@ -1,7 +1,7 @@
 package com.dx168.tmserver.manager.web;
 
 import com.dx168.tmserver.core.domain.*;
-import com.dx168.tmserver.manager.service.TesterService;
+import com.dx168.tmserver.manager.service.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import com.dx168.tmserver.core.utils.BizAssert;
 import com.dx168.tmserver.core.utils.BizException;
-import com.dx168.tmserver.manager.service.AccountService;
-import com.dx168.tmserver.manager.service.AppService;
-import com.dx168.tmserver.manager.service.PatchService;
 import com.dx168.tmserver.core.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -38,6 +35,9 @@ public class ManagerController {
 
     @Autowired
     private TesterService testerService;
+
+    @Autowired
+    private ModelBlacklistService modelBlacklistService;
 
     @RequestMapping("/404")
     public String pageNotFound() {
@@ -144,6 +144,64 @@ public class ManagerController {
                 throw new BizException("信息不存在");
             }
             testerService.deleteById(testerId);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
+    @RequestMapping(value = "/modelblacklist/list",method = RequestMethod.GET)
+    public ModelAndView tester_list(HttpServletRequest req) {
+        RestResponse restR = new RestResponse();
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<Model> modelList = modelBlacklistService.findAllByUserId(accountService.getRootUserId(basicUser));
+
+        restR.getData().put("user",basicUser);
+        restR.getData().put("modelBlackList",modelList);
+        restR.getData().put("appInfoList",appService.findAllAppInfoByUser(basicUser));
+        return new ModelAndView("model_blacklist","restR",restR);
+    }
+
+    @RequestMapping(value = "/modelblacklist/add",method = RequestMethod.POST)
+    public @ResponseBody RestResponse add_modelblacklist(HttpServletRequest req,String regexp,String description) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notEpmty(regexp,"正则表达式不能为空");
+            BizAssert.notEpmty(description,"描述不能为空");
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Model model = modelBlacklistService.findByRegexp(accountService.getRootUserId(basicUser),regexp);
+            if (model != null) {
+                throw new BizException("匹配改机型的正则已存在");
+            }
+            model = new Model();
+            model.setUserId(accountService.getRootUserId(basicUser));
+            model.setRegexp(regexp);
+            model.setDescription(description);
+
+            modelBlacklistService.save(model);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
+    @RequestMapping(value = "/modelblacklist/del",method = RequestMethod.POST)
+    public @ResponseBody RestResponse del_modelblacklist(HttpServletRequest req,Integer modelblackId) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(modelblackId,"id不能为空");
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Model model = modelBlacklistService.findById(modelblackId);
+            if (model == null || accountService.getRootUserId(basicUser) != model.getUserId()) {
+                throw new BizException("信息不存在");
+            }
+            modelBlacklistService.delete(model);
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());

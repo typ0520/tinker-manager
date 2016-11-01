@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Tinker热修复-应用列表</title>
-
+    <title>Tinker热修复-机型黑名单管理</title>
     <link rel="icon" href="#springUrl('/static/img/favicon.ico')">
 
     <!-- Bootstrap Core CSS -->
@@ -24,12 +22,13 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
 </head>
 
 <body>
 
 <div class="bd-example">
-
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -37,18 +36,18 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h4 class="modal-title" id="exampleModalLabel">创建应用</h4>
+                    <h4 class="modal-title" id="exampleModalLabel">新增机型</h4>
                 </div>
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="app-name" class="form-control-label">应用名称:</label>
-                            <input type="text" class="form-control" id="app-name">
+                            <label for="regexp" class="form-control-label">匹配机型的正则:</label>
+                            <input type="text" class="form-control" id="regexp">
                         </div>
 
                         <div class="form-group">
-                            <label for="app-desc" class="form-control-label">应用描述:</label>
-                            <input type="text" class="form-control" id="app-desc">
+                            <label for="description" class="form-control-label">描述:</label>
+                            <input type="text" class="form-control" id="description">
                         </div>
 
                         <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
@@ -57,7 +56,7 @@
 
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="create_app">创建</button>
+                    <button type="button" class="btn btn-primary" id="create_model">创建</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -92,8 +91,8 @@
         <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
-                <li>
-                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> 全部应用 <i class="fa fa-fw fa-caret-down"></i></a>
+                <li class="active">
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
                     <ul id="demo" class="collapse">
                         <li>
                             <a href="#springUrl('/app/list')">全部应用</a>
@@ -107,16 +106,12 @@
                     </ul>
                 </li>
 
-##                <li>
-##                    <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> 应用管理</a>
-##                </li>
-
-                <li class="active">
+                <li>
                     <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
                 </li>
 
                 <li>
-                    <a href="#springUrl('/modelblacklist/list')"><i class="fa fa-fw fa-file"></i> 机型黑名单</a>
+                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
                 </li>
             </ul>
         </div>
@@ -131,17 +126,14 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h2 class="page-header">
-                        应用列表 <small></small>
+                        机型黑名单管理 <small></small>
                     </h2>
 
-##                    <p><a href="#springUrl('/console')">首页</a></p>
-
-
-##                    <p><a href="#springUrl('/app/create')">创建应用</a></p>
-
                     <p>
-                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">创建应用</button>
+                        <a href="#springUrl('/app/list')">首页</a>
                     </p>
+
+                    <p><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">新增机型</button></p>
 
                 </div>
             </div>
@@ -151,24 +143,24 @@
         <div class="container-fluid">
             <table class="table table-bordered">
                 <tr>
-                    <th>应用名称</th>
-                    <th>平台</th>
-                    <th>App ID</th>
+                    <th>正则</th>
+                    <th>描述</th>
+                    <th>创建时间</th>
                     <th>操作</th>
                 </tr>
 
-                #foreach($appInfo in $restR.data.appInfoList)
+                #foreach($modelBlackInfo in $restR.data.modelBlackList)
                     <tr>
-                        <th>$!appInfo.appname</th>
-                        <th>$!appInfo.platform</th>
-                        <th>$!appInfo.uid</th>
-                        <th><p><a href="#springUrl('')/app?appUid=$!appInfo.uid">管理</a></p></th>
+                        <th>$!modelBlackInfo.regexp</th>
+                        <th>$!modelBlackInfo.description</th>
+                        <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!modelBlackInfo.createdAt)</th>
+                        <th><a onclick="delModelBlack($!modelBlackInfo.id)">删除</a></th>
                     </tr>
                 #end
             </table>
 
-            #if($restR.data.appInfoList.isEmpty())
-                <div class="text-center">请添加应用!</div>
+            #if($restR.data.modelBlackList.isEmpty())
+                <div class="text-center">请先添加机型!</div>
             #end
         </div>
     </div>
@@ -176,24 +168,74 @@
 </div>
 
 <script>
-    console.log('ddd');
+    function delModelBlack(modelblack_id) {
+        bootbox.confirm({
+            message: "确定删除这个机型吗?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                console.log('This was logged in the callback: ' + result);
+
+                if (!result) {
+                    return;
+                }
+
+                var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> 正在删除...</p>'
+                });
+                dialog.init(function(){
+                    jQuery.ajax({
+                        url:  "#springUrl('')/modelblacklist/del?modelblackId=" + modelblack_id,
+                        type: 'post',
+                        success:function(res, textStatus, jqXHR){
+                            if (res.code == 200) {
+                                dialog.find('.bootbox-body').html('删除成功!');
+
+                                console.log("删除成功!")
+                                setTimeout(function(){
+                                    console.log("刷新页面")
+                                    window.location.href = window.location.href;
+                                }, 1500);
+                            } else {
+                                dialog.find('.bootbox-body').html(res.message);
+                            }
+                        },
+                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                            dialog.find('.bootbox-body').html('系统异常!');
+                        }
+                    });
+                });
+            }
+        });
+    }
+
     $(document).ready(function(){
-        $("#create_app").click(function () {
-            if ($("#app-name").val().length == 0) {
-                $("#err_msg").text('请输入应用名称');
+        $("#create_model").click(function () {
+            if ($("#regexp").val().length == 0) {
+                $("#err_msg").text('请输入正则');
                 return;
             }
-            if ($("#app-desc").val().length == 0) {
-                $("#err_msg").text('请输入应用描述');
+            //TODO 校验正则表达式的有效性
+
+            if ($("#description").val().length == 0) {
+                $("#err_msg").text('请输入描述');
                 return;
             }
             $("#err_msg").text('');
 
             jQuery.ajax({
-                url:  "#springUrl('')/app/create?appname=" + $("#app-name").val() + "&description=" + $("#app-desc").val(),
+                url:  "#springUrl('')/modelblacklist/add?regexp=" + $("#regexp").val() + "&description=" + $("#description").val(),
                 type: 'post',
                 success:function(res, textStatus, jqXHR){
-                    console.log(res);
                     if (res.code == 200) {
                         window.location.href = window.location.href;
                     } else {
