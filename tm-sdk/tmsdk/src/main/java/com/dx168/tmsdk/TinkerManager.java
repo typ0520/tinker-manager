@@ -13,7 +13,10 @@ import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.lib.util.TinkerLog;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import okhttp3.ResponseBody;
@@ -160,6 +163,13 @@ public final class TinkerManager {
                         if (patchDir.exists()) {
                             for (File patch : patchDir.listFiles()) {
                                 if (TextUtils.equals(patch.getName(), patchInfo.getData().getPatchVersion() + ".apk")) {
+                                    if (!checkPatch(patch, patchInfo.getData().getHash())) {
+                                        TinkerLog.e(TAG, "wrong hash");
+                                        if (patchListener != null) {
+                                            patchListener.onDownloadFailure(new Exception("wrong hash"));
+                                        }
+                                        return;
+                                    }
                                     TinkerInstaller.cleanPatch(context);
                                     TinkerInstaller.onReceiveUpgradePatch(context, patch.getAbsolutePath());
                                     return;
@@ -215,7 +225,46 @@ public final class TinkerManager {
                 });
     }
 
+    private boolean checkPatch(File patch, String hash) {
+        FileInputStream fis = null;
+        ByteArrayOutputStream bos = null;
+        byte[] bytes = null;
+        try {
+            fis = new FileInputStream(patch);
+            bos = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = fis.read(buf)) != -1) {
+                bos.write(buf, 0, len);
+            }
+            bytes = bos.toByteArray();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return checkPatch(bytes, hash);
+    }
+
     private boolean checkPatch(byte[] bytes, String hash) {
+        if (bytes == null || bytes.length == 0) {
+            return false;
+        }
         String downloadFileHash = TinkerManagerUtils.md5(appInfo.getAppId() + "_" + appInfo.getAppSecret() + "_" + TinkerManagerUtils.md5(bytes));
         return TextUtils.equals(downloadFileHash, hash);
     }
