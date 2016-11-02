@@ -58,6 +58,7 @@
         #{patchSize,jdbcType=BIGINT},
         #{fileHash,jdbcType=VARCHAR},
         #{description,jdbcType=VARCHAR},
+        #{downloadUrl,jdbcType=VARCHAR},
         #{createdAt,jdbcType=TIMESTAMP},
         #{updatedAt,jdbcType=TIMESTAMP}
         )
