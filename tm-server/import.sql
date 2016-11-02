@@ -89,20 +89,6 @@ CREATE TABLE `t_tester` (
   FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*tag黑名单表*/
-CREATE TABLE `t_tag_blacklist` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `user_id` int COMMENT '用户id',
-  `app_uid` varchar(64) NOT NULL COMMENT '应用id',
-  `tag` varchar(32) DEFAULT NULL COMMENT '标记值',
-  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
-  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `TAG` (`tag`),
-  FOREIGN KEY(user_id) REFERENCES t_user(id),
-  FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 /*机型黑名单*/
 CREATE TABLE `t_model_blacklist` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
