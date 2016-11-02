@@ -48,7 +48,7 @@ CREATE TABLE `t_version_info` (
   FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*版本信息表*/
+/*补丁信息表*/
 CREATE TABLE `t_patch_info` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `user_id` int COMMENT '用户id',

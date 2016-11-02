@@ -126,8 +126,8 @@ public class PatchService {
         return patchInfoMapper.findByIdAndAppUid(id,appUid);
     }
 
-    public void updateStatus(PatchInfo patchInfo) {
-        PatchInfo oldInfo = patchInfoMapper.findById(patchInfo.getId());
+    public void updateStatus(final PatchInfo patchInfo) {
+        final PatchInfo oldInfo = patchInfoMapper.findById(patchInfo.getId());
         patchInfo.setUpdatedAt(new Date());
         patchInfoMapper.updateStatus(patchInfo);
         executorService.submit(new Runnable() {

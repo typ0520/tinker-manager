@@ -1,5 +1,12 @@
 apply plugin: 'war'
 
+war<<{
+    copy {
+        from war.archivePath
+        into "$buildDir/libs"
+        rename('tm-facade.war', 'hotfix-apis.war')
+    }
+}
 dependencies {
     compile project(':tm-core')
     compile 'commons-fileupload:commons-fileupload:1.3'

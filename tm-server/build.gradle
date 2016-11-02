@@ -12,9 +12,15 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+configure(allprojects) { project ->
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+}
+
 subprojects {
     apply plugin: 'idea'
-    apply plugin: 'java'
     apply plugin: 'spring-boot'
 
     repositories {
@@ -25,6 +31,10 @@ subprojects {
         compile("org.springframework.boot:spring-boot-starter-web")
 
         testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
     }
 }
 
