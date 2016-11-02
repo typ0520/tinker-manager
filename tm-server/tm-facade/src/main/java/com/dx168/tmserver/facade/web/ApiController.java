@@ -93,8 +93,9 @@ public class ApiController {
                     serverPath = serverPath + "/";
                 }
 
-                patchInfoDto.setDownloadUrl(serverPath + "api/getPatch?id=" + resultInfo.getUid());
-
+                if (resultInfo.getDownloadUrl() == null) {
+                    patchInfoDto.setDownloadUrl(serverPath + "api/getPatch?id=" + resultInfo.getUid());
+                }
                 restR.setData(patchInfoDto);
             }
             else {

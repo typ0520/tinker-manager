@@ -42,6 +42,7 @@ public class PatchInfo {
     private long patchSize;
     private String fileHash;
     private String description;
+    private String downloadUrl;
     private Date createdAt;
     private Date updatedAt;
 
@@ -172,6 +173,14 @@ public class PatchInfo {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
     }
 
     public String getFormatPatchSize() {

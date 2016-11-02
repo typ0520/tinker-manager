@@ -3,6 +3,7 @@ package com.dx168.tmserver.manager.web;
 import com.dx168.tmserver.core.domain.*;
 import com.dx168.tmserver.manager.service.*;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +39,9 @@ public class ManagerController {
 
     @Autowired
     private ModelBlacklistService modelBlacklistService;
+
+    @Autowired
+    private Environment env;
 
     @RequestMapping("/404")
     public String pageNotFound() {

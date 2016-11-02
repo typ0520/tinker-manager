@@ -33,6 +33,9 @@ public class PatchService {
     @Value("${file_storage_path}")
     private String fileStoragePath;
 
+    @Value("${patch-static-url}")
+    private String patchStaticUrl;
+
     @Autowired
     private PatchInfoMapper patchInfoMapper;
 
@@ -61,8 +64,12 @@ public class PatchService {
         List<PatchInfo> patchInfoList = patchInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionInfo.getVersionName());
 
         int maxPatchVersion = getMaxPatchVersion(patchInfoList) + 1;
-        File path = new File(new File(fileStoragePath), appInfo.getUid() + File.separator + versionInfo.getVersionName() + File.separator + maxPatchVersion + File.separator);
-        File patchFile = new File(path,"patch.apk");
+
+        String childPath = appInfo.getUid() + File.separator + versionInfo.getVersionName() + File.separator + maxPatchVersion + File.separator;
+        String fileName = "patch_signed_7zip.apk";
+
+        File path = new File(new File(fileStoragePath), childPath);
+        File patchFile = new File(path,fileName);
         PatchInfo patchInfo = new PatchInfo();
         try {
             if (!path.exists() && !path.mkdirs()) {
@@ -80,6 +87,7 @@ public class PatchService {
             patchInfo.setFileHash(fileHash);
             patchInfo.setDescription(description);
             patchInfo.setStoragePath(patchFile.getAbsolutePath());
+            patchInfo.setDownloadUrl(getDownloadUrl(patchStaticUrl,childPath + fileName));
             patchInfo.setCreatedAt(new Date());
             patchInfo.setUpdatedAt(new Date());
 
@@ -92,6 +100,14 @@ public class PatchService {
 
         facadeService.clearCache();
         return patchInfo;
+    }
+
+    private String getDownloadUrl(String patchStaticUrl, String rel) {
+        if (!patchStaticUrl.endsWith("/") && !rel.startsWith("/")) {
+            patchStaticUrl = patchStaticUrl + "/";
+        }
+
+        return patchStaticUrl + rel;
     }
 
     private int getMaxPatchVersion(List<PatchInfo> patchInfoList) {
