@@ -7,6 +7,7 @@ CREATE TABLE `t_user` (
   `email` varchar(32) DEFAULT NULL COMMENT '邮箱',
   `password` varchar(32) NOT NULL COMMENT '登录密码',
   `avatar` varchar(128) DEFAULT NULL COMMENT '头像',
+  `account_type` int DEFAULT NULL COMMENT '账户类型 0: admin 1: 开发人员 1: 测试人员',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
@@ -47,7 +48,7 @@ CREATE TABLE `t_version_info` (
   FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*版本信息表*/
+/*补丁信息表*/
 CREATE TABLE `t_patch_info` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `user_id` int COMMENT '用户id',
@@ -63,10 +64,40 @@ CREATE TABLE `t_patch_info` (
   `description` varchar(32) NOT NULL COMMENT '补丁描述',
   `tags` varchar(256) DEFAULT NULL COMMENT '灰度发布的tag用，分割',
   `storage_path` varchar(256) NOT NULL COMMENT '存储路径',
+  `download_url` varchar(256) DEFAULT NULL COMMENT '下载地址',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `UUID` (`uid`),
   FOREIGN KEY(user_id) REFERENCES t_user(id),
   FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*测试人员表(与账号和应用向关联)*/
+CREATE TABLE `t_tester` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `user_id` int COMMENT '用户id',
+  `app_uid` varchar(64) NOT NULL COMMENT '应用id',
+  `tag` varchar(32) DEFAULT NULL COMMENT '标记值',
+  `email` varchar(32) DEFAULT NULL COMMENT '邮箱',
+  `description` varchar(32) NOT NULL COMMENT '描述',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `TAG` (`tag`),
+  FOREIGN KEY(user_id) REFERENCES t_user(id),
+  FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*机型黑名单*/
+CREATE TABLE `t_model_blacklist` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `user_id` int COMMENT '用户id',
+  `regexp` varchar(64) NOT NULL COMMENT '正则表达式',
+  `description` varchar(32) NOT NULL COMMENT '描述',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `REGEXP` (`regexp`),
+  FOREIGN KEY(user_id) REFERENCES t_user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

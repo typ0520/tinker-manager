@@ -1,4 +1,4 @@
-package com.dx168.tmserver.core.dto;
+package com.dx168.tmserver.facade.dto;
 
 /**
  * Created by tong on 16/10/27.

@@ -27,7 +27,7 @@ public class FacadeService {
             byte[] buffer = org.apache.commons.io.IOUtils.toByteArray(conn.getInputStream());
             LOG.info("clearCache res: " + new String(buffer));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("通知facade清空缓存失败: " + e.getMessage());
         }
     }
 }

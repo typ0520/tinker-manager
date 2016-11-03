@@ -1,24 +1,21 @@
 package com.dx168.tmserver.manager.web;
 
+import com.dx168.tmserver.core.domain.*;
+import com.dx168.tmserver.manager.service.*;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import com.dx168.tmserver.manager.common.Constants;
 import com.dx168.tmserver.manager.common.RestResponse;
-import com.dx168.tmserver.core.domain.AppInfo;
-import com.dx168.tmserver.core.domain.BasicUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import com.dx168.tmserver.core.domain.PatchInfo;
-import com.dx168.tmserver.core.domain.VersionInfo;
 import com.dx168.tmserver.core.utils.BizAssert;
 import com.dx168.tmserver.core.utils.BizException;
-import com.dx168.tmserver.manager.service.AccountService;
-import com.dx168.tmserver.manager.service.AppService;
-import com.dx168.tmserver.manager.service.PatchService;
 import com.dx168.tmserver.core.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -37,6 +34,15 @@ public class ManagerController {
     @Autowired
     private PatchService patchService;
 
+    @Autowired
+    private TesterService testerService;
+
+    @Autowired
+    private ModelBlacklistService modelBlacklistService;
+
+    @Autowired
+    private Environment env;
+
     @RequestMapping("/404")
     public String pageNotFound() {
         return "404";
@@ -47,7 +53,7 @@ public class ManagerController {
         return new ModelAndView("redirect:/app/list");
     }
 
-    @RequestMapping(value = {"/console","/app/list"},method = RequestMethod.GET)
+    @RequestMapping(value = "/app/list",method = RequestMethod.GET)
     public ModelAndView index(HttpServletRequest req) {
         RestResponse restR = new RestResponse();
 
@@ -85,6 +91,127 @@ public class ManagerController {
         restR.getData().put("appInfoList",appInfoList);
         restR.getData().put("versionList",appService.findAllVersion(appInfo));
         return new ModelAndView("app","restR",restR);
+    }
+
+    @RequestMapping(value = "/tester/list",method = RequestMethod.GET)
+    public ModelAndView tester_list(HttpServletRequest req,String appUid) {
+        RestResponse restR = new RestResponse();
+        BizAssert.notEpmty(appUid,"应用编号不能为空");
+        AppInfo appInfo = appService.findByUid(appUid);
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        restR.getData().put("user",basicUser);
+        restR.getData().put("appInfo",appInfo);
+        restR.getData().put("testerList",testerService.findAllByAppUid(appUid));
+        restR.getData().put("appInfoList",appService.findAllAppInfoByUser(basicUser));
+        return new ModelAndView("tester_list","restR",restR);
+    }
+
+    @RequestMapping(value = "/tester/add",method = RequestMethod.POST)
+    public @ResponseBody RestResponse addTester(HttpServletRequest req,String appUid,String tag,String email,String description) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notEpmty(appUid,"应用号不能为空");
+            BizAssert.notEpmty(tag,"tag不能为空");
+            BizAssert.notEpmty(email,"email不能为空");
+            BizAssert.notEpmty(tag,"版本号不能为空");
+
+            Tester tester = testerService.findByTagAndUid(tag,appUid);
+            if (tester != null) {
+                throw new BizException("测试tag已存在");
+            }
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            tester = new Tester();
+            tester.setUserId(accountService.getRootUserId(basicUser));
+            tester.setAppUid(appUid);
+            tester.setTag(tag);
+            tester.setEmail(email);
+            tester.setDescription(description);
+
+            testerService.save(tester);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
+    @RequestMapping(value = "/tester/del",method = RequestMethod.POST)
+    public @ResponseBody RestResponse delTester(HttpServletRequest req,Integer testerId) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(testerId,"id不能为空");
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Tester tester = testerService.findById(testerId);
+            if (tester == null || accountService.getRootUserId(basicUser) != tester.getUserId()) {
+                throw new BizException("信息不存在");
+            }
+            testerService.deleteById(testerId);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
+    @RequestMapping(value = "/modelblacklist/list",method = RequestMethod.GET)
+    public ModelAndView tester_list(HttpServletRequest req) {
+        RestResponse restR = new RestResponse();
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<Model> modelList = modelBlacklistService.findAllByUserId(accountService.getRootUserId(basicUser));
+
+        restR.getData().put("user",basicUser);
+        restR.getData().put("modelBlackList",modelList);
+        restR.getData().put("appInfoList",appService.findAllAppInfoByUser(basicUser));
+        return new ModelAndView("model_blacklist","restR",restR);
+    }
+
+    @RequestMapping(value = "/modelblacklist/add",method = RequestMethod.POST)
+    public @ResponseBody RestResponse add_modelblacklist(HttpServletRequest req,String regexp,String description) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notEpmty(regexp,"正则表达式不能为空");
+            BizAssert.notEpmty(description,"描述不能为空");
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Model model = modelBlacklistService.findByRegexp(accountService.getRootUserId(basicUser),regexp);
+            if (model != null) {
+                throw new BizException("匹配改机型的正则已存在");
+            }
+            model = new Model();
+            model.setUserId(accountService.getRootUserId(basicUser));
+            model.setRegexp(regexp);
+            model.setDescription(description);
+
+            modelBlacklistService.save(model);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
+    @RequestMapping(value = "/modelblacklist/del",method = RequestMethod.POST)
+    public @ResponseBody RestResponse del_modelblacklist(HttpServletRequest req,Integer modelblackId) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(modelblackId,"id不能为空");
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Model model = modelBlacklistService.findById(modelblackId);
+            if (model == null || accountService.getRootUserId(basicUser) != model.getUserId()) {
+                throw new BizException("信息不存在");
+            }
+            modelBlacklistService.delete(model);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
     }
 
     @RequestMapping(value = "/app/create_version",method = RequestMethod.POST)
@@ -173,6 +300,12 @@ public class ManagerController {
         if (patchInfo == null) {
             throw new BizException("参数不正确");
         }
+        if (patchInfo.getStatus() == PatchInfo.STATUS_UNPUBLISHED) {
+            String tags = testerService.getAllTags(appUid);
+            if (!StringUtils.isEmpty(tags)) {
+                restR.getData().put("tags",tags + ";");
+            }
+        }
         AppInfo appInfo = appService.findByUid(patchInfo.getAppUid());
         VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,patchInfo.getVersionName());
         if (versionInfo == null) {
@@ -180,13 +313,11 @@ public class ManagerController {
         }
         BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
         List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
-
         restR.getData().put("user",basicUser);
         restR.getData().put("appInfoList",appInfoList);
         restR.getData().put("appInfo",appInfo);
         restR.getData().put("versionInfo",versionInfo);
         restR.getData().put("patchInfo",patchInfo);
-
         return new ModelAndView("patch","restR",restR);
     }
 

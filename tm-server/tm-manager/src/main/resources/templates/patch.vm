@@ -127,7 +127,7 @@
                 <div id="gray_publish_container">
 
                     请输入用于灰度发布的tag(如果有多个tag用;分隔)
-                    <input type="text" id="gray_tags" style="width:700px">
+                    <input type="text" id="gray_tags" style="width:900px" value="$!restR.data.tags" />
                 </div>
 
                 <br />

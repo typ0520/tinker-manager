@@ -114,6 +114,10 @@
                 <li class="active">
                     <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
                 </li>
+
+##                <li>
+##                    <a href="#springUrl('/modelblacklist/list')"><i class="fa fa-fw fa-file"></i> 机型黑名单</a>
+##                </li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->

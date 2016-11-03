@@ -40,6 +40,10 @@ public class AccountService {
         basicUser.setId(id);
     }
 
+    public BasicUser findById(Integer id) {
+        return userMapper.findById(id);
+    }
+
     public Integer getRootUserId(BasicUser basicUser) {
         if (basicUser.isChildAccount()) {
             return basicUser.getParentId();
