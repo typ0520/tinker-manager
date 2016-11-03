@@ -1,9 +1,8 @@
 package com.dx168.tmserver.manager.application;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import com.dx168.tmserver.manager.common.Constants;
 import com.dx168.tmserver.core.utils.HttpRequestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
@@ -14,13 +13,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Component
 public class AuthInterceptor extends HandlerInterceptorAdapter {
-    @Autowired
-    private ServerProperties serverProperties;
-
     @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) throws Exception {
         String uri = req.getRequestURI().replaceFirst(req.getContextPath(), "");
-        boolean isNeedFilter = HttpRequestUtils.isInclude(uri,"/app/**","/patch/**","/version/**","/tester/**");
+        boolean isNeedFilter = HttpRequestUtils.isInclude(uri,"/app/**","/patch/**","/version/**","/tester/**","/modelblacklist/**");
 
         if (!isNeedFilter) {
             return true;
@@ -41,10 +37,15 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
     private String getRedirectUrl(HttpServletRequest req) {
         String redirect = req.getRequestURI();
+        if (redirect.startsWith(req.getContextPath())
+                && !"/".equals(req.getContextPath())
+                && StringUtils.isNotEmpty(req.getContextPath())) {
+            redirect = redirect.substring(req.getContextPath().length(),redirect.length());
+        }
         if (req.getQueryString() != null) {
             redirect = redirect + "?" + req.getQueryString();
             redirect = HttpRequestUtils.urlEncode(redirect);
         }
-        return serverProperties.getServletPrefix() + "/login?redirect=" + redirect;
+        return "/login?redirect=" + redirect;
     }
 }

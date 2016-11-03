@@ -1,6 +1,5 @@
 package com.dx168.tmserver.facade.web;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -16,13 +15,9 @@ import com.dx168.tmserver.core.domain.VersionInfo;
 import com.dx168.tmserver.facade.dto.PatchInfoDto;
 import com.dx168.tmserver.core.utils.BizAssert;
 import com.dx168.tmserver.core.utils.BizException;
-import com.dx168.tmserver.core.utils.HttpRequestUtils;
 import com.dx168.tmserver.facade.common.RestResponse;
 import com.dx168.tmserver.facade.service.ApiService;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -89,14 +84,6 @@ public class ApiController {
                 BeanUtils.copyProperties(resultInfo,patchInfoDto);
                 patchInfoDto.setHash(DigestUtils.md5DigestAsHex((appUid + "_" + appInfo.getSecret() + "_" + resultInfo.getFileHash()).getBytes()));
                 patchInfoDto.setCreatedTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(resultInfo.getCreatedAt()));
-                String serverPath = HttpRequestUtils.getBasePath(req);
-                if (!serverPath.endsWith("/")) {
-                    serverPath = serverPath + "/";
-                }
-
-                if (resultInfo.getDownloadUrl() == null) {
-                    patchInfoDto.setDownloadUrl(serverPath + "api/getPatch?id=" + resultInfo.getUid());
-                }
                 restR.setData(patchInfoDto);
             }
             else {
@@ -107,14 +94,6 @@ public class ApiController {
             restR.setMessage(e.getMessage());
         }
         return restR;
-    }
-
-    @RequestMapping(value = "/api/getPatch", method = RequestMethod.GET)
-    public void patch_download(String id,HttpServletResponse response) throws Exception {
-        PatchInfo patchInfo = apiService.findPatchInfo(id);
-        InputStream is = apiService.getDownloadStream(patchInfo);
-        IOUtils.copy(is, response.getOutputStream());
-        response.flushBuffer();
     }
 
     @RequestMapping(value = "/api/clearCache", method = RequestMethod.GET)

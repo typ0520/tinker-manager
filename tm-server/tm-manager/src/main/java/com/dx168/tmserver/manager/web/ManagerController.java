@@ -3,16 +3,12 @@ package com.dx168.tmserver.manager.web;
 import com.dx168.tmserver.core.domain.*;
 import com.dx168.tmserver.manager.service.*;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.dx168.tmserver.manager.common.Constants;
 import com.dx168.tmserver.manager.common.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import com.dx168.tmserver.core.utils.BizAssert;
 import com.dx168.tmserver.core.utils.BizException;
@@ -39,9 +35,6 @@ public class ManagerController {
 
     @Autowired
     private ModelBlacklistService modelBlacklistService;
-
-    @Autowired
-    private Environment env;
 
     @RequestMapping("/404")
     public String pageNotFound() {
@@ -367,10 +360,16 @@ public class ManagerController {
     public @ResponseBody RestResponse delete_patch(String appUid,Integer id) {
         RestResponse restR = new RestResponse();
         try {
+            BizAssert.notNull(id,"应用id不能为空");
             BizAssert.notNull(id,"参数不能为空");
             PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
             if (patchInfo != null) {
-                patchService.deletePatch(patchInfo);
+                if (patchInfo.getStatus() == PatchInfo.STATUS_UNPUBLISHED) {
+                    patchService.deletePatch(patchInfo);
+                }
+                else {
+                    throw new BizException("已发布或者已暂停状态的补丁包不允许删除");
+                }
             }
         } catch (BizException e) {
             restR.setCode(-1);

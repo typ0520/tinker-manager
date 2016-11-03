@@ -40,7 +40,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="index.html">Tinker热修复-后台</a>
+            <a class="navbar-brand" href="#springUrl('/app/list')">Tinker热修复-后台</a>
         </div>
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
@@ -139,6 +139,8 @@
 
                 <br />
                 <br />
+
+                <input type="button" id="del_patch" value="删除补丁" />
             #elseif($!restR.data.patchInfo.status == 1)
                 #if($!restR.data.patchInfo.publishType == 0)
                     当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
@@ -149,8 +151,7 @@
                     <input type="button" id="stop_publish" value="停止发布" />
                 #end
             #elseif($!restR.data.patchInfo.status == 2)
-                <input type="button" id="normal_publish" value="继续发布(全量)" /> &nbsp;&nbsp;&nbsp; <input type="button" id="del_patch" value="删除当前patch" />
-            ##             &nbsp;&nbsp;&nbsp; <input type="button" id="rollback" value="选择回滚" />
+                <input type="button" id="normal_publish" value="继续发布(全量)" />
             #end
 
         </div>
@@ -175,7 +176,7 @@
 
                             setTimeout(function(){
                                 window.location.href = window.location.href;
-                            }, 1500);
+                            }, 500);
                         } else {
                             dialog.find('.bootbox-body').html(res.message);
                         }
@@ -222,7 +223,7 @@
 
                                     setTimeout(function(){
                                         window.location.href = window.location.href;
-                                    }, 1500);
+                                    }, 500);
                                 } else {
                                     dialog.find('.bootbox-body').html(res.message);
                                 }
@@ -270,7 +271,7 @@
 
                                     setTimeout(function(){
                                         window.location.href = "#springUrl('')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
-                                    }, 1500);
+                                    }, 500);
                                 } else {
                                     dialog.find('.bootbox-body').html(res.message);
                                 }
@@ -307,13 +308,13 @@
 
                             setTimeout(function(){
                                 window.location.href = window.location.href;
-                            }, 1500);
+                            }, 500);
                         } else {
-                            dialog.find('.bootbox-body').html(res.message);
+                            dialog.find('.bootbox-body').html("<font color='red'>" + res.message + "</font>");
                         }
                     },
                     error:function(XMLHttpRequest, textStatus, errorThrown){
-                        dialog.find('.bootbox-body').html('系统异常!');
+                        dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
                     }
                 });
             });

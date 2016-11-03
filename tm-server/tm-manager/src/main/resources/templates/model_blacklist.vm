@@ -75,7 +75,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="index.html">Tinker热修复-后台</a>
+            <a class="navbar-brand" href="#springUrl('/app/list')">Tinker热修复-后台</a>
         </div>
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
@@ -204,7 +204,7 @@
                                 setTimeout(function(){
                                     console.log("刷新页面")
                                     window.location.href = window.location.href;
-                                }, 1500);
+                                }, 500);
                             } else {
                                 dialog.find('.bootbox-body').html(res.message);
                             }
@@ -232,19 +232,27 @@
             }
             $("#err_msg").text('');
 
-            jQuery.ajax({
-                url:  "#springUrl('')/modelblacklist/add?regexp=" + $("#regexp").val() + "&description=" + $("#description").val(),
-                type: 'post',
-                success:function(res, textStatus, jqXHR){
-                    if (res.code == 200) {
-                        window.location.href = window.location.href;
-                    } else {
-                        $("#err_msg").text(res.message);
+            var dialog = bootbox.dialog({
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function(){
+                jQuery.ajax({
+                    url:  "#springUrl('')/modelblacklist/add?regexp=" + $("#regexp").val() + "&description=" + $("#description").val(),
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        if (res.code == 200) {
+                            dialog.find('.bootbox-body').html('添加成功!');
+                            setTimeout(function(){
+                                window.location.href = window.location.href;
+                            }, 500);
+                        } else {
+                            dialog.find('.bootbox-body').html("<font color='red'>" + res.message + "</font>");
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
                     }
-                },
-                error:function(XMLHttpRequest, textStatus, errorThrown){
-                    $("#err_msg").text(系统异常);
-                }
+                });
             });
         });
     });

@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.ErrorPage;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -27,7 +28,7 @@ import java.util.Map;
  * Created by tong on 16/10/27.
  */
 @Configuration
-public class WebAppConfig extends WebMvcConfigurerAdapter implements HandlerExceptionResolver,EmbeddedServletContainerCustomizer {
+public class WebAppConfig extends WebMvcConfigurerAdapter implements HandlerExceptionResolver {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -77,9 +78,27 @@ public class WebAppConfig extends WebMvcConfigurerAdapter implements HandlerExce
         return new ModelAndView("500", "restR", restR);
     }
 
-    @Override
-    public void customize(ConfigurableEmbeddedServletContainer container) {
-        ErrorPage page404 = new ErrorPage(HttpStatus.NOT_FOUND,this.serverProperties.getServletPrefix() + "/404");
-        container.addErrorPages(page404);
+//    @Override
+//    public void customize(ConfigurableEmbeddedServletContainer container) {
+//        ErrorPage page404 = new ErrorPage(HttpStatus.NOT_FOUND,"/error/404");
+//        container.addErrorPages(page404);
+//    }
+
+    @Bean
+    public EmbeddedServletContainerCustomizer containerCustomizer() {
+        return new EmbeddedServletContainerCustomizer() {
+            @Override
+            public void customize(ConfigurableEmbeddedServletContainer container) {
+                ErrorPage page404 = new ErrorPage(HttpStatus.NOT_FOUND,"/404");
+                container.addErrorPages(page404);
+            }
+        };
+//        return (container -> {
+//            ErrorPage error401Page = new ErrorPage(HttpStatus.UNAUTHORIZED, "/401.html");
+//            ErrorPage error404Page = new ErrorPage(HttpStatus.NOT_FOUND, "/404.html");
+//            ErrorPage error500Page = new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, "/500.html");
+//
+//            container.addErrorPages(error401Page, error404Page, error500Page);
+//        });
     }
 }

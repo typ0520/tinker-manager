@@ -14,11 +14,11 @@ import java.net.URL;
 public class FacadeService {
     private static final Logger LOG = LoggerFactory.getLogger(FacadeService.class);
 
-    @Value("${tc-facade-url}")
+    @Value("${tm-facade-url}")
     private String facadrUrl;
 
     public void clearCache() {
-        String url = facadrUrl + "/api/clearCache";
+        String url = (facadrUrl.endsWith("/") ? facadrUrl : facadrUrl + "/") + "api/clearCache";
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("GET");

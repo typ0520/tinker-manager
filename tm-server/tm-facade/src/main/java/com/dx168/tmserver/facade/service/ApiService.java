@@ -1,6 +1,5 @@
 package com.dx168.tmserver.facade.service;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dx168.tmserver.core.utils.CacheEntry;
@@ -39,7 +38,6 @@ public class ApiService {
     private final Map<String,CacheEntry<VersionInfo>> versionInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
-    private final Map<Integer,byte[]> fileCache = new ConcurrentHashMap<>();
 
     public AppInfo findAppInfo(String uid) {
         CacheEntry<AppInfo> cacheEntry = appInfoCache.get(uid);
@@ -136,18 +134,6 @@ public class ApiService {
             }
         }
         return result;
-    }
-
-    public InputStream getDownloadStream(PatchInfo patchInfo) throws IOException {
-        byte[] fileContent = fileCache.get(patchInfo.getId());
-        if (fileContent == null) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copy(new FileInputStream(patchInfo.getStoragePath()), bos);
-
-            LOG.info("new file cache: " + patchInfo.getId());
-            fileCache.put(patchInfo.getId(),bos.toByteArray());
-        }
-        return new ByteArrayInputStream(fileContent);
     }
 
     public void clearCache() {
