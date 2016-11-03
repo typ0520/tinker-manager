@@ -36,18 +36,18 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h4 class="modal-title" id="exampleModalLabel">新增机型</h4>
+                    <h4 class="modal-title" id="exampleModalLabel">新增机型黑名单</h4>
                 </div>
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="regexp" class="form-control-label">匹配机型的正则:</label>
-                            <input type="text" class="form-control" id="regexp">
+                            <label for="regularExp" class="form-control-label">匹配机型的正则:</label>
+                            <input type="text" class="form-control" id="regularExp" maxlength="64">
                         </div>
 
                         <div class="form-group">
                             <label for="description" class="form-control-label">描述:</label>
-                            <input type="text" class="form-control" id="description">
+                            <input type="text" class="form-control" id="description" maxlength="32">
                         </div>
 
                         <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
@@ -92,7 +92,7 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
                 <li class="active">
-                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> 全部应用 <i class="fa fa-fw fa-caret-down"></i></a>
                     <ul id="demo" class="collapse">
                         <li>
                             <a href="#springUrl('/app/list')">全部应用</a>
@@ -108,10 +108,6 @@
 
                 <li>
                     <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
-                </li>
-
-                <li>
-                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
                 </li>
             </ul>
         </div>
@@ -133,7 +129,7 @@
                         <a href="#springUrl('/app/list')">首页</a>
                     </p>
 
-                    <p><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">新增机型</button></p>
+                    <p><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">新增机型黑名单</button></p>
 
                 </div>
             </div>
@@ -151,10 +147,10 @@
 
                 #foreach($modelBlackInfo in $restR.data.modelBlackList)
                     <tr>
-                        <th>$!modelBlackInfo.regexp</th>
+                        <th>$!modelBlackInfo.regularExp</th>
                         <th>$!modelBlackInfo.description</th>
                         <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!modelBlackInfo.createdAt)</th>
-                        <th><a onclick="delModelBlack($!modelBlackInfo.id)">删除</a></th>
+                        <th><a onclick="delModelBlack($!modelBlackInfo.id)">删除</a>  &nbsp;&nbsp; <a onclick="testRegexp('$!modelBlackInfo.regularExp')">测试</a> </th>
                     </tr>
                 #end
             </table>
@@ -218,9 +214,24 @@
         });
     }
 
+    function testRegexp(regularExp) {
+        bootbox.prompt("测试匹配(" + regularExp + ")", function(result){
+            if (result.length == 0) {
+                return;
+            }
+            var reg = eval("/" + regularExp + "/g");
+            if (reg.test(result)) {
+                bootbox.alert("匹配通过");
+            }
+            else {
+                bootbox.alert("匹配失败");
+            }
+        });
+    }
+
     $(document).ready(function(){
         $("#create_model").click(function () {
-            if ($("#regexp").val().length == 0) {
+            if ($("#regularExp").val().length == 0) {
                 $("#err_msg").text('请输入正则');
                 return;
             }
@@ -232,27 +243,39 @@
             }
             $("#err_msg").text('');
 
-            var dialog = bootbox.dialog({
-                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
-            });
-            dialog.init(function(){
-                jQuery.ajax({
-                    url:  "#springUrl('')/modelblacklist/add?regexp=" + $("#regexp").val() + "&description=" + $("#description").val(),
-                    type: 'post',
-                    success:function(res, textStatus, jqXHR){
-                        if (res.code == 200) {
-                            dialog.find('.bootbox-body').html('添加成功!');
-                            setTimeout(function(){
-                                window.location.href = window.location.href;
-                            }, 500);
-                        } else {
-                            dialog.find('.bootbox-body').html("<font color='red'>" + res.message + "</font>");
-                        }
-                    },
-                    error:function(XMLHttpRequest, textStatus, errorThrown){
-                        dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
-                    }
-                });
+            bootbox.prompt("输入你想匹配的机型做下测试", function(result){
+                console.log(result)
+                if (result == null || result == undefined || result == '') {
+                    return;
+                }
+                var reg = eval("/" + $("#regularExp").val() + "/g");
+                if (reg.test(result)) {
+                    var dialog = bootbox.dialog({
+                        message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+                    });
+                    dialog.init(function(){
+                        jQuery.ajax({
+                            url:  "#springUrl('')/modelblacklist/add?regularExp=" + $("#regularExp").val() + "&description=" + $("#description").val(),
+                            type: 'post',
+                            success:function(res, textStatus, jqXHR){
+                                if (res.code == 200) {
+                                    dialog.find('.bootbox-body').html('添加成功!');
+                                    setTimeout(function(){
+                                        window.location.href = window.location.href;
+                                    }, 500);
+                                } else {
+                                    dialog.find('.bootbox-body').html("<font color='red'>" + res.message + "</font>");
+                                }
+                            },
+                            error:function(XMLHttpRequest, textStatus, errorThrown){
+                                dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
+                            }
+                        });
+                    });
+                }
+                else {
+                    $("#err_msg").text('匹配失败,无法添加到黑名单');
+                }
             });
         });
     });

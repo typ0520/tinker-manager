@@ -1,5 +1,7 @@
 package com.dx168.tmserver.facade.service;
 
+import com.dx168.tmserver.core.domain.Model;
+import com.dx168.tmserver.core.mapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dx168.tmserver.core.utils.CacheEntry;
@@ -13,10 +15,12 @@ import com.dx168.tmserver.core.mapper.PatchInfoMapper;
 import com.dx168.tmserver.core.mapper.VersionInfoMapper;
 import com.dx168.tmserver.facade.web.ApiController;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * Created by tong on 16/10/31.
@@ -34,10 +38,14 @@ public class ApiService {
     @Autowired
     private PatchInfoMapper patchInfoMapper;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     private final Map<String,CacheEntry<AppInfo>> appInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<VersionInfo>> versionInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
+    private final Map<Integer,CacheEntry<List<Pattern>>> modelBlackListPatternCache = new ConcurrentHashMap<>();
 
     public AppInfo findAppInfo(String uid) {
         CacheEntry<AppInfo> cacheEntry = appInfoCache.get(uid);
@@ -136,11 +144,38 @@ public class ApiService {
         return result;
     }
 
+    public List<Pattern> getAllModelBlackListPattern(Integer userId) {
+        CacheEntry<List<Pattern>> cacheEntry = modelBlackListPatternCache.get(userId);
+        List<Pattern> patterns = null;
+        if (cacheEntry != null) {
+            patterns = cacheEntry.getEntry();
+        }
+        if (patterns == null) {
+            List<Model> modelList = modelMapper.findAllByUserId(userId);
+            patterns = new ArrayList<>();
+
+            if (modelList != null) {
+                for (Model model : modelList) {
+                    try {
+                        patterns.add(Pattern.compile(model.getRegularExp()));
+                    } catch (Throwable e) {
+
+                    }
+                }
+            }
+
+            LOG.info("new model blacklist list cache: " + patterns);
+            modelBlackListPatternCache.put(userId,new CacheEntry<List<Pattern>>(patterns,TimeUnit.MINUTES,10));
+        }
+        return patterns;
+    }
+
     public void clearCache() {
 //        appInfoCache.clear();
 //        versionInfoCache.clear();
         patchInfoCache.clear();
         patchInfoListCache.clear();
         //fileCache.clear();
+        modelBlackListPatternCache.clear();
     }
 }

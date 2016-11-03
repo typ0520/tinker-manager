@@ -15,6 +15,7 @@ import com.dx168.tmserver.core.utils.BizException;
 import com.dx168.tmserver.core.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by tong on 15/10/24.
@@ -162,20 +163,25 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/modelblacklist/add",method = RequestMethod.POST)
-    public @ResponseBody RestResponse add_modelblacklist(HttpServletRequest req,String regexp,String description) {
+    public @ResponseBody RestResponse add_modelblacklist(HttpServletRequest req,String regularExp,String description) {
         RestResponse restR = new RestResponse();
         try {
-            BizAssert.notEpmty(regexp,"正则表达式不能为空");
+            BizAssert.notEpmty(regularExp,"正则表达式不能为空");
             BizAssert.notEpmty(description,"描述不能为空");
+            try {
+                Pattern.compile(regularExp);
+            } catch (Throwable e) {
+                throw new BizException("无效的正则表达式");
+            }
 
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-            Model model = modelBlacklistService.findByRegexp(accountService.getRootUserId(basicUser),regexp);
+            Model model = modelBlacklistService.findByRegexp(accountService.getRootUserId(basicUser),regularExp);
             if (model != null) {
-                throw new BizException("匹配改机型的正则已存在");
+                throw new BizException("匹配该机型的正则已存在");
             }
             model = new Model();
             model.setUserId(accountService.getRootUserId(basicUser));
-            model.setRegexp(regexp);
+            model.setRegularExp(regularExp);
             model.setDescription(description);
 
             modelBlacklistService.save(model);

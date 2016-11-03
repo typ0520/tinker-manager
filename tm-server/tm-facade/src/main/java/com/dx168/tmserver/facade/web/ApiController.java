@@ -6,6 +6,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,6 +21,7 @@ import com.dx168.tmserver.facade.service.ApiService;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by tong on 16/10/27.
@@ -63,6 +65,18 @@ public class ApiController {
             VersionInfo versionInfo = apiService.findVersionInfo(appUid,versionName);
             if (versionInfo == null) {
                 throw new BizException("版本信息不正确");
+            }
+            if (!StringUtils.isEmpty(model)) {
+                List<Pattern> patterns = apiService.getAllModelBlackListPattern(appInfo.getUserId());
+                if (patterns != null && patterns.size() > 0) {
+                    for (Pattern pattern : patterns) {
+                        if (pattern.matcher(model).matches()) {
+                            //这个机型在黑名单中
+                            restR.setData(null);
+                            return restR;
+                        }
+                    }
+                }
             }
 
             List<PatchInfo> patchInfoList = apiService.findPatchInfos(appUid,versionName);

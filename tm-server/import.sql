@@ -93,11 +93,11 @@ CREATE TABLE `t_tester` (
 CREATE TABLE `t_model_blacklist` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `user_id` int COMMENT '用户id',
-  `regexp` varchar(64) NOT NULL COMMENT '正则表达式',
+  `regular_exp` varchar(64) NOT NULL COMMENT '正则表达式',
   `description` varchar(32) NOT NULL COMMENT '描述',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `REGEXP` (`regexp`),
+  UNIQUE KEY `REGULAR_EXP` (`regular_exp`),
   FOREIGN KEY(user_id) REFERENCES t_user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
