@@ -40,7 +40,7 @@ class TinkerManagerHttpService {
 
     public interface ITinkerManagerHttpService {
 
-        @GET("/hotfix-apis")
+        @GET("/hotfix-apis/api/patch")
         Observable<PatchInfo> queryPatch(@Query("appUid") String appId,
                                          @Query("token") String token,
                                          @Query("tag") String tag,
