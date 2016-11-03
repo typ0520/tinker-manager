@@ -31,7 +31,7 @@ class TinkerManagerHttpService {
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(okHttpClient)
-                    .baseUrl("http://127.0.0.1/")
+                    .baseUrl("http://hotfix.dx168.com/")
                     .build()
                     .create(ITinkerManagerHttpService.class);
         }
@@ -40,7 +40,7 @@ class TinkerManagerHttpService {
 
     public interface ITinkerManagerHttpService {
 
-        @GET("http://192.168.16.166:9011/api/patch")
+        @GET("/hotfix-apis")
         Observable<PatchInfo> queryPatch(@Query("appUid") String appId,
                                          @Query("token") String token,
                                          @Query("tag") String tag,
