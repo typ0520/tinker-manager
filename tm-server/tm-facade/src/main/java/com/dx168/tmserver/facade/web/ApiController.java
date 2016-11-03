@@ -1,6 +1,5 @@
 package com.dx168.tmserver.facade.web;
 
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,8 @@ import com.dx168.tmserver.core.utils.BizException;
 import com.dx168.tmserver.core.utils.HttpRequestUtils;
 import com.dx168.tmserver.facade.common.RestResponse;
 import com.dx168.tmserver.facade.service.ApiService;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -48,7 +49,7 @@ public class ApiController {
      * @return
      */
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
-    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model, String sdkVersion,boolean debugMode) {
+    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model, String sdkVersion, boolean debugMode) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
