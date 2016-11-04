@@ -20,23 +20,19 @@ import com.tencent.tinker.loader.shareutil.ShareConstants;
         flags = ShareConstants.TINKER_ENABLE_ALL,
         loadVerifyFlag = false)
 public class MyApplicationLike extends TinkerManagerApplicationLike {
+
+    private OriginalApplication originalApplication;
+
     public MyApplicationLike(Application application, int tinkerFlags, boolean tinkerLoadVerifyFlag, long applicationStartElapsedTime, long applicationStartMillisTime, Intent tinkerResultIntent, Resources[] resources, ClassLoader[] classLoader, AssetManager[] assetManager) {
         super(application, tinkerFlags, tinkerLoadVerifyFlag, applicationStartElapsedTime, applicationStartMillisTime, tinkerResultIntent, resources, classLoader, assetManager);
+        originalApplication = new OriginalApplication();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable ex) {
-                //...
-            }
-        });
-
-        TinkerManager.getInstance().init(getApplication(), "20161031132935772-8701", "d42c4fdb9aeb48739e922c1cb3dc2b40");
-        TinkerManager.getInstance().setTag("");
+        TinkerManager.getInstance().init(getApplication(), "your appId", "your appSecret");
+        TinkerManager.getInstance().setTag("your tag");
         TinkerManager.getInstance().queryAndApplyPatch(new TinkerManagerListener() {
             @Override
             public void onQuerySuccess(String response) {
@@ -73,6 +69,7 @@ public class MyApplicationLike extends TinkerManagerApplicationLike {
                 Log.d("TEST", "onCompleted");
             }
         });
+        originalApplication.onCreate();
     }
 
 }
