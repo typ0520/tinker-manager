@@ -1,6 +1,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.dx168.maven-no-repeat'
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+def mavenServer = properties.getProperty("mavenServer")
+def mavenReleases = properties.getProperty("mavenReleases")
+def mavenSnapshots = properties.getProperty("mavenSnapshots")
+def repoUsername = properties.getProperty("repoUsername")
+def repoPassword = properties.getProperty("repoPassword")
+
 android {
 
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
@@ -15,7 +24,7 @@ android {
         minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
-    
+
     buildTypes {
         debug {
             buildConfigField "String", "SDK_VERSION", "\"${version}\""
