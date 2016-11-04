@@ -24,21 +24,24 @@
     <resultMap id="BaseResultMap" type="com.dx168.tmserver.core.domain.Model" >
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="user_id" property="userId" jdbcType="INTEGER" />
-        <result column="app_uid" property="appUid" />
+        <result column="regular_exp" property="regularExp" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
     <select id="findById" resultType="com.dx168.tmserver.core.domain.Model" resultMap="BaseResultMap" >
-        select * from t_model_blacklist where id = #{id}
+        select * from t_model_blacklist
+        where id = #{id}
     </select>
 
     <select id="findByUserIdAndRegexp" resultType="com.dx168.tmserver.core.domain.Model" resultMap="BaseResultMap" >
-        select * from t_model_blacklist where user_id = #{userId} and regexp = #{regexp}
+        select * from t_model_blacklist
+        where user_id = #{userId} and regular_exp = #{regularExp}
     </select>
 
     <select id="findAllByUserId" resultMap="BaseResultMap">
-        select * from t_model_blacklist where user_id = #{userId}
+        select * from t_model_blacklist
+        where user_id = #{userId}
     </select>
 
     <insert id="insert" parameterType="com.dx168.tmserver.core.domain.Model">
@@ -46,11 +49,11 @@
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
         insert into t_model_blacklist (
-        user_id, regexp,description, created_at, updated_at
+        user_id, regular_exp,description, created_at, updated_at
         )
         values (
         #{userId,jdbcType=INTEGER},
-        #{regexp,jdbcType=VARCHAR},
+        #{regularExp,jdbcType=VARCHAR},
         #{description,jdbcType=VARCHAR},
         #{createdAt,jdbcType=TIMESTAMP},
         #{updatedAt,jdbcType=TIMESTAMP}

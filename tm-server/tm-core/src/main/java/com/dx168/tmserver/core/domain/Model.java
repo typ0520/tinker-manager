@@ -8,7 +8,7 @@ import java.util.Date;
 public class Model {
     private Integer id;
     private Integer userId;
-    private String regexp;
+    private String regularExp;
     private String description;
     private Date createdAt;
     private Date updatedAt;
@@ -29,12 +29,12 @@ public class Model {
         this.userId = userId;
     }
 
-    public String getRegexp() {
-        return regexp;
+    public String getRegularExp() {
+        return regularExp;
     }
 
-    public void setRegexp(String regexp) {
-        this.regexp = regexp;
+    public void setRegularExp(String regularExp) {
+        this.regularExp = regularExp;
     }
 
     public String getDescription() {

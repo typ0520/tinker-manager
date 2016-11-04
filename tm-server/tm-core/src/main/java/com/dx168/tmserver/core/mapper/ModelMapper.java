@@ -18,5 +18,5 @@ public interface ModelMapper {
 
     List<Model> findAllByUserId(Integer userId);
 
-    Model findByUserIdAndRegexp(@Param("userId") Integer userId,@Param("regexp") String regexp);
+    Model findByUserIdAndRegexp(@Param("userId") Integer userId,@Param("regularExp") String regularExp);
 }

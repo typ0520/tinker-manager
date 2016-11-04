@@ -62,8 +62,11 @@
         <div ng-show="errormag.length>0" style="line-height: 30px">$!restR.message</div>
         <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
 
-        <p class="text-center" style="margin-top: 20px"><a
-                href="#springUrl('')/regist?redirect=$restR.data.redirect">注册</a></p>
+        #if($!restR.data.openRegist)
+                <p class="text-center" style="margin-top: 20px"><a
+                        href="#springUrl('')/regist?redirect=$restR.data.redirect">注册</a></p>
+        #end
+
     </form>
 
 </div>

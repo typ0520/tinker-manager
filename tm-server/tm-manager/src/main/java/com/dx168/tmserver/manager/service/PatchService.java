@@ -36,6 +36,9 @@ public class PatchService {
     @Value("${patch-static-url}")
     private String patchStaticUrl;
 
+    @Value("${tm-manager-url}")
+    private String managerUrl;
+
     @Autowired
     private PatchInfoMapper patchInfoMapper;
 
@@ -198,7 +201,7 @@ public class PatchService {
         sb.append("\n");
         sb.append("操作时间: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         sb.append("\n");
-        sb.append("http://www.dx168.com  |  http://www.98.cn");
+        sb.append(managerUrl);
         try {
             MimeMessage mail = javaMailSender.createMimeMessage();
             try {

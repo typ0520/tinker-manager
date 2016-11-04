@@ -23,6 +23,8 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
 </head>
 
 <body>
@@ -42,7 +44,7 @@
                     <form id="create_patch_form" action="#springUrl('')/patch/add" method="post" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="description" class="form-control-label">补丁描述:</label>
-                            <input type="text" class="form-control" id="description" name="description">
+                            <input type="text" class="form-control" id="description" name="description" maxlength="32">
                         </div>
 
                         <div class="form-group">
@@ -78,7 +80,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="index.html">Tinker热修复-后台</a>
+            <a class="navbar-brand" href="#springUrl('/app/list')">Tinker热修复-后台</a>
         </div>
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
@@ -205,7 +207,6 @@
 </div>
 
 <script>
-    console.log('ddd');
     $(document).ready(function(){
         $("#create_patch").click(function () {
             if ($("#description").val().length == 0) {
@@ -223,6 +224,15 @@
                 return;
             }
             $("#err_msg").text('');
+
+            var dialog = bootbox.dialog({
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function(){
+                setTimeout(function(){
+                    window.location.href = window.location.href;
+                }, 5000);
+            });
             $("#create_patch_form").submit();
         });
     });

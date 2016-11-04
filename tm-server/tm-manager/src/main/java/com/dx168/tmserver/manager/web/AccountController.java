@@ -9,6 +9,7 @@ import com.dx168.tmserver.core.utils.HttpRequestUtils;
 import com.dx168.tmserver.manager.service.AccountService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,6 +21,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Controller
 public class AccountController {
+    @Value("${open_regist}")
+    private boolean openRegist;
+
     @Autowired
     private AccountService accountService;
 
@@ -27,6 +31,7 @@ public class AccountController {
     public ModelAndView login(String redirect,String msg) {
         RestResponse restR = new RestResponse();
         restR.getData().put("redirect", HttpRequestUtils.urlDecode(redirect));
+        restR.getData().put("openRegist",openRegist);
         restR.setMessage(HttpRequestUtils.urlDecode(msg));
         return new ModelAndView("login","restR",restR);
     }
@@ -60,6 +65,10 @@ public class AccountController {
 
     @RequestMapping(value = "/regist",method = RequestMethod.GET)
     public ModelAndView regist(String redirect,String msg) {
+        if (!openRegist) {
+            throw new BizException("暂不接受注册");
+        }
+
         RestResponse restR = new RestResponse();
         restR.getData().put("redirect", HttpRequestUtils.urlDecode(redirect));
         restR.setMessage(HttpRequestUtils.urlDecode(msg));
@@ -69,6 +78,9 @@ public class AccountController {
     @RequestMapping(value = "/regist",method = RequestMethod.POST)
     public ModelAndView regist(HttpServletRequest req,String redirect,String username, String password) {
         try {
+            if (!openRegist) {
+                throw new BizException("暂不接受注册");
+            }
             BizAssert.isVaildUsername(username,"用户名格式不正确(以字母开头，长度在5~18之间，只能包含字符、数字和下划线)");
             BizAssert.isVaildUsername(password,"密码格式不正确(以字母开头，长度在5~18之间，只能包含字符、数字和下划线)");
             BasicUser basicUser = accountService.findByUsername(username);

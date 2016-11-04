@@ -3,22 +3,19 @@ package com.dx168.tmserver.manager.web;
 import com.dx168.tmserver.core.domain.*;
 import com.dx168.tmserver.manager.service.*;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.dx168.tmserver.manager.common.Constants;
 import com.dx168.tmserver.manager.common.RestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import com.dx168.tmserver.core.utils.BizAssert;
 import com.dx168.tmserver.core.utils.BizException;
 import com.dx168.tmserver.core.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by tong on 15/10/24.
@@ -39,9 +36,6 @@ public class ManagerController {
 
     @Autowired
     private ModelBlacklistService modelBlacklistService;
-
-    @Autowired
-    private Environment env;
 
     @RequestMapping("/404")
     public String pageNotFound() {
@@ -169,20 +163,25 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/modelblacklist/add",method = RequestMethod.POST)
-    public @ResponseBody RestResponse add_modelblacklist(HttpServletRequest req,String regexp,String description) {
+    public @ResponseBody RestResponse add_modelblacklist(HttpServletRequest req,String regularExp,String description) {
         RestResponse restR = new RestResponse();
         try {
-            BizAssert.notEpmty(regexp,"正则表达式不能为空");
+            BizAssert.notEpmty(regularExp,"正则表达式不能为空");
             BizAssert.notEpmty(description,"描述不能为空");
+            try {
+                Pattern.compile(regularExp);
+            } catch (Throwable e) {
+                throw new BizException("无效的正则表达式");
+            }
 
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-            Model model = modelBlacklistService.findByRegexp(accountService.getRootUserId(basicUser),regexp);
+            Model model = modelBlacklistService.findByRegexp(accountService.getRootUserId(basicUser),regularExp);
             if (model != null) {
-                throw new BizException("匹配改机型的正则已存在");
+                throw new BizException("匹配该机型的正则已存在");
             }
             model = new Model();
             model.setUserId(accountService.getRootUserId(basicUser));
-            model.setRegexp(regexp);
+            model.setRegularExp(regularExp);
             model.setDescription(description);
 
             modelBlacklistService.save(model);
@@ -367,10 +366,16 @@ public class ManagerController {
     public @ResponseBody RestResponse delete_patch(String appUid,Integer id) {
         RestResponse restR = new RestResponse();
         try {
+            BizAssert.notNull(id,"应用id不能为空");
             BizAssert.notNull(id,"参数不能为空");
             PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
             if (patchInfo != null) {
-                patchService.deletePatch(patchInfo);
+                if (patchInfo.getStatus() == PatchInfo.STATUS_UNPUBLISHED) {
+                    patchService.deletePatch(patchInfo);
+                }
+                else {
+                    throw new BizException("已发布或者已暂停状态的补丁包不允许删除");
+                }
             }
         } catch (BizException e) {
             restR.setCode(-1);
