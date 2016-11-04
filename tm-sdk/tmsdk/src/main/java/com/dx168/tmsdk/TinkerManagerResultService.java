@@ -62,6 +62,7 @@ public class TinkerManagerResultService extends DefaultTinkerResultService {
                 patchListener.onApplySuccess();
                 patchListener.onCompleted();
             } else {
+                //TODO report to server
                 patchListener.onApplyFailure("");
             }
         }

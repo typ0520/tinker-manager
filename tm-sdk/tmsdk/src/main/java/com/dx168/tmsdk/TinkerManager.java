@@ -216,7 +216,6 @@ public final class TinkerManager {
                             return;
                         }
                         TinkerManagerUtils.writeToDisk(bytes, newPatchPath);
-                        //TODO report to server
                         if (patchListener != null) {
                             patchListener.onDownloadSuccess(newPatchPath);
                         }
