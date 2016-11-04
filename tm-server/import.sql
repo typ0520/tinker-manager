@@ -84,7 +84,6 @@ CREATE TABLE `t_tester` (
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `TAG` (`tag`),
   FOREIGN KEY(user_id) REFERENCES t_user(id),
   FOREIGN KEY(app_uid) REFERENCES t_app_info(uid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -98,6 +97,5 @@ CREATE TABLE `t_model_blacklist` (
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `REGULAR_EXP` (`regular_exp`),
   FOREIGN KEY(user_id) REFERENCES t_user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
