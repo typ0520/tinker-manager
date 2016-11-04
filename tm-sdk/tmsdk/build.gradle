@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.dx168.maven-no-repeat'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: "com.jfrog.bintray"
 
 android {
 
@@ -26,19 +27,6 @@ android {
             buildConfigField "String", "SDK_VERSION", "\"${version}\""
         }
     }
-    uploadArchives {
-        repositories {
-            apply plugin: 'maven'
-            mavenDeployer {
-                repository(url: mavenServer + mavenReleases) {
-                    authentication(userName: repoUsername, password: repoPassword)
-                }
-                snapshotRepository(url: mavenServer + mavenSnapshots) {
-                    authentication(userName: repoUsername, password: repoPassword)
-                }
-            }
-        }
-    }
 }
 
 dependencies {
@@ -51,4 +39,80 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'io.reactivex:rxjava:1.2.1'
+}
+
+def mavenDesc = 'Tinker patch manager'
+def siteUrl = 'https://github.com/baidao/tinker-manager'
+def gitUrl = "${siteUrl}.git"
+def issueUrl = "${siteUrl}/issues"
+
+def licenseIds = ['Apache-2.0']
+def licenseNames = ['The Apache Software License, Version 2.0']
+def licenseUrls = ['http://www.apache.org/licenses/LICENSE-2.0.txt']
+def inception = '2016'
+
+Properties props = new Properties()
+try {
+    props.load(project.rootProject.file('local.properties').newDataInputStream())
+} catch (Throwable e) {
+
+}
+
+def bintray_user = props.getProperty("BINTRAY_USER","")
+def bintray_key = props.getProperty("BINTRAY_KEY","")
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                name mavenDesc
+                url siteUrl
+
+                inceptionYear inception
+
+                // Set your license
+                licenses {
+                    licenseNames.eachWithIndex { ln, li ->
+                        license {
+                            name ln
+                            url licenseUrls[li]
+                        }
+                    }
+                }
+                developers {
+                    developer {
+                        name bintray_user
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = bintray_user
+    key = bintray_key
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "com.dx168.tmsdk:tmsdk"
+        desc = mavenDesc
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        issueTrackerUrl = issueUrl
+        licenses = licenseIds
+        labels = ['android', 'tinker', 'plugin', 'patch', 'tinker-manager']
+        publish = true
+        publicDownloadNumbers = true
+    }
 }
