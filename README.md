@@ -1,11 +1,14 @@
 # tinker-manager
 
+[![license](https://img.shields.io/hexpm/l/plug.svg)](https://raw.githubusercontent.com/baidao/tinker-manager/master/LICENSE)
+
 关于Tinker请移步: https://github.com/Tencent/tinker
 
 [服务器端部署文档](https://github.com/baidao/tinker-manager/wiki/%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3).
 [客户端接入文档](https://github.com/baidao/tinker-manager/wiki/%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3).
 
-
+#License
+Apache License 2.0
 
 ![应用列表](http://img1.ph.126.net/mcuYkRGWx6prlwJEUl0SaQ==/6631488878655488887.png "Title")
 ![应用管理](http://img2.ph.126.net/txeHTxXyrAlPkAY-Grmvzg==/6631617521515927688.png "Title")
