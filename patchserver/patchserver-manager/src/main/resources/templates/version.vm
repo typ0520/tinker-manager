@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>补丁管理后台-版本管理</title>
+    <link rel="icon" href="#springUrl('/static/img/favicon.ico')">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="#springUrl('/static/css/sb-admin.css')" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="#springUrl('/static/font-awesome/css/font-awesome.min.css')" rel="stylesheet" type="text/css">
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.js')"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
+</head>
+
+<body>
+
+<div class="bd-example">
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">上传补丁</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="create_patch_form" action="#springUrl('')/patch/add" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="description" class="form-control-label">补丁描述:</label>
+                            <input type="text" class="form-control" id="description" name="description" maxlength="32" placeholder="文件最大为: $!restR.data.maxPatchSize">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patch_file" class="form-control-label">补丁文件:</label>
+                            <input type="file" class="form-control" id="patch_file" name="file">
+                        </div>
+
+                        <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
+
+                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
+                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
+                    </form>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="create_patch">创建</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wrapper">
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#springUrl('/app/list')">补丁管理后台</a>
+        </div>
+        <!-- Top Menu Items -->
+        <ul class="nav navbar-right top-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> $!restR.data.user.username <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#springUrl('/logout')"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav side-nav">
+                <li class="active">
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
+                    <ul id="demo" class="collapse">
+                        <li>
+                            <a href="#springUrl('/app/list')">全部应用</a>
+                        </li>
+
+                        #foreach($appInfo in $restR.data.appInfoList)
+                            <li>
+                                <a href="#springUrl('')/app?appUid=$!appInfo.uid">$!appInfo.appname</a>
+                            </li>
+                        #end
+                    </ul>
+                </li>
+
+
+                <li>
+                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
+                </li>
+
+                <li>
+                    <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </nav>
+
+    <div id="page-wrapper" style="height: 1000px">
+
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">
+                        版本详情 <small></small>
+                    </h2>
+
+                    <p>
+                        <a href="#springUrl('/app/list')">首页</a>
+                        /
+                        <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid">应用管理</a>
+                    </p>
+
+                    <p><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">上传补丁</button></p>
+
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+
+        <div class="container-fluid">
+            应用版本号: &nbsp;&nbsp;
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle"
+                        data-toggle="dropdown">
+                    $!restR.data.versionInfo.versionName <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    #foreach($versionInfo in $restR.data.versionList)
+                        <li><a href="#springUrl('')/app/version?appUid=$restR.data.appInfo.uid&versionName=$!versionInfo.versionName">$!versionInfo.versionName</a></li>
+                    #end
+                </ul>
+            </div>
+
+
+            <table class="table table-bordered" style="margin-top: 15px;">
+                <tr>
+                    <th>补丁版本</th>
+                    <th>补丁大小</th>
+                    <th>补丁描述</th>
+                    <th>上传时间</th>
+                    <th>发布状态</th>
+                    <th>操作</th>
+                </tr>
+
+                #foreach($patchInfo in $restR.data.patchInfoList)
+                    <tr>
+                        <th>$!patchInfo.patchVersion</th>
+                        <th>$!patchInfo.formatPatchSize</th>
+                        <th>$!patchInfo.description</th>
+                        <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!patchInfo.createdAt)</th>
+                        <th>
+                            #if($patchInfo.status == 0)
+                                未发布
+                            #elseif($patchInfo.status == 1)
+                                #if($patchInfo.publishType == 0)
+                                    已灰度发布
+                                #else
+                                    已全量发布
+                                #end
+                            #elseif($patchInfo.status == 2)
+                                已停止
+                            #end
+
+                        </th>
+                        <th><a href="#springUrl('')/patch?appUid=$restR.data.appInfo.uid&id=$!patchInfo.id">查看详情</a></th>
+                    </tr>
+                #end
+            </table>
+
+            #if($restR.data.patchInfoList.isEmpty())
+                <div class="text-center">请上传补丁!</div>
+            #end
+        </div>
+    </div>
+    <!-- /#page-wrapper -->
+</div>
+
+<script>
+    //判断当前字符串是否以str结束
+    if (typeof String.prototype.endsWith != 'function') {
+        String.prototype.endsWith = function (str){
+            return this.slice(-str.length) == str;
+        };
+    }
+
+    //测试程序
+    var sCompareStr = "abcdefg123.apk";//比较字符串
+    var sBeCompareStr = ".apk";//被比较字符串
+    if(sCompareStr.endsWith(sBeCompareStr)){//这里可以替换为startsWith
+        console.log(sCompareStr+" 是以:"+sBeCompareStr+" 结束");
+    }else{
+        console.log(sCompareStr+" 不是以:"+sBeCompareStr+" 结束");
+    }
+    $(document).ready(function(){
+        $("#create_patch").click(function () {
+            if ($("#description").val().length == 0) {
+                $("#err_msg").text('请输入补丁描述');
+                return
+            }
+            if ($("#patch_file").val().length == 0) {
+                $("#err_msg").text('请选择补丁文件');
+                return
+            }
+
+            if (!$("#patch_file").val().endsWith('.apk') && !$("#patch_file").val().endsWith('.jar') && !$("#patch_file").val().endsWith('.zip') && !$("#patch_file").val().endsWith('.dex')) {
+                $("#err_msg").text('补丁文件的名字必须以.apk .jar .zip .dex结尾');
+                $("#patch_file").val('');
+                return;
+            }
+            $("#err_msg").text('');
+
+            var dialog = bootbox.dialog({
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function(){
+                setTimeout(function(){
+                    window.location.href = window.location.href;
+                }, 5000);
+            });
+            $("#create_patch_form").submit();
+        });
+    });
+</script>
+</body>
+
+</html>
