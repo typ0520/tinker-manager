@@ -41,6 +41,7 @@ public final class TinkerManager {
 
     static void free() {
         instance = null;
+        TinkerManagerServer.free();
     }
 
     public static final String SP_NAME = "tmsdk";
@@ -49,12 +50,14 @@ public final class TinkerManager {
     private Context context;
     private String patchDirPath;
     private AppInfo appInfo;
+    private String url;
 
-    public void init(Context context, String appId, String appSecret) {
+    public void init(Context context, String appId, String appSecret, String url) {
         this.context = context;
         if (!Tinker.with(context).isMainProcess()) {
             return;
         }
+        this.url = url;
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
         appInfo.setAppSecret(appSecret);
@@ -109,8 +112,8 @@ public final class TinkerManager {
             return;
         }
         this.patchListener = patchListener;
-        TinkerManagerHttpService.get()
-                .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
+        TinkerManagerServer.getInstance().get()
+                .queryPatch(url, appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getSdkVersion())
                 .subscribeOn(Schedulers.io())
@@ -184,7 +187,8 @@ public final class TinkerManager {
     }
 
     private void downloadAndApplyPatch(final String newPatchPath, String url, final String hash) {
-        TinkerManagerHttpService.get().downloadFile(url)
+        TinkerManagerServer.getInstance().get()
+                .downloadFile(url)
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override

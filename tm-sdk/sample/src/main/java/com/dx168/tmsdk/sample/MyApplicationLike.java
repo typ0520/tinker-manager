@@ -31,7 +31,7 @@ public class MyApplicationLike extends TinkerManagerApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        TinkerManager.getInstance().init(getApplication(), "your appId", "your appSecret");
+        TinkerManager.getInstance().init(getApplication(), "your appId", "your appSecret", "http://xxx.xxx.com/hotfix-apis/api/patch");
         TinkerManager.getInstance().setTag("your tag");
         TinkerManager.getInstance().queryAndApplyPatch(new TinkerManagerListener() {
             @Override

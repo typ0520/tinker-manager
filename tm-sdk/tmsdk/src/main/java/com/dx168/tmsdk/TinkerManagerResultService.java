@@ -48,7 +48,7 @@ public class TinkerManagerResultService extends DefaultTinkerResultService {
             if (patchListener != null) {
                 patchListener.onApplyFailure("");
             }
-            TinkerManager.free();
+            //TinkerManager.free();
             return;
         }
         TinkerLog.i(TAG, " receive result: %s", result.toString());
@@ -66,7 +66,7 @@ public class TinkerManagerResultService extends DefaultTinkerResultService {
                 patchListener.onApplyFailure("");
             }
         }
-        TinkerManager.free();
+        //TinkerManager.free();
         //first, we want to kill the recover process
         TinkerServiceInternals.killTinkerPatchServiceProcess(getApplicationContext());
 
