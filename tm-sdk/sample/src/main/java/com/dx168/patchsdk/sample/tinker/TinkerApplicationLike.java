@@ -1,4 +1,4 @@
-package com.dx168.patchsdk;
+package com.dx168.patchsdk.sample.tinker;
 
 import android.annotation.TargetApi;
 import android.app.Application;
@@ -11,8 +11,6 @@ import android.support.multidex.MultiDex;
 
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.loader.app.DefaultApplicationLike;
-import com.dx168.patchsdk.tinker.SampleTinkerLog;
-import com.dx168.patchsdk.tinker.SampleTinkerManager;
 
 /**
  * Created by jianjun.lin on 2016/10/25.
@@ -30,8 +28,8 @@ public class TinkerApplicationLike extends DefaultApplicationLike {
     }
 
     /**
-     * install multiDex before install tinker
-     * so we don't need to put the tinker lib classes in the main dex
+     * install multiDex before install com.dx168.patchsdk.sample.tinker
+     * so we don't need to put the com.dx168.patchsdk.sample.tinker lib classes in the main dex
      *
      * @param base
      */
@@ -39,19 +37,19 @@ public class TinkerApplicationLike extends DefaultApplicationLike {
     @Override
     public void onBaseContextAttached(Context base) {
         super.onBaseContextAttached(base);
-        //you must install multiDex whatever tinker is installed!
+        //you must install multiDex whatever com.dx168.patchsdk.sample.tinker is installed!
         MultiDex.install(base);
 
         SampleTinkerManager.setTinkerApplicationLike(this);
         SampleTinkerManager.initFastCrashProtect();
-        //should set before tinker is installed
+        //should set before com.dx168.patchsdk.sample.tinker is installed
         SampleTinkerManager.setUpgradeRetryEnable(true);
 
         //optional set logIml, or you can use default debug log
         TinkerInstaller.setLogIml(new SampleTinkerLog());
 
         //installTinker after load multiDex
-        //or you can put com.tencent.tinker.** to main dex
+        //or you can put com.tencent.com.dx168.patchsdk.sample.tinker.** to main dex
         SampleTinkerManager.installTinker(this);
 
     }

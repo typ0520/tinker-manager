@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.tinker;
+package com.dx168.patchsdk.sample.tinker;
 
 import com.tencent.tinker.lib.listener.PatchListener;
 import com.tencent.tinker.lib.patch.AbstractPatch;
@@ -25,7 +25,6 @@ import com.tencent.tinker.lib.reporter.PatchReporter;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.loader.app.ApplicationLike;
-import com.dx168.patchsdk.TinkerResultService;
 
 /**
  * Created by zhangshaowen on 16/7/3.
@@ -62,7 +61,7 @@ public class SampleTinkerManager {
      */
     public static void sampleInstallTinker(ApplicationLike appLike) {
         if (isInstalled) {
-            TinkerLog.w(TAG, "install com.dx168.patchsdk.tinker, but has installed, ignore");
+            TinkerLog.w(TAG, "install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker, but has installed, ignore");
             return;
         }
         TinkerInstaller.install(appLike);
@@ -72,13 +71,13 @@ public class SampleTinkerManager {
 
     /**
      * you can specify all class you want.
-     * sometimes, you can only install com.dx168.patchsdk.tinker in some process you want!
+     * sometimes, you can only install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker in some process you want!
      *
      * @param appLike
      */
     public static void installTinker(ApplicationLike appLike) {
         if (isInstalled) {
-            TinkerLog.w(TAG, "install com.dx168.patchsdk.tinker, but has installed, ignore");
+            TinkerLog.w(TAG, "install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker, but has installed, ignore");
             return;
         }
         //or you can just use DefaultLoadReporter

@@ -12,12 +12,11 @@ buildscript {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
     compile 'com.android.support:appcompat-v7:24.2.1'
-    testCompile 'junit:junit:4.12'
-    compile project(path: ':patchsdk')
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.tencent.tinker:tinker-android-anno:1.7.2'
+    compile 'com.tencent.tinker:tinker-android-lib:1.7.2'
+    compile project(':patchsdk')
 }
 
 def gitSha() {
@@ -78,7 +77,7 @@ android {
         multiDexEnabled true
         /**
          * not like proguard, multiDexKeepProguard is not a list, so we can't just
-         * add for you in our task. you can copy tinker keep rules at
+         * add for you in our task. you can copy com.dx168.patchsdk.sample.tinker keep rules at
          * build/intermediates/tinker_intermediates/tinker_multidexkeep.pro
          */
         multiDexKeepProguard file("keep_in_main_dex.txt")
@@ -98,11 +97,11 @@ android {
 //    //use to test flavors support
 //    productFlavors {
 //        flavor1 {
-//            applicationId 'tinker.sample.android.flavor1'
+//            applicationId 'com.dx168.patchsdk.sample.tinker.sample.android.flavor1'
 //        }
 //
 //        flavor2 {
-//            applicationId 'tinker.sample.android.flavor2'
+//            applicationId 'com.dx168.patchsdk.sample.tinker.sample.android.flavor2'
 //        }
 //    }
 
@@ -192,7 +191,7 @@ if (buildWithTinker()) {
          * case 2: newly added Android Component in AndroidManifest.xml,
          *         it must be crash when load.
          * case 3: loader classes in dex.loader{} are not keep in the main dex,
-         *         it must be let tinker not work.
+         *         it must be let com.dx168.patchsdk.sample.tinker not work.
          * case 4: loader classes in dex.loader{} changes,
          *         loader classes is ues to load patch dex. it is useless to change them.
          *         it won't crash, but these changes can't effect. you may ignore it
@@ -247,7 +246,7 @@ if (buildWithTinker()) {
             dexMode = "jar"
             /**
              * optional，default 'false'
-             * if usePreGeneratedPatchDex is true, tinker framework will generate auxiliary class
+             * if usePreGeneratedPatchDex is true, com.dx168.patchsdk.sample.tinker framework will generate auxiliary class
              * and insert auxiliary instruction when compiling base package using
              * assemble{Debug/Release} task to prevent class pre-verified issue in dvm.
              * Besides, a real dex file contains necessary class will be generated and packed into
@@ -271,15 +270,15 @@ if (buildWithTinker()) {
              * Warning, it is very very important, loader classes can't change with patch.
              * thus, they will be removed from patch dexes.
              * you must put the following class into main dex.
-             * Simply, you should add your own application {@code tinker.sample.android.SampleApplication}
+             * Simply, you should add your own application {@code com.dx168.patchsdk.sample.tinker.sample.android.SampleApplication}
              * own tinkerLoader, and the classes you use in them
              *
              */
-            loader = ["com.tencent.tinker.loader.*",
+            loader = ["com.tencent.com.dx168.patchsdk.sample.tinker.loader.*",
                       //warning, you must change it with your application
                       "com.dx168.patchsdk.sample.MyApplication",
-                      //use sample, let BaseBuildInfo unchangeable with tinker
-                      "tinker.sample.android.app.BaseBuildInfo"
+                      //use sample, let BaseBuildInfo unchangeable with com.dx168.patchsdk.sample.tinker
+                      "com.dx168.patchsdk.sample.tinker.sample.android.app.BaseBuildInfo"
             ]
         }
 
@@ -329,7 +328,7 @@ if (buildWithTinker()) {
              * we will get the TINKER_ID from the old apk manifest for you automatic,
              * other config files (such as patchMessage below)is not necessary
              */
-            configField("patchMessage", "tinker is sample to use")
+            configField("patchMessage", "com.dx168.patchsdk.sample.tinker is sample to use")
             /**
              * just a sample case, you can use such as sdkVersion, brand, channel...
              * you can parse it in the SamplePatchListener.
@@ -412,7 +411,7 @@ if (buildWithTinker()) {
         //sample use for build all flavor for one time
         if (hasFlavors) {
             task(tinkerPatchAllFlavorRelease) {
-                group = 'tinker'
+                group = 'com.dx168.patchsdk.sample.tinker'
                 def originOldPath = getTinkerBuildFlavorDirectory()
                 for (String flavor : flavors) {
                     def tinkerTask = tasks.getByName("tinkerPatch${flavor.capitalize()}Release")
@@ -430,7 +429,7 @@ if (buildWithTinker()) {
             }
 
             task(tinkerPatchAllFlavorDebug) {
-                group = 'tinker'
+                group = 'com.dx168.patchsdk.sample.tinker'
                 def originOldPath = getTinkerBuildFlavorDirectory()
                 for (String flavor : flavors) {
                     def tinkerTask = tasks.getByName("tinkerPatch${flavor.capitalize()}Debug")

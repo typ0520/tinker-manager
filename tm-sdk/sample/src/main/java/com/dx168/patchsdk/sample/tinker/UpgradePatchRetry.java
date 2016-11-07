@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.tinker;
+package com.dx168.patchsdk.sample.tinker;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +34,7 @@ import java.util.Properties;
 
 /**
  * optional
- * com.dx168.patchsdk.tinker :patch process may killed by some reason, we can retry it to increase upgrade success rate
+ * com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker :patch process may killed by some reason, we can retry it to increase upgrade success rate
  * if patch file is at sdcard, copy it to dataDir first. because some software may delete it.
  * <p>
  * Created by zhangshaowen on 16/7/3.
@@ -57,7 +57,7 @@ public class UpgradePatchRetry {
     private static UpgradePatchRetry sInstance;
 
     /**
-     * you must set after com.dx168.patchsdk.tinker has installed
+     * you must set after com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker has installed
      *
      * @param context
      */
@@ -92,7 +92,7 @@ public class UpgradePatchRetry {
         }
 
         if (TinkerServiceInternals.isTinkerPatchServiceRunning(context)) {
-            TinkerLog.w(TAG, "onPatchRetryLoad com.dx168.patchsdk.tinker service is running, just return");
+            TinkerLog.w(TAG, "onPatchRetryLoad com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker service is running, just return");
             return;
         }
         //must use temp file

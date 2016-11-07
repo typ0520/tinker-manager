@@ -7,13 +7,13 @@ app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 sample
 ````
 dependencies {
     ...
-    compile 'com.dx168.patchsdk:patchsdk:1.0.0-RC5'
+    compile 'com.dx168.patchsdk:patchsdk:1.0.0-RC6'
 }
 ````
 
 2. ApplicationLike
 
-必须继承 TinkerApplicationLike
+继承 TinkerApplicationLike
 ````
 @SuppressWarnings("unused")
 @DefaultLifeCycle(application = "com.dx168.patchsdk.sample.MyApplication",
@@ -38,5 +38,16 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
         originalApplication.onCreate();
     }
+}
+
+````
+
+3. TinkerResultService 通知 PatchManager 补丁应用结果
+
+````
+if (result.isSuccess) {
+    PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
+} else {
+    PatchManager.getInstance().onApplyFailure("");
 }
 ````

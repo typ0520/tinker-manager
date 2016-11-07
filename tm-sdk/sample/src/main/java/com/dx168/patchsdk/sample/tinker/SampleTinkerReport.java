@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.tinker;
+package com.dx168.patchsdk.sample.tinker;
 
 import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 import com.tencent.tinker.loader.shareutil.ShareTinkerInternals;
 
 /**
- * a simple com.dx168.patchsdk.tinker data reporter
+ * a simple com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker data reporter
  * Created by zhangshaowen on 16/9/17.
  */
 public class SampleTinkerReport {
@@ -322,20 +322,20 @@ public class SampleTinkerReport {
                 if (throwable.getMessage().contains(ShareConstants.CHECK_DEX_INSTALL_FAIL)) {
                     reporter.onReport(KEY_LOADED_EXCEPTION_DEX_CHECK);
                     isCheckFail = true;
-                    TinkerLog.e(TAG, "com.dx168.patchsdk.tinker dex check fail:" + throwable.getMessage());
+                    TinkerLog.e(TAG, "com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker dex check fail:" + throwable.getMessage());
                 } else {
                     reporter.onReport(KEY_LOADED_EXCEPTION_DEX);
-                    TinkerLog.e(TAG, "com.dx168.patchsdk.tinker dex reflect fail:" + throwable.getMessage());
+                    TinkerLog.e(TAG, "com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker dex reflect fail:" + throwable.getMessage());
                 }
                 break;
             case ShareConstants.ERROR_LOAD_EXCEPTION_RESOURCE:
                 if (throwable.getMessage().contains(ShareConstants.CHECK_RES_INSTALL_FAIL)) {
                     reporter.onReport(KEY_LOADED_EXCEPTION_RESOURCE_CEHCK);
                     isCheckFail = true;
-                    TinkerLog.e(TAG, "com.dx168.patchsdk.tinker res check fail:" + throwable.getMessage());
+                    TinkerLog.e(TAG, "com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker res check fail:" + throwable.getMessage());
                 } else {
                     reporter.onReport(KEY_LOADED_EXCEPTION_RESOURCE);
-                    TinkerLog.e(TAG, "com.dx168.patchsdk.tinker res reflect fail:" + throwable.getMessage());
+                    TinkerLog.e(TAG, "com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker res reflect fail:" + throwable.getMessage());
                 }
                 break;
             case ShareConstants.ERROR_LOAD_EXCEPTION_UNCAUGHT:
@@ -347,7 +347,7 @@ public class SampleTinkerReport {
         }
         //reporter exception, for dex check fail, we don't need to report stacktrace
         if (!isCheckFail) {
-            reporter.onReport("Tinker Exception:load com.dx168.patchsdk.tinker occur exception " + SampleUtils.getExceptionCauseString(throwable));
+            reporter.onReport("Tinker Exception:load com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker occur exception " + SampleUtils.getExceptionCauseString(throwable));
         }
     }
 
@@ -363,7 +363,7 @@ public class SampleTinkerReport {
             return;
         }
         reporter.onReport(KEY_APPLIED_DEXOPT);
-        reporter.onReport("Tinker Exception:apply com.dx168.patchsdk.tinker occur exception " + SampleUtils.getExceptionCauseString(throwable));
+        reporter.onReport("Tinker Exception:apply com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker occur exception " + SampleUtils.getExceptionCauseString(throwable));
     }
 
     public static void onApplyInfoCorrupted() {
@@ -508,7 +508,7 @@ public class SampleTinkerReport {
             return;
         }
         reporter.onReport(KEY_APPLIED_EXCEPTION);
-        reporter.onReport("Tinker Exception:apply com.dx168.patchsdk.tinker occur exception " + SampleUtils.getExceptionCauseString(throwable));
+        reporter.onReport("Tinker Exception:apply com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker occur exception " + SampleUtils.getExceptionCauseString(throwable));
     }
 
     public static void onFastCrashProtect() {

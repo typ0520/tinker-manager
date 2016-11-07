@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk;
+package com.dx168.patchsdk.sample.tinker;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.dx168.patchsdk.tinker.SampleUtils;
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -42,31 +41,17 @@ public class TinkerResultService extends DefaultTinkerResultService {
 
     @Override
     public void onPatchResult(final PatchResult result) {
-        PatchListener patchListener = PatchManager.getInstance().getPatchListener();
         if (result == null) {
             TinkerLog.e(TAG, "TinkerResultService received null result!!!!");
-            if (patchListener != null) {
-                patchListener.onApplyFailure("");
-            }
-            //PatchManager.free();
+            PatchManager.getInstance().onApplyFailure("");
             return;
         }
         TinkerLog.i(TAG, " receive result: %s", result.toString());
-        if (patchListener != null) {
-            if (result.isSuccess) {
-                SharedPreferences sp = getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putString(PatchManager.SP_KEY_USING_PATCH, result.rawPatchFilePath);
-                editor.apply();
-                //TODO report to server
-                patchListener.onApplySuccess();
-                patchListener.onCompleted();
-            } else {
-                //TODO report to server
-                patchListener.onApplyFailure("");
-            }
+        if (result.isSuccess) {
+            PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
+        } else {
+            PatchManager.getInstance().onApplyFailure("");
         }
-        //PatchManager.free();
         //first, we want to kill the recover process
         TinkerServiceInternals.killTinkerPatchServiceProcess(getApplicationContext());
 
@@ -92,7 +77,7 @@ public class TinkerResultService extends DefaultTinkerResultService {
             }
              */
             //not like TinkerResultService, I want to restart just when I am at background!
-            //if you have not install com.dx168.patchsdk.tinker this moment, you can use TinkerApplicationHelper api
+            //if you have not install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker this moment, you can use TinkerApplicationHelper api
             if (checkIfNeedKill(result)) {
                 if (SampleUtils.isBackground()) {
                     TinkerLog.i(TAG, "it is in background, just restart process");
@@ -100,7 +85,7 @@ public class TinkerResultService extends DefaultTinkerResultService {
                 } else {
                     //we can wait process at background, such as onAppBackground
                     //or we can restart when the screen off
-                    TinkerLog.i(TAG, "com.dx168.patchsdk.tinker wait screen to restart process");
+                    TinkerLog.i(TAG, "com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker wait screen to restart process");
                     new ScreenState(getApplicationContext(), new ScreenState.IOnScreenOff() {
                         @Override
                         public void onScreenOff() {
@@ -115,7 +100,7 @@ public class TinkerResultService extends DefaultTinkerResultService {
 
         //repair current patch fail, just clean!
         if (!result.isSuccess && !result.isUpgradePatch) {
-            //if you have not install com.dx168.patchsdk.tinker this moment, you can use TinkerApplicationHelper api
+            //if you have not install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker this moment, you can use TinkerApplicationHelper api
             Tinker.with(getApplicationContext()).cleanPatch();
         }
     }
