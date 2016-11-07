@@ -1,0 +1,13 @@
+apply plugin: 'war'
+
+war<<{
+    copy {
+        from war.archivePath
+        into "$buildDir/libs"
+        rename('patchserver-facade.war', 'hotfix-apis.war')
+    }
+}
+
+dependencies {
+    compile project(':patchserver-core')
+}

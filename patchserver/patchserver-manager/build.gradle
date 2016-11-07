@@ -1,0 +1,17 @@
+apply plugin: 'war'
+
+war<<{
+    copy {
+        from war.archivePath
+        into "$buildDir/libs"
+        rename('patchserver-manager.war', 'hotfix-console.war')
+    }
+}
+
+dependencies {
+    compile project(':patchserver-core')
+    compile("org.springframework.boot:spring-boot-starter-velocity")
+    compile("org.springframework.boot:spring-boot-starter-mail")
+
+    compile("commons-io:commons-io:2.2")
+}

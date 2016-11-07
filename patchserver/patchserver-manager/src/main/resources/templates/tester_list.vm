@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>补丁管理后台-测试人员管理</title>
+    <link rel="icon" href="#springUrl('/static/img/favicon.ico')">
+
+    <!-- Bootstrap Core CSS -->
+    <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="#springUrl('/static/css/sb-admin.css')" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="#springUrl('/static/font-awesome/css/font-awesome.min.css')" rel="stylesheet" type="text/css">
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.js')"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
+</head>
+
+<body>
+
+<div class="bd-example">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增测试人员</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="tester-tag" class="form-control-label">TAG:</label>
+                            <input type="text" class="form-control" id="tester-tag" maxlength="32">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tester-email" class="form-control-label">邮箱:</label>
+                            <input type="email" class="form-control" id="tester-email" maxlength="32">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tester-description" class="form-control-label">描述:</label>
+                            <input type="text" class="form-control" id="tester-description" maxlength="32">
+                        </div>
+
+                        <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
+                    </form>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="create_app">创建</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wrapper">
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#springUrl('/app/list')">补丁管理后台</a>
+        </div>
+        <!-- Top Menu Items -->
+        <ul class="nav navbar-right top-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> $!restR.data.user.username <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#springUrl('/logout')"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav side-nav">
+                <li class="active">
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
+                    <ul id="demo" class="collapse">
+                        <li>
+                            <a href="#springUrl('/app/list')">全部应用</a>
+                        </li>
+
+                        #foreach($appInfo in $restR.data.appInfoList)
+                            <li>
+                                <a href="#springUrl('')/app?appUid=$!appInfo.uid">$!appInfo.appname</a>
+                            </li>
+                        #end
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
+                </li>
+
+                <li>
+                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </nav>
+
+    <div id="page-wrapper" style="height: 1000px">
+
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">
+                        测试人员管理 <small></small>
+                    </h2>
+
+                    <p>
+                        <a href="#springUrl('/app/list')">首页</a>
+                        /
+                        <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid">应用管理</a>
+                    </p>
+
+                    <p><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">新增测试人员</button></p>
+
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+
+        <div class="container-fluid">
+            <table class="table table-bordered">
+                <tr>
+                    <td>应用名称: $!restR.data.appInfo.appname</td>
+                    <td>应用描述: $!restR.data.appInfo.description</td>
+                </tr>
+            </table>
+
+            <table class="table table-bordered">
+                <tr>
+                    <th>TAG</th>
+                    <th>邮箱</th>
+                    <th>描述</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+
+                #foreach($testerInfo in $restR.data.testerList)
+                    <tr>
+                        <th>$!testerInfo.tag</th>
+                        <th>$!testerInfo.email</th>
+                        <th>$!testerInfo.description</th>
+                        <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!testerInfo.createdAt)</th>
+                        <th><a onclick="delTester($!testerInfo.id)">删除</a></th>
+                    </tr>
+                #end
+            </table>
+
+            #if($restR.data.testerList.isEmpty())
+                <div class="text-center">请先添加测试人员!</div>
+            #end
+        </div>
+    </div>
+    <!-- /#page-wrapper -->
+</div>
+
+<script>
+    function delTester(tester_id) {
+        bootbox.confirm({
+            message: "确定删除这个测试人员吗?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                console.log('This was logged in the callback: ' + result);
+
+                if (!result) {
+                    return;
+                }
+
+                var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> 正在删除...</p>'
+                });
+                dialog.init(function(){
+                    jQuery.ajax({
+                        url:  "#springUrl('')/tester/del?testerId=" + tester_id,
+                        type: 'post',
+                        success:function(res, textStatus, jqXHR){
+                            if (res.code == 200) {
+                                dialog.find('.bootbox-body').html('删除成功!');
+
+                                console.log("删除成功!")
+                                setTimeout(function(){
+                                    console.log("刷新页面")
+                                    window.location.href = window.location.href;
+                                }, 500);
+                            } else {
+                                dialog.find('.bootbox-body').html(res.message);
+                            }
+                        },
+                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                            dialog.find('.bootbox-body').html('系统异常!');
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        $("#create_app").click(function () {
+            if ($("#tester-tag").val().length == 0) {
+                $("#err_msg").text('请输入TAG');
+                return;
+            }
+            if ($("#tester-email").val().length == 0) {
+                $("#err_msg").text('请输入邮箱');
+                return;
+            }
+            var filter  = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+            if (!filter.test($("#tester-email").val())) {
+                $("#err_msg").text('您的电子邮件格式不正确');
+                return;
+            }
+            if ($("#tester-description").val().length == 0) {
+                $("#err_msg").text('请输入描述');
+                return;
+            }
+            $("#err_msg").text('');
+
+            var dialog = bootbox.dialog({
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function(){
+                jQuery.ajax({
+                    url:  "#springUrl('')/tester/add?appUid=$!restR.data.appInfo.uid&tag=" + $("#tester-tag").val() + "&email=" + $("#tester-email").val()+ "&description=" + $("#tester-description").val(),
+                    type: 'post',
+                    success:function(res, textStatus, jqXHR){
+                        if (res.code == 200) {
+                            dialog.find('.bootbox-body').html('添加成功!');
+                            setTimeout(function(){
+                                window.location.href = window.location.href;
+                            }, 500);
+                        } else {
+                            dialog.find('.bootbox-body').html("<font color='red'>" + res.message + "</font>");
+                        }
+                    },
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
+                    }
+                });
+            });
+        });
+    });
+</script>
+</body>
+
+</html>
