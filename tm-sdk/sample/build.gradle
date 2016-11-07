@@ -17,7 +17,7 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
-    compile project(path: ':tmsdk')
+    compile project(path: ':patchsdk')
 }
 
 def gitSha() {
@@ -67,7 +67,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.dx168.tmsdk.sample"
+        applicationId "com.dx168.patchsdk.sample"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
@@ -277,7 +277,7 @@ if (buildWithTinker()) {
              */
             loader = ["com.tencent.tinker.loader.*",
                       //warning, you must change it with your application
-                      "com.dx168.tmsdk.sample.MyApplication",
+                      "com.dx168.patchsdk.sample.MyApplication",
                       //use sample, let BaseBuildInfo unchangeable with tinker
                       "tinker.sample.android.app.BaseBuildInfo"
             ]

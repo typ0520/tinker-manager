@@ -1,25 +1,25 @@
 ###一、集成Tinker
-app/build.gradle 配置，参考官方demo，也可以参考SDK里的sample
+app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 sample
 
 ###二、集成SDK
 
-1. `app/build.gradle`
+1. app/build.gradle
 ````
 dependencies {
     ...
-    compile 'com.dx168.tmsdk:tmsdk:1.0.0-RC5'
+    compile 'com.dx168.patchsdk:patchsdk:1.0.0-RC5'
 }
 ````
 
-2. `ApplicationLike`
+2. ApplicationLike
 
-必须继承 TinkerManagerApplicationLike
+必须继承 TinkerApplicationLike
 ````
 @SuppressWarnings("unused")
-@DefaultLifeCycle(application = "com.dx168.tmsdk.sample.MyApplication",
+@DefaultLifeCycle(application = "com.dx168.patchsdk.sample.MyApplication",
         flags = ShareConstants.TINKER_ENABLE_ALL,
         loadVerifyFlag = false)
-public class MyApplicationLike extends TinkerManagerApplicationLike {
+public class MyApplicationLike extends TinkerApplicationLike {
 
     private OriginalApplication originalApplication;
 
@@ -31,9 +31,9 @@ public class MyApplicationLike extends TinkerManagerApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        TinkerManager.getInstance().init(getApplication(), "your appId", "your appSecret", "http://xxx.xxx.com/hotfix-apis/api/patch");
-        TinkerManager.getInstance().setTag("your tag"); //可用于灰度发布
-        TinkerManager.getInstance().queryAndApplyPatch(new TinkerManagerListener() {
+        PatchManager.getInstance().init(getApplication(), "your appId", "your appSecret", "http://xxx.xxx.com/hotfix-apis/api/patch");
+        PatchManager.getInstance().setTag("your tag"); //可用于灰度发布
+        PatchManager.getInstance().queryAndApplyPatch(new TinkerManagerListener() {
         ...
 
         originalApplication.onCreate();
