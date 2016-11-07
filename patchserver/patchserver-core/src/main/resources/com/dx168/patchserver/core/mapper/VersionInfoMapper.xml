@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+       Copyright 2015-2016 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dx168.patchserver.core.mapper.VersionInfoMapper">
+    <resultMap id="BaseResultMap" type="com.dx168.patchserver.core.domain.VersionInfo" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="app_uid" property="appUid" />
+        <result column="version_name" property="versionName" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <select id="findByUidAndVersionName" resultType="com.dx168.patchserver.core.domain.VersionInfo" resultMap="BaseResultMap" >
+        select * from t_version_info
+        where app_uid = #{appUid} and version_name = #{versionName}
+    </select>
+
+    <insert id="insert" parameterType="com.dx168.patchserver.core.domain.VersionInfo">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS id
+        </selectKey>
+        insert into t_version_info (
+        user_id, app_uid, version_name, created_at, updated_at
+        )
+        values (
+        #{userId,jdbcType=INTEGER},
+        #{appUid,jdbcType=VARCHAR},
+        #{versionName,jdbcType=VARCHAR},
+        #{createdAt,jdbcType=TIMESTAMP},
+        #{updatedAt,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <select id="findAllByAppUid" resultMap="BaseResultMap">
+        SELECT id,user_id, app_uid, version_name, created_at, updated_at
+        FROM t_version_info where app_uid = #{appUid}
+        order by created_at desc ;
+    </select>
+</mapper>
