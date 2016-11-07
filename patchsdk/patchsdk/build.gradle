@@ -1,0 +1,148 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: "com.jfrog.bintray"
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+def mavenServer = properties.getProperty("mavenServer")
+def mavenReleases = properties.getProperty("mavenReleases")
+def mavenSnapshots = properties.getProperty("mavenSnapshots")
+def repoUsername = properties.getProperty("repoUsername")
+def repoPassword = properties.getProperty("repoPassword")
+
+android {
+
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "String", "SDK_VERSION", "\"${version}\""
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "SDK_VERSION", "\"${version}\""
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    compile 'io.reactivex:rxjava:1.2.1'
+}
+
+def mavenDesc = 'Tinker patch manager'
+def siteUrl = 'https://github.com/baidao/tinker-manager'
+def gitUrl = "${siteUrl}.git"
+def issueUrl = "${siteUrl}/issues"
+
+def licenseIds = ['Apache-2.0']
+def licenseNames = ['The Apache Software License, Version 2.0']
+def licenseUrls = ['http://www.apache.org/licenses/LICENSE-2.0.txt']
+def inception = '2016'
+
+Properties props = new Properties()
+try {
+    props.load(project.rootProject.file('local.properties').newDataInputStream())
+} catch (Throwable e) {
+
+}
+
+def bintray_user = props.getProperty("BINTRAY_USER","")
+def bintray_key = props.getProperty("BINTRAY_KEY","")
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+//task javadoc(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+
+task javadocJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'javadoc'
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                name mavenDesc
+                url siteUrl
+
+                inceptionYear inception
+
+                // Set your license
+                licenses {
+                    licenseNames.eachWithIndex { ln, li ->
+                        license {
+                            name ln
+                            url licenseUrls[li]
+                        }
+                    }
+                }
+                developers {
+                    developer {
+                        name bintray_user
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = bintray_user
+    key = bintray_key
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "com.dx168.patchsdk:patchsdk"
+        desc = mavenDesc
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        issueTrackerUrl = issueUrl
+        licenses = licenseIds
+        labels = ['android', 'com.dx168.patchsdk', 'plugin', 'patch', 'com.dx168.patchsdk.tinker-manager']
+        publish = true
+        publicDownloadNumbers = true
+    }
+}
