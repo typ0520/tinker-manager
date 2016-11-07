@@ -17,31 +17,47 @@ import rx.Observable;
 /**
  * Created by jianjun.lin on 16/7/14.
  */
-class TinkerManagerHttpService {
+class TinkerManagerServer {
 
-    private static ITinkerManagerHttpService service;
+    private static TinkerManagerServer instance;
 
-    public static ITinkerManagerHttpService get() {
-        if (service == null) {
-            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .readTimeout(40, TimeUnit.SECONDS)
-                    .build();
-
-            service = new Retrofit.Builder()
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .client(okHttpClient)
-                    .baseUrl("http://hotfix.dx168.com/")
-                    .build()
-                    .create(ITinkerManagerHttpService.class);
+    public static TinkerManagerServer getInstance() {
+        if (instance == null) {
+            instance = new TinkerManagerServer();
         }
-        return service;
+        return instance;
     }
 
-    public interface ITinkerManagerHttpService {
+    public static void free() {
+        instance = null;
+    }
 
-        @GET("/hotfix-apis/api/patch")
-        Observable<PatchInfo> queryPatch(@Query("appUid") String appId,
+    private ITinkerManagerServer server;
+
+    private TinkerManagerServer() {
+
+    }
+
+    public ITinkerManagerServer get() {
+        if (server == null) {
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
+            server = new Retrofit.Builder()
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .client(client)
+                    .baseUrl("http://127.0.0.1/")
+                    .build()
+                    .create(ITinkerManagerServer.class);
+        }
+        return server;
+    }
+
+    public interface ITinkerManagerServer {
+        @GET
+        Observable<PatchInfo> queryPatch(@Url String url,
+                                         @Query("appUid") String appId,
                                          @Query("token") String token,
                                          @Query("tag") String tag,
                                          @Query("versionName") String versionName,
