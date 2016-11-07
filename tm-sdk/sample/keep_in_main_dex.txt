@@ -5,7 +5,7 @@
     *;
 }
 
--keep class com.dx168.tmsdk.sample.MyApplication {
+-keep class com.dx168.patchsdk.sample.MyApplication {
     *;
 }
 

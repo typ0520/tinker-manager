@@ -1,3 +1,3 @@
-rootProject.name = 'com.dx168.tmsdk'
+rootProject.name = 'com.dx168.patchsdk'
 
-include ':tmsdk', 'sample'
+include ':patchsdk', 'sample'
