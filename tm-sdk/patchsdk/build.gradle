@@ -40,8 +40,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.tencent.tinker:tinker-android-anno:1.7.2'
-    compile 'com.tencent.tinker:tinker-android-lib:1.7.2'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
@@ -69,6 +67,29 @@ try {
 
 def bintray_user = props.getProperty("BINTRAY_USER","")
 def bintray_key = props.getProperty("BINTRAY_KEY","")
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+//task javadoc(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+
+task javadocJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'javadoc'
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
 
 install {
     repositories.mavenInstaller {
@@ -120,7 +141,7 @@ bintray {
         vcsUrl = gitUrl
         issueTrackerUrl = issueUrl
         licenses = licenseIds
-        labels = ['android', 'tinker', 'plugin', 'patch', 'tinker-manager']
+        labels = ['android', 'com.dx168.patchsdk', 'plugin', 'patch', 'com.dx168.patchsdk.tinker-manager']
         publish = true
         publicDownloadNumbers = true
     }

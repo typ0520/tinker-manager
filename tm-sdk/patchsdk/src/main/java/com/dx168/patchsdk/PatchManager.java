@@ -6,12 +6,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
-import com.tencent.tinker.lib.tinker.Tinker;
-import com.tencent.tinker.lib.tinker.TinkerInstaller;
-import com.tencent.tinker.lib.util.TinkerLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,7 +37,7 @@ public final class PatchManager {
         return instance;
     }
 
-    static void free() {
+    private void free() {
         instance = null;
         PatchServer.free();
     }
@@ -48,15 +46,17 @@ public final class PatchManager {
     public static final String SP_KEY_USING_PATCH = "using_patch";
 
     private Context context;
+    private ActualPatchManager apm;
     private String patchDirPath;
     private AppInfo appInfo;
     private String url;
 
-    public void init(Context context, String appId, String appSecret, String url) {
+    public void init(Context context, String appId, String appSecret, String url, ActualPatchManager apm) {
         this.context = context;
-        if (!Tinker.with(context).isMainProcess()) {
+        if (!PatchUtils.isMainProcess(context)) {
             return;
         }
+        this.apm = apm;
         this.url = url;
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
@@ -85,7 +85,7 @@ public final class PatchManager {
     }
 
     public void setTag(String tag) {
-        if (!Tinker.with(context).isMainProcess()) {
+        if (!PatchUtils.isMainProcess(context)) {
             return;
         }
         if (appInfo == null) {
@@ -96,10 +96,6 @@ public final class PatchManager {
 
     private PatchListener patchListener;
 
-    PatchListener getPatchListener() {
-        return patchListener;
-    }
-
     public void queryAndApplyPatch() {
         queryAndApplyPatch(null);
     }
@@ -108,7 +104,7 @@ public final class PatchManager {
         if (context == null) {
             throw new NullPointerException("PatchManager must be init before using");
         }
-        if (!Tinker.with(context).isMainProcess()) {
+        if (!PatchUtils.isMainProcess(context)) {
             return;
         }
         this.patchListener = patchListener;
@@ -147,7 +143,7 @@ public final class PatchManager {
                             if (patchDir.exists()) {
                                 patchDir.delete();
                             }
-                            TinkerInstaller.cleanPatch(context);
+                            apm.cleanPatch(context);
                             if (patchListener != null) {
                                 patchListener.onCompleted();
                             }
@@ -167,14 +163,14 @@ public final class PatchManager {
                             for (File patch : patchDir.listFiles()) {
                                 if (TextUtils.equals(patch.getName(), patchInfo.getData().getPatchVersion() + ".apk")) {
                                     if (!checkPatch(patch, patchInfo.getData().getHash())) {
-                                        TinkerLog.e(TAG, "wrong hash");
+                                        Log.e(TAG, "cache patch's hash is wrong");
                                         if (patchListener != null) {
-                                            patchListener.onDownloadFailure(new Exception("wrong hash"));
+                                            patchListener.onDownloadFailure(new Exception("cache patch's hash is wrong"));
                                         }
                                         return;
                                     }
-                                    TinkerInstaller.cleanPatch(context);
-                                    TinkerInstaller.onReceiveUpgradePatch(context, patch.getAbsolutePath());
+                                    apm.cleanPatch(context);
+                                    apm.applyPatch(context, patch.getAbsolutePath());
                                     return;
                                 }
                             }
@@ -213,9 +209,9 @@ public final class PatchManager {
                             e.printStackTrace();
                         }
                         if (!checkPatch(bytes, hash)) {
-                            TinkerLog.e(TAG, "wrong hash");
+                            Log.e(TAG, "downloaded patch's hash is wrong");
                             if (patchListener != null) {
-                                patchListener.onDownloadFailure(new Exception("wrong hash"));
+                                patchListener.onDownloadFailure(new Exception("downloaded patch's hash is wrong"));
                             }
                             return;
                         }
@@ -223,7 +219,7 @@ public final class PatchManager {
                         if (patchListener != null) {
                             patchListener.onDownloadSuccess(newPatchPath);
                         }
-                        TinkerInstaller.onReceiveUpgradePatch(context, newPatchPath);
+                        apm.applyPatch(context, newPatchPath);
                     }
                 });
     }
@@ -274,6 +270,25 @@ public final class PatchManager {
 
     private String getPatchPath(String patchVersion) {
         return patchDirPath + File.separator + patchVersion + ".apk";
+    }
+
+    public void onApplySuccess(String rawPatchFilePath) {
+        SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(PatchManager.SP_KEY_USING_PATCH, rawPatchFilePath);
+        editor.apply();
+        //TODO report to server
+        if (patchListener != null) {
+            patchListener.onApplySuccess();
+            patchListener.onCompleted();
+        }
+    }
+
+    public void onApplyFailure(String msg) {
+        //TODO report to server
+        if (patchListener != null) {
+            patchListener.onApplyFailure(msg);
+        }
     }
 
 }

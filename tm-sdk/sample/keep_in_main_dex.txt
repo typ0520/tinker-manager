@@ -1,7 +1,7 @@
-# you can copy the tinker keep rule at
+# you can copy the com.dx168.patchsdk.sample.tinker keep rule at
 # build/intermediates/tinker_intermediates/tinker_multidexkeep.pro
 
--keep class com.tencent.tinker.loader.** {
+-keep class com.tencent.com.dx168.patchsdk.sample.tinker.loader.** {
     *;
 }
 
@@ -9,18 +9,18 @@
     *;
 }
 
--keep public class * implements com.tencent.tinker.loader.app.ApplicationLifeCycle {
+-keep public class * implements com.tencent.com.dx168.patchsdk.sample.tinker.loader.app.ApplicationLifeCycle {
     *;
 }
 
--keep public class * extends com.tencent.tinker.loader.TinkerLoader {
+-keep public class * extends com.tencent.com.dx168.patchsdk.sample.tinker.loader.TinkerLoader {
     *;
 }
 
--keep public class * extends com.tencent.tinker.loader.app.TinkerApplication {
+-keep public class * extends com.tencent.com.dx168.patchsdk.sample.tinker.loader.app.TinkerApplication {
     *;
 }
 
 # here, it is your own keep rules.
 # you must be careful that the class name you write won't be proguard
-# but the tinker class above is OK, we have already keep for you!
+# but the com.dx168.patchsdk.sample.tinker class above is OK, we have already keep for you!

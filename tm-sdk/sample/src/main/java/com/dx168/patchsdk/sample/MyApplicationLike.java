@@ -1,15 +1,18 @@
 package com.dx168.patchsdk.sample;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.dx168.patchsdk.PatchManager;
-import com.dx168.patchsdk.TinkerApplicationLike;
+import com.dx168.patchsdk.ActualPatchManager;
 import com.dx168.patchsdk.PatchListener;
+import com.dx168.patchsdk.PatchManager;
+import com.dx168.patchsdk.sample.tinker.TinkerApplicationLike;
 import com.tencent.tinker.anno.DefaultLifeCycle;
+import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 
 /**
@@ -31,7 +34,17 @@ public class MyApplicationLike extends TinkerApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        PatchManager.getInstance().init(getApplication(), "your appId", "your appSecret", "http://xxx.xxx.com/hotfix-apis/api/patch");
+        PatchManager.getInstance().init(getApplication(), "your appId", "your appSecret", "http://hotfix.dx168.com/hotfix-apis/api/patch", new ActualPatchManager() {
+            @Override
+            public void cleanPatch(Context context) {
+                TinkerInstaller.cleanPatch(context);
+            }
+
+            @Override
+            public void applyPatch(Context context, String patchPath) {
+                TinkerInstaller.onReceiveUpgradePatch(context, patchPath);
+            }
+        });
         PatchManager.getInstance().setTag("your tag");
         PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {
             @Override

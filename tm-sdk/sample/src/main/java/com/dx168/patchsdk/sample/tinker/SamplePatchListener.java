@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.tinker;
+package com.dx168.patchsdk.sample.tinker;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -82,7 +82,7 @@ public class SamplePatchListener extends DefaultPatchListener {
                 returnCode = SampleUtils.ERROR_PATCH_CRASH_LIMIT;
             } else {
                 //for upgrade patch, version must be not the same
-                //for repair patch, we won't has the com.dx168.patchsdk.tinker load flag
+                //for repair patch, we won't has the com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker load flag
                 Tinker tinker = Tinker.with(context);
 
                 if (tinker.isTinkerLoaded()) {

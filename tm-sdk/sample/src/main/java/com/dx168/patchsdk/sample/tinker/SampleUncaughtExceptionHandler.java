@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.tinker;
+package com.dx168.patchsdk.sample.tinker;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -32,8 +32,8 @@ import com.tencent.tinker.loader.shareutil.ShareTinkerInternals;
  * for native crash,
  * <p/>
  * Created by zhangshaowen on 16/7/3.
- * tinker's crash is caught by {@code LoadReporter.onLoadException}
- * use {@code TinkerApplicationHelper} api, no need to install tinker!
+ * com.dx168.patchsdk.sample.tinker's crash is caught by {@code LoadReporter.onLoadException}
+ * use {@code TinkerApplicationHelper} api, no need to install com.dx168.patchsdk.sample.tinker!
  */
 public class SampleUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = "Tinker.SampleUncaughtExHandler";
@@ -84,7 +84,7 @@ public class SampleUncaughtExceptionHandler implements Thread.UncaughtExceptionH
 
             if (isCausedByXposed) {
                 SampleTinkerReport.onXposedCrash();
-                TinkerLog.e(TAG, "have xposed: just clean tinker");
+                TinkerLog.e(TAG, "have xposed: just clean com.dx168.patchsdk.sample.tinker");
                 //kill all other process to ensure that all process's code is the same.
                 ShareTinkerInternals.killAllOtherProcess(applicationLike.getApplication());
 
@@ -98,7 +98,7 @@ public class SampleUncaughtExceptionHandler implements Thread.UncaughtExceptionH
     }
 
     /**
-     * if tinker is load, and it crash more than MAX_CRASH_COUNT, then we just clean patch.
+     * if com.dx168.patchsdk.sample.tinker is load, and it crash more than MAX_CRASH_COUNT, then we just clean patch.
      */
     private boolean tinkerFastCrashProtect() {
         ApplicationLike applicationLike = SampleTinkerManager.getTinkerApplicationLike();
@@ -111,7 +111,7 @@ public class SampleUncaughtExceptionHandler implements Thread.UncaughtExceptionH
         }
 
         final long elapsedTime = SystemClock.elapsedRealtime() - applicationLike.getApplicationStartElapsedTime();
-        //this process may not install tinker, so we use TinkerApplicationHelper api
+        //this process may not install com.dx168.patchsdk.sample.tinker, so we use TinkerApplicationHelper api
         if (elapsedTime < QUICK_CRASH_ELAPSE) {
             String currentVersion = TinkerApplicationHelper.getCurrentVersion(applicationLike);
             if (ShareTinkerInternals.isNullOrNil(currentVersion)) {
@@ -123,11 +123,11 @@ public class SampleUncaughtExceptionHandler implements Thread.UncaughtExceptionH
             if (fastCrashCount >= MAX_CRASH_COUNT) {
                 SampleTinkerReport.onFastCrashProtect();
                 TinkerApplicationHelper.cleanPatch(applicationLike);
-                TinkerLog.e(TAG, "tinker has fast crash more than %d, we just clean patch!", fastCrashCount);
+                TinkerLog.e(TAG, "com.dx168.patchsdk.sample.tinker has fast crash more than %d, we just clean patch!", fastCrashCount);
                 return true;
             } else {
                 sp.edit().putInt(currentVersion, ++fastCrashCount).commit();
-                TinkerLog.e(TAG, "tinker has fast crash %d times", fastCrashCount);
+                TinkerLog.e(TAG, "com.dx168.patchsdk.sample.tinker has fast crash %d times", fastCrashCount);
             }
         }
 

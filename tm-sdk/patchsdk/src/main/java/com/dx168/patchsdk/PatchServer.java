@@ -28,7 +28,7 @@ class PatchServer {
         return instance;
     }
 
-    public static void free() {
+    static void free() {
         instance = null;
     }
 
