@@ -3,7 +3,7 @@ app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 tinker-
 
 ###二、集成SDK
 
-1. app/build.gradle
+- 1. app/build.gradle
 ````
 dependencies {
     ...
@@ -11,7 +11,7 @@ dependencies {
 }
 ````
 
-2. ApplicationLike
+- 2. ApplicationLike
 
 继承 TinkerApplicationLike
 ````
@@ -42,7 +42,7 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
 ````
 
-3. TinkerResultService 通知 PatchManager 补丁应用结果
+- 3. TinkerResultService 通知 PatchManager 补丁应用结果
 
 ````
 if (result.isSuccess) {
