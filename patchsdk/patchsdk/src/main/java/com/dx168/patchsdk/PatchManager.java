@@ -37,7 +37,7 @@ public final class PatchManager {
         return instance;
     }
 
-    private void free() {
+    public static void free() {
         instance = null;
         PatchServer.free();
     }
