@@ -65,6 +65,7 @@ class PatchServer {
                                          @Query("platform") String platform,
                                          @Query("osVersion") String osVersion,
                                          @Query("model") String model,
+                                         @Query("channel") String channel,
                                          @Query("sdkVersion") String sdkVersion);
 
         @GET
