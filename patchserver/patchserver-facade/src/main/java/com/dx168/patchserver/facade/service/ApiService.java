@@ -1,19 +1,13 @@
 package com.dx168.patchserver.facade.service;
 
+import com.dx168.patchserver.core.domain.*;
+import com.dx168.patchserver.core.mapper.*;
 import com.dx168.patchserver.facade.web.ApiController;
-import com.dx168.patchserver.core.domain.Model;
-import com.dx168.patchserver.core.mapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dx168.patchserver.core.utils.CacheEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.dx168.patchserver.core.domain.AppInfo;
-import com.dx168.patchserver.core.domain.PatchInfo;
-import com.dx168.patchserver.core.domain.VersionInfo;
-import com.dx168.patchserver.core.mapper.AppMapper;
-import com.dx168.patchserver.core.mapper.PatchInfoMapper;
-import com.dx168.patchserver.core.mapper.VersionInfoMapper;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -42,11 +36,15 @@ public class ApiService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private ChannelMapper channelMapper;
+
     private final Map<String,CacheEntry<AppInfo>> appInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<VersionInfo>> versionInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
     private final Map<Integer,CacheEntry<List<Pattern>>> modelBlackListPatternCache = new ConcurrentHashMap<>();
+    private final Map<Integer,CacheEntry<List<Channel>>> channelListCache = new ConcurrentHashMap<>();
 
     public AppInfo findAppInfo(String uid) {
         CacheEntry<AppInfo> cacheEntry = appInfoCache.get(uid);
@@ -169,6 +167,25 @@ public class ApiService {
             modelBlackListPatternCache.put(userId,new CacheEntry<List<Pattern>>(patterns,TimeUnit.MINUTES,10));
         }
         return patterns;
+    }
+
+    public List<Channel> getAllChannel(Integer userId) {
+        CacheEntry<List<Channel>> cacheEntry = channelListCache.get(userId);
+        List<Channel> channelList = null;
+        if (cacheEntry != null) {
+            channelList = cacheEntry.getEntry();
+        }
+        if (channelList == null) {
+            channelList = channelMapper.findAllByUserId(userId);
+
+            if (channelList == null) {
+                channelList = new ArrayList<>();
+            }
+
+            LOG.info("new channel blacklist list cache: " + channelList);
+            channelListCache.put(userId,new CacheEntry<List<Channel>>(channelList,TimeUnit.MINUTES,10));
+        }
+        return channelList;
     }
 
     public void clearCache() {

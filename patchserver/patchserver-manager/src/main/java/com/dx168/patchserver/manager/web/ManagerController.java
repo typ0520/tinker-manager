@@ -38,6 +38,9 @@ public class ManagerController {
     @Autowired
     private ModelBlacklistService modelBlacklistService;
 
+    @Autowired
+    private ChannelService channelService;
+
     @Value("${spring.http.multipart.max-file-size}")
     private String maxPatchSize;
 
@@ -217,6 +220,62 @@ public class ManagerController {
         return restR;
     }
 
+    @RequestMapping(value = "/channel/list",method = RequestMethod.GET)
+    public ModelAndView channel_list(HttpServletRequest req) {
+        RestResponse restR = new RestResponse();
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<Channel> modelList = channelService.findAllByUserId(accountService.getRootUserId(basicUser));
+
+        restR.getData().put("user",basicUser);
+        restR.getData().put("channelList",modelList);
+        restR.getData().put("appInfoList",appService.findAllAppInfoByUser(basicUser));
+        return new ModelAndView("channel_list","restR",restR);
+    }
+
+    @RequestMapping(value = "/channel/add",method = RequestMethod.POST)
+    public @ResponseBody RestResponse add_channel(HttpServletRequest req,String channelName,String description) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notEpmty(channelName,"渠道名称不能为空");
+            BizAssert.notEpmty(description,"描述不能为空");
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Channel channel = channelService.findByUserIdAndName(accountService.getRootUserId(basicUser),channelName);
+            if (channel != null) {
+                throw new BizException("该渠道已存在");
+            }
+            channel = new Channel();
+            channel.setUserId(accountService.getRootUserId(basicUser));
+            channel.setChannelName(channelName);
+            channel.setDescription(description);
+            channelService.save(channel);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
+    @RequestMapping(value = "/channel/del",method = RequestMethod.POST)
+    public @ResponseBody RestResponse del_channel(HttpServletRequest req,Integer channelId) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(channelId,"id不能为空");
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            Channel channel = channelService.findById(channelId);
+            if (channel == null || accountService.getRootUserId(basicUser) != channel.getUserId()) {
+                throw new BizException("信息不存在");
+            }
+            channelService.delete(channel);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+
+        return restR;
+    }
+
     @RequestMapping(value = "/app/create_version",method = RequestMethod.POST)
     public @ResponseBody RestResponse addVersion(HttpServletRequest req,String appUid,String versionName) {
         RestResponse restR = new RestResponse();
@@ -374,11 +433,12 @@ public class ManagerController {
             BizAssert.notNull(id,"参数不能为空");
             PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
             if (patchInfo != null) {
-                if (patchInfo.getStatus() == PatchInfo.STATUS_UNPUBLISHED) {
+                if (patchInfo.getStatus() == PatchInfo.STATUS_UNPUBLISHED
+                        || patchInfo.getStatus() == PatchInfo.STATUS_STOPPED) {
                     patchService.deletePatch(patchInfo);
                 }
                 else {
-                    throw new BizException("已发布或者已暂停状态的补丁包不允许删除");
+                    throw new BizException("已发布状态的补丁包不允许删除");
                 }
             }
         } catch (BizException e) {
