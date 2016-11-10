@@ -7,16 +7,13 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import okhttp3.ResponseBody;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
@@ -64,11 +61,11 @@ public final class PatchManager {
         appInfo.setToken(PatchUtils.md5(appId + "_" + appSecret));
         PackageManager packageManager = context.getPackageManager();
         try {
+
             PackageInfo pkgInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
             appInfo.setVersionName(pkgInfo.versionName);
             appInfo.setVersionCode(pkgInfo.versionCode);
-            String appName = pkgInfo.applicationInfo.loadLabel(context.getPackageManager()).toString();
-            String hotFixDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + appName + File.separator + "patchsdk";
+            String hotFixDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + context.getPackageName() + File.separator + "patchsdk";
             patchDirPath = hotFixDirPath + File.separator + appInfo.getVersionName();
             File hotFixDir = new File(hotFixDirPath);
             if (hotFixDir.exists()) {
@@ -151,7 +148,7 @@ public final class PatchManager {
                         }
                         SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
                         String usingPatchPath = sp.getString(SP_KEY_USING_PATCH, "");
-                        String newPatchPath = getPatchPath(patchInfo.getData().getPatchVersion());
+                        String newPatchPath = getPatchPath(patchInfo.getData());
                         if (TextUtils.equals(usingPatchPath, newPatchPath)) {
                             if (patchListener != null) {
                                 patchListener.onCompleted();
@@ -268,8 +265,8 @@ public final class PatchManager {
         return TextUtils.equals(downloadFileHash, hash);
     }
 
-    private String getPatchPath(String patchVersion) {
-        return patchDirPath + File.separator + patchVersion + ".apk";
+    private String getPatchPath(PatchInfo.Data data) {
+        return patchDirPath + File.separator + data.getPatchVersion() + "_" + data.getHash() + ".apk";
     }
 
     public void onApplySuccess(String rawPatchFilePath) {

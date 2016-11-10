@@ -152,6 +152,8 @@
                 #end
             #elseif($!restR.data.patchInfo.status == 2)
                 <input type="button" id="normal_publish" value="继续发布(全量)" />
+
+                <input type="button" id="del_patch" value="删除补丁" />
             #end
 
         </div>
