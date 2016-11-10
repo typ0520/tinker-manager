@@ -18,6 +18,7 @@ public class AppInfo {
     private String versionName;
     private int versionCode;
     private String platform = "Android";
+    private String channel;
     private final String osVersion = Build.VERSION.RELEASE;
     private final String model = Build.MODEL;
     private String sdkVersion = BuildConfig.SDK_VERSION;
@@ -84,5 +85,13 @@ public class AppInfo {
 
     public void setAppSecret(String appSecret) {
         this.appSecret = appSecret;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 }

@@ -91,6 +91,16 @@ public final class PatchManager {
         appInfo.setTag(tag);
     }
 
+    public void setChannel(String channel) {
+        if (!PatchUtils.isMainProcess(context)) {
+            return;
+        }
+        if (appInfo == null) {
+            throw new NullPointerException("PatchManager must be init before using");
+        }
+        appInfo.setChannel(channel);
+    }
+
     private PatchListener patchListener;
 
     public void queryAndApplyPatch() {
@@ -108,7 +118,7 @@ public final class PatchManager {
         PatchServer.getInstance().get()
                 .queryPatch(url, appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
-                        appInfo.getOsVersion(), appInfo.getModel(), appInfo.getSdkVersion())
+                        appInfo.getOsVersion(), appInfo.getModel(),appInfo.getChannel(), appInfo.getSdkVersion())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<PatchInfo>() {
                     @Override
