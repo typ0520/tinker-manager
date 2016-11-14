@@ -5,7 +5,7 @@
 关于Tinker请移步: https://github.com/Tencent/tinker
 
 [服务器端部署文档](https://raw.githubusercontent.com/baidao/tinker-manager/master/patchserver/README.md).
-[客户端接入文档](https://raw.githubusercontent.com/baidao/tinker-manager/master/patchsdk/README.md).
+[客户端接入文档](https://github.com/baidao/tinker-manager/tree/master/patchsdk).
 
 #License
 Apache License 2.0
