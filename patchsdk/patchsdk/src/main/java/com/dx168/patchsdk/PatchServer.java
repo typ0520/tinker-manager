@@ -33,6 +33,9 @@ class PatchServer {
 
     static void init(String baseUrl) {
         if (instance == null) {
+            if (baseUrl.contains("/api/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.indexOf("/api/") + 1);
+            }
             instance = new PatchServer();
             OkHttpClient client = new OkHttpClient.Builder()
                     .readTimeout(30, TimeUnit.SECONDS)
