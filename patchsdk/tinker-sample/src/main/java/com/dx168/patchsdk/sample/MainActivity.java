@@ -1,5 +1,6 @@
 package com.dx168.patchsdk.sample;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 

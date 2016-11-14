@@ -341,7 +341,7 @@ public final class PatchManager {
                 .report(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
-                        appInfo.getSdkVersion(), appInfo.getDeviceId(), patchInfo.getData().getPatchUid(),
+                        appInfo.getSdkVersion(), appInfo.getDeviceId(), patchInfo.getData().getUid(),
                         applyResult)
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<Void>() {
