@@ -2,19 +2,20 @@ package com.dx168.patchserver.facade.service;
 
 import com.dx168.patchserver.core.domain.*;
 import com.dx168.patchserver.core.mapper.*;
+import com.dx168.patchserver.facade.dto.PatchCounter;
 import com.dx168.patchserver.facade.web.ApiController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dx168.patchserver.core.utils.CacheEntry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
@@ -45,6 +46,7 @@ public class ApiService {
     private final Map<String,CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
     private final Map<Integer,CacheEntry<List<Pattern>>> modelBlackListPatternCache = new ConcurrentHashMap<>();
     private final Map<Integer,CacheEntry<List<Channel>>> channelListCache = new ConcurrentHashMap<>();
+    private final Map<Integer,PatchCounter> patchCounterCache = new ConcurrentHashMap<>();
 
     public AppInfo findAppInfo(String uid) {
         CacheEntry<AppInfo> cacheEntry = appInfoCache.get(uid);
@@ -195,5 +197,36 @@ public class ApiService {
         patchInfoListCache.clear();
         //fileCache.clear();
         modelBlackListPatternCache.clear();
+    }
+
+    public void report(PatchInfo patchInfo, boolean applyResult) {
+        PatchCounter patchCounter = patchCounterCache.get(patchInfo.getId());
+
+        if (patchCounter == null) {
+            patchCounter = new PatchCounter();
+            patchCounter.setId(patchInfo.getId());
+            patchCounter.setAtomicApplySuccessSize(new AtomicInteger(patchInfo.getApplySuccessSize()));
+            patchCounter.setAtomicApplySize(new AtomicInteger(patchInfo.getApplySize()));
+
+            patchCounterCache.put(patchCounter.getId(),patchCounter);
+            LOG.info("new patch counter cache: " + patchCounter);
+        }
+        patchCounter.getAtomicApplySize().getAndIncrement();
+        if (applyResult) {
+            patchCounter.getAtomicApplySuccessSize().getAndIncrement();
+        }
+    }
+
+    @Scheduled(cron="0 0/1 8-20 * * ?")
+    public void syncPatch() {
+        LOG.info("start sync： " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        Collection<PatchCounter> patchCounterList = patchCounterCache.values();
+
+        for (PatchCounter patchCounter : patchCounterList) {
+            if (patchCounter.getAtomicApplySize() != null && patchCounter.getAtomicApplySuccessSize() != null) {
+                LOG.info("update count： " + patchCounter);
+                patchInfoMapper.updateCount(patchCounter.getId(),patchCounter.getAtomicApplySuccessSize().get(),patchCounter.getAtomicApplySize().get(),new Date());
+            }
+        }
     }
 }

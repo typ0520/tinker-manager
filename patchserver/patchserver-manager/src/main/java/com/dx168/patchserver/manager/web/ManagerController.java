@@ -383,6 +383,29 @@ public class ManagerController {
         return new ModelAndView("patch","restR",restR);
     }
 
+    @RequestMapping(value = "/patch/info",method = RequestMethod.POST)
+    public @ResponseBody RestResponse patch_info(HttpServletRequest req,Integer id,String appUid) {
+        RestResponse restR = new RestResponse();
+        BizAssert.notNull(id,"参数不能为空");
+        PatchInfo patchInfo = patchService.findByIdAndAppUid(id,appUid);
+        if (patchInfo == null) {
+            throw new BizException("参数不正确");
+        }
+        if (patchInfo.getStatus() == PatchInfo.STATUS_UNPUBLISHED) {
+            String tags = testerService.getAllTags(appUid);
+            if (!StringUtils.isEmpty(tags)) {
+                restR.getData().put("tags",tags + ";");
+            }
+        }
+        AppInfo appInfo = appService.findByUid(patchInfo.getAppUid());
+        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo,patchInfo.getVersionName());
+        if (versionInfo == null) {
+            throw new BizException("该版本未找到: " + patchInfo.getVersionName());
+        }
+        restR.getData().put("patchInfo",patchInfo);
+        return restR;
+    }
+
     @RequestMapping(value = "/patch/normal_publish",method = RequestMethod.POST)
     public @ResponseBody RestResponse normal_publish(String appUid,Integer id) {
         RestResponse restR = new RestResponse();

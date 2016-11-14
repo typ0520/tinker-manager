@@ -1,3 +1,12 @@
+/*
+changelist
+
+v1.0.2
+alter table t_patch_info add `apply_success_size` int COMMENT '被应用成功的次数'
+alter table t_patch_info add `apply_size` int COMMENT '被应用次数'
+
+*/
+
 /*用户表*/
 CREATE TABLE `t_user` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -65,6 +74,8 @@ CREATE TABLE `t_patch_info` (
   `tags` varchar(256) DEFAULT NULL COMMENT '灰度发布的tag用，分割',
   `storage_path` varchar(256) NOT NULL COMMENT '存储路径',
   `download_url` varchar(256) DEFAULT NULL COMMENT '下载地址',
+  `apply_success_size` int COMMENT '被应用成功的次数',
+  `apply_size` int COMMENT '被应用的次数',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),

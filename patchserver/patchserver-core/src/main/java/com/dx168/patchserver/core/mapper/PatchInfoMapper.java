@@ -4,6 +4,7 @@ import com.dx168.patchserver.core.domain.PatchInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +23,8 @@ public interface PatchInfoMapper {
     PatchInfo findByIdAndAppUid(@Param("id") Integer id,@Param("appUid") String appUid);
 
     void updateStatus(PatchInfo patchInfo);
+
+    void updateCount(@Param("id") Integer id, @Param("applySuccessSize") int applySuccessSize, @Param("applySize") int applySize, @Param("updatedAt") Date updatedAt);
 
     void deleteById(Integer id);
 }

@@ -33,6 +33,8 @@
         <result column="patch_size" property="patchSize" />
         <result column="file_hash" property="fileHash" />
         <result column="download_url" property="downloadUrl" />
+        <result column="apply_success_size" property="applySuccessSize" />
+        <result column="apply_size" property="applySize" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
     </resultMap>
@@ -42,7 +44,7 @@
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
         insert into t_patch_info (
-         user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url, created_at, updated_at
+         user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         )
         values (
         #{userId,jdbcType=INTEGER},
@@ -59,31 +61,33 @@
         #{fileHash,jdbcType=VARCHAR},
         #{description,jdbcType=VARCHAR},
         #{downloadUrl,jdbcType=VARCHAR},
+        #{applySuccessSize,jdbcType=INTEGER},
+        #{applySize,jdbcType=INTEGER},
         #{createdAt,jdbcType=TIMESTAMP},
         #{updatedAt,jdbcType=TIMESTAMP}
         )
     </insert>
 
     <select id="findByUidAndVersionName" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where app_uid = #{appUid} and version_name = #{versionName}
     </select>
 
     <select id="findById" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where id = #{id}
     </select>
 
     <select id="findByUid" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where uid = #{uid}
     </select>
 
     <select id="findByIdAndAppUid" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where id = #{id} and app_uid = #{appUid}
     </select>
@@ -98,6 +102,17 @@
         <if test="tags != null">
             ,tags = #{tags,jdbcType=TIMESTAMP}
         </if>
+        WHERE
+        id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateCount">
+        UPDATE  t_patch_info
+        SET apply_success_size = #{applySuccessSize,jdbcType=VARCHAR}, apply_size = #{applySize,jdbcType=VARCHAR}
+        <if test="updatedAt != null">
+            ,updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+        </if>
+
         WHERE
         id = #{id,jdbcType=INTEGER}
     </update>

@@ -15,7 +15,11 @@ public class CacheEntry<T> {
     }
 
     public T getEntry() {
-        if (System.currentTimeMillis() - expireMillis > 0) {
+        return getEntry(false);
+    }
+
+    public T getEntry(boolean ignoreExpire) {
+        if (!ignoreExpire && System.currentTimeMillis() - expireMillis > 0) {
             return null;
         }
         return entry;
