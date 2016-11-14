@@ -36,6 +36,7 @@ public class PatchInfo {
     public class Data {
 
         private String versionName;
+        private String uid;
         private String patchVersion;
         private String downloadUrl;
         private long patchSize;
@@ -81,9 +82,17 @@ public class PatchInfo {
             this.hash = hash;
         }
 
+        public String getUid() {
+            return uid;
+        }
+
+        public void setUid(String uid) {
+            this.uid = uid;
+        }
+
         @Override
         public String toString() {
-            return "{patchVersion:" + patchVersion + ", patchSize:" + patchSize + ", downloadUrl:" + downloadUrl + ", hash:" + hash + "}";
+            return "{patchVersion:" + patchVersion + ", patchSize:" + patchSize + ", downloadUrl:" + downloadUrl + ", hash:" + hash + ", uid:" + uid + "}";
         }
     }
 

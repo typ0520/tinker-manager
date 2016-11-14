@@ -21,11 +21,11 @@ import java.security.NoSuchAlgorithmException;
  */
 public class PatchUtils {
 
-    private static final String TAG = "com.dx168.patchsdk.PatchUtils";
+    private static final String TAG = PatchUtils.class.getSimpleName();
     private static String processName = null;
 
     public static String getDeviceId(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService("phone");
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String deviceId = telephonyManager.getDeviceId();
         return TextUtils.isEmpty(deviceId) ? "" : deviceId;
     }
@@ -39,7 +39,7 @@ public class PatchUtils {
     }
 
     public static String getPhoneNumber(Context context) {
-        TelephonyManager tManager = (TelephonyManager) context.getSystemService("phone");
+        TelephonyManager tManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String number = tManager.getLine1Number();
         return TextUtils.isEmpty(number) ? "" : number;
     }

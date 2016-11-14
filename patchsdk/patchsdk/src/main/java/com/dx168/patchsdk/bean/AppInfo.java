@@ -22,6 +22,7 @@ public class AppInfo {
     private final String osVersion = Build.VERSION.RELEASE;
     private final String model = Build.MODEL;
     private String sdkVersion = BuildConfig.SDK_VERSION;
+    private String deviceId;
 
     public String getSdkVersion() {
         return sdkVersion;
@@ -93,5 +94,13 @@ public class AppInfo {
 
     public void setChannel(String channel) {
         this.channel = channel;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 }

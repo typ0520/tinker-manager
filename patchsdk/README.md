@@ -3,7 +3,7 @@ app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 tinker-
 
 ###二、集成SDK
 
-1. app/build.gradle
+- 1. app/build.gradle
 ````
 dependencies {
     ...
@@ -11,7 +11,7 @@ dependencies {
 }
 ````
 
-2. ApplicationLike
+- 2. ApplicationLike
 
 继承 TinkerApplicationLike
 ````
@@ -31,9 +31,10 @@ public class MyApplicationLike extends TinkerApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        PatchManager.getInstance().init(getApplication(), "your appId", "your appSecret", "http://xxx.xxx.com/hotfix-apis/api/patch");
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/", "your appId", "your appSecret");
         PatchManager.getInstance().setTag("your tag"); //可用于灰度发布
-        PatchManager.getInstance().queryAndApplyPatch(new TinkerManagerListener() {
+        PatchManager.getInstance().setChannel("360Market");
+        PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {
         ...
 
         originalApplication.onCreate();
@@ -42,11 +43,11 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
 ````
 
-3. TinkerResultService 通知 PatchManager 补丁应用结果
+- 3. TinkerResultService 通知 PatchManager 补丁应用结果
 
 ````
 if (result.isSuccess) {
-    PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
+    PatchManager.getInstance().onApplySuccess();
 } else {
     PatchManager.getInstance().onApplyFailure("");
 }
