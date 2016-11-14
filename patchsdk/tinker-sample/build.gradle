@@ -49,7 +49,7 @@ android {
     signingConfigs {
         release {
             try {
-                storeFile file('/Users/jianjun.lin/Code/debug.jks')
+                storeFile file('keystore.jks')
                 keyAlias 'testres'
                 keyPassword 'testres'
                 storePassword 'testres'
@@ -58,7 +58,7 @@ android {
             }
         }
         debug {
-            storeFile file('/Users/jianjun.lin/Code/debug.jks')
+            storeFile file('keystore.jks')
             keyAlias 'testres'
             keyPassword 'testres'
             storePassword 'testres'
@@ -66,7 +66,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.dx168.patchsdk.sample"
+        applicationId "com.dx168.patchsdk.sample.tinker"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
@@ -137,14 +137,12 @@ ext {
 
     //for normal build
     //old apk file to build patch apk
-    tinkerOldApkPath = "${bakPath}/app-debug-1031-13-39-12.apk"
+    tinkerOldApkPath = "${bakPath}/${getBaseApkPrefix()}.apk"
+
     //proguard mapping file to build patch apk
     tinkerApplyMappingPath = "${bakPath}/app-debug-1024-14-33-32-mapping.txt"
     //resource R.txt to build patch apk, must input if there is resource changed
-    tinkerApplyResourcePath = "${bakPath}/app-debug-1031-13-39-12-R.txt"
-
-    //only use for build all flavor, if not, just ignore this field
-    tinkerBuildFlavorDirectory = "${bakPath}/app-1024-14-33-32"
+    tinkerApplyResourcePath = "${bakPath}/${getBaseApkPrefix()}-R.txt"
 }
 
 
@@ -170,6 +168,10 @@ def buildWithTinker() {
 
 def getTinkerBuildFlavorDirectory() {
     return ext.tinkerBuildFlavorDirectory
+}
+
+def getBaseApkPrefix() {
+    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "tinker-sample-debug-1110-11-12-59"
 }
 
 if (buildWithTinker()) {
