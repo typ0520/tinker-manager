@@ -31,9 +31,10 @@ public class MyApplicationLike extends TinkerApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        PatchManager.getInstance().init(getApplication(), "your appId", "your appSecret", "http://xxx.xxx.com/hotfix-apis/api/patch");
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/", "your appId", "your appSecret");
         PatchManager.getInstance().setTag("your tag"); //可用于灰度发布
-        PatchManager.getInstance().queryAndApplyPatch(new TinkerManagerListener() {
+        PatchManager.getInstance().setChannel("360Market");
+        PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {
         ...
 
         originalApplication.onCreate();
@@ -46,7 +47,7 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
 ````
 if (result.isSuccess) {
-    PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
+    PatchManager.getInstance().onApplySuccess();
 } else {
     PatchManager.getInstance().onApplyFailure("");
 }

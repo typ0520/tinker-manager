@@ -46,6 +46,7 @@ public class MyApplicationLike extends TinkerApplicationLike {
             }
         });
         PatchManager.getInstance().setTag("your tag");
+        PatchManager.getInstance().setChannel("");
         PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {
             @Override
             public void onQuerySuccess(String response) {
