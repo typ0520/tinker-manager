@@ -21,13 +21,6 @@ class PatchServer {
 
     private static PatchServer instance;
 
-    public static PatchServer getInstance() {
-        if (instance == null) {
-            instance = new PatchServer();
-        }
-        return instance;
-    }
-
     static void free() {
         instance = null;
     }
@@ -38,26 +31,33 @@ class PatchServer {
 
     }
 
-    public IPatchServer get() {
-        if (server == null) {
+    static void init(String baseUrl) {
+        if (instance == null) {
+            instance = new PatchServer();
             OkHttpClient client = new OkHttpClient.Builder()
                     .readTimeout(30, TimeUnit.SECONDS)
                     .build();
-            server = new Retrofit.Builder()
+            instance.server = new Retrofit.Builder()
                     .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(client)
-                    .baseUrl("http://127.0.0.1/")
+                    .baseUrl(baseUrl)
                     .build()
                     .create(IPatchServer.class);
         }
-        return server;
+
+    }
+
+    static IPatchServer get() {
+        if (instance == null) {
+            throw new NullPointerException("PatchServer must be init before using");
+        }
+        return instance.server;
     }
 
     public interface IPatchServer {
-        @GET
-        Observable<PatchInfo> queryPatch(@Url String url,
-                                         @Query("appUid") String appId,
+        @GET("api/patch")
+        Observable<PatchInfo> queryPatch(@Query("appUid") String appId,
                                          @Query("token") String token,
                                          @Query("tag") String tag,
                                          @Query("versionName") String versionName,
@@ -66,10 +66,27 @@ class PatchServer {
                                          @Query("osVersion") String osVersion,
                                          @Query("model") String model,
                                          @Query("channel") String channel,
-                                         @Query("sdkVersion") String sdkVersion);
+                                         @Query("sdkVersion") String sdkVersion,
+                                         @Query("deviceId") String deviceId);
 
         @GET
         Observable<ResponseBody> downloadFile(@Url String fileUrl);
+
+
+        @GET("api/report")
+        Observable<Void> report(@Query("appUid") String appId,
+                                @Query("token") String token,
+                                @Query("tag") String tag,
+                                @Query("versionName") String versionName,
+                                @Query("versionCode") int versionCode,
+                                @Query("platform") String platform,
+                                @Query("osVersion") String osVersion,
+                                @Query("model") String model,
+                                @Query("channel") String channel,
+                                @Query("sdkVersion") String sdkVersion,
+                                @Query("deviceId") String deviceId,
+                                @Query("patchUid") String patchUid,
+                                @Query("applyResult") boolean applyResult);
     }
 
 }

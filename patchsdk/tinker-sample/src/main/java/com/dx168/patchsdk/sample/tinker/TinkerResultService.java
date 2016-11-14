@@ -48,7 +48,7 @@ public class TinkerResultService extends DefaultTinkerResultService {
         }
         TinkerLog.i(TAG, " receive result: %s", result.toString());
         if (result.isSuccess) {
-            PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
+            PatchManager.getInstance().onApplySuccess();
         } else {
             PatchManager.getInstance().onApplyFailure("");
         }
