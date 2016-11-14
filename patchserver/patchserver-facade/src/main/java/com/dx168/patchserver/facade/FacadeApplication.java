@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -15,6 +16,7 @@ import java.util.Properties;
  */
 @SpringBootApplication
 @ComponentScan(value = {"com.dx168.patchserver"})
+@EnableScheduling
 public class FacadeApplication extends SpringBootServletInitializer{
     private static final Logger LOG = LoggerFactory.getLogger(FacadeApplication.class);
 

@@ -43,9 +43,11 @@ public class PatchInfo {
     private String fileHash;
     private String description;
     private String downloadUrl;
+    private int applySuccessSize;
+    private int applySize;
+
     private Date createdAt;
     private Date updatedAt;
-
 
     public Integer getId() {
         return id;
@@ -181,6 +183,22 @@ public class PatchInfo {
 
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
+    }
+
+    public int getApplySuccessSize() {
+        return applySuccessSize;
+    }
+
+    public void setApplySuccessSize(int applySuccessSize) {
+        this.applySuccessSize = applySuccessSize;
+    }
+
+    public int getApplySize() {
+        return applySize;
+    }
+
+    public void setApplySize(int applySize) {
+        this.applySize = applySize;
     }
 
     public String getFormatPatchSize() {

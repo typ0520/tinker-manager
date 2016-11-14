@@ -47,7 +47,7 @@ public class ApiController {
      * @return
      */
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
-    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode) {
+    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
@@ -124,7 +124,50 @@ public class ApiController {
         return restR;
     }
 
-    @RequestMapping(value = "/api/clearCache", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/report",method = {RequestMethod.GET,RequestMethod.POST})
+    public @ResponseBody RestResponse report(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId
+            ,String patchUid,boolean applyResult) throws Exception {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(appUid,"应用唯一id不能为空");
+            BizAssert.notEpmty(token,"令牌不能为空");
+            BizAssert.notEpmty(versionName,"应用版本号不能为空");
+            BizAssert.notEpmty(patchUid,"patchUid不能为空");
+
+            AppInfo appInfo = apiService.findAppInfo(appUid);
+            if (appInfo == null) {
+                throw new BizException("应用不存在");
+            }
+
+            if (!debugMode && !token.equals(DigestUtils.md5DigestAsHex((appUid + "_" + appInfo.getSecret()).getBytes()))) {
+                throw new BizException("校验失败");
+            }
+            VersionInfo versionInfo = apiService.findVersionInfo(appUid,versionName);
+            if (versionInfo == null) {
+                throw new BizException("版本信息不正确");
+            }
+
+            PatchInfo patchInfo = apiService.findPatchInfo(patchUid);
+            if (patchInfo == null) {
+                throw new BizException("补丁信息不存在");
+            }
+
+            if (!versionName.equals(patchInfo.getVersionName())) {
+                throw new BizException("补丁信息不存在");
+            }
+            if (!appUid.equals(patchInfo.getAppUid())) {
+                throw new BizException("补丁信息不存在");
+            }
+
+            apiService.report(patchInfo,applyResult);
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return restR;
+    }
+
+    @RequestMapping(value = "/api/clearCache", method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse clearCache() throws Exception {
         apiService.clearCache();
         LOG.info("clear cache.......");

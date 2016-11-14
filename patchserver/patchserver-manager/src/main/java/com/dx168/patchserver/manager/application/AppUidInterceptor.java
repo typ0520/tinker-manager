@@ -33,10 +33,12 @@ public class AppUidInterceptor extends HandlerInterceptorAdapter {
             }
 
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-            Integer userId = accountService.getRootUserId(basicUser);
-            if (appInfo != null && appInfo.getUserId() != userId) {
-                //检测appUid对应的应用是否属于当前登录用户的应用
-                throw new BizException("应用不存在");
+            if (basicUser != null) {
+                Integer userId = accountService.getRootUserId(basicUser);
+                if (appInfo != null && appInfo.getUserId() != userId) {
+                    //检测appUid对应的应用是否属于当前登录用户的应用
+                    throw new BizException("应用不存在");
+                }
             }
         }
         return super.preHandle(req, res, handler);

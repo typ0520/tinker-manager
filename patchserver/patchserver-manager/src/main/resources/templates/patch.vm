@@ -142,15 +142,35 @@
 
                 <input type="button" id="del_patch" value="删除补丁" />
             #elseif($!restR.data.patchInfo.status == 1)
+                <div id="total">
+                    应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
+                    &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
+                </div>
+                <br />
+                <br />
                 #if($!restR.data.patchInfo.publishType == 0)
+                    <div id="total">
+                        应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
+                        &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
+                    </div>
+                    <br />
+                    <br />
                     当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
                     <br />
-                    <br />
+
                     <input type="button" id="stop_publish" value="停止灰度发布" /> &nbsp;&nbsp;&nbsp; <input type="button" id="normal_publish" value="全量发布" />
                 #else
                     <input type="button" id="stop_publish" value="停止发布" />
                 #end
             #elseif($!restR.data.patchInfo.status == 2)
+                <div id="total">
+                    应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
+                    &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
+                </div>
+                <br />
+                <br />
+
+
                 <input type="button" id="normal_publish" value="继续发布(全量)" />
 
                 <input type="button" id="del_patch" value="删除补丁" />
@@ -162,6 +182,21 @@
 </div>
 
 <script>
+    function getData() {
+        jQuery.ajax({
+            url:  "#springUrl('')/patch/info?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+            type: 'post',
+            success:function(res, textStatus, jqXHR){
+                if (res.code == 200) {
+                    console.log('refresh data applySuccessSize： ' + res.data.patchInfo.applySuccessSize + ' applySize: ' + res.data.patchInfo.applySize);
+
+                    $("#apply_success_size").text(res.data.patchInfo.applySuccessSize)
+                    $("#apply_size").text(res.data.patchInfo.applySize)
+                }
+            }
+        });
+    }
+
     $(document).ready(function(){
         $("#normal_publish").click(function(){
             var dialog = bootbox.dialog({
@@ -321,6 +356,7 @@
                 });
             });
         });
+        window.setInterval("getData()",1000 * 40);
     });
 </script>
 </body>

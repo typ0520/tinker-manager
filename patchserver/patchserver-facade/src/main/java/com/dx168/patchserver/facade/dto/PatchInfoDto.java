@@ -9,6 +9,7 @@ public class PatchInfoDto {
     private int patchVersion;
     private int publishType;//0 灰度发布 1 正常发布
     private long patchSize;
+    private String uid;
     private String hash;
     private String description;
     private String createdTime;
@@ -84,5 +85,13 @@ public class PatchInfoDto {
 
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }
