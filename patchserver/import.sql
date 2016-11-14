@@ -99,3 +99,15 @@ CREATE TABLE `t_model_blacklist` (
   PRIMARY KEY (`id`),
   FOREIGN KEY(user_id) REFERENCES t_user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*渠道*/
+CREATE TABLE `t_channel` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `user_id` int COMMENT '用户id',
+  `channel_name` varchar(64) NOT NULL COMMENT '渠道的名字',
+  `description` varchar(32) DEFAULT NULL COMMENT '描述',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY(user_id) REFERENCES t_user(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

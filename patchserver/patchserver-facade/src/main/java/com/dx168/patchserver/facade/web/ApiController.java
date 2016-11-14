@@ -1,5 +1,6 @@
 package com.dx168.patchserver.facade.web;
 
+import com.dx168.patchserver.core.domain.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -46,7 +47,7 @@ public class ApiController {
      * @return
      */
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
-    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model, String sdkVersion, boolean debugMode) {
+    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
@@ -72,6 +73,19 @@ public class ApiController {
                     for (Pattern pattern : patterns) {
                         if (pattern.matcher(model).matches()) {
                             //这个机型在黑名单中
+                            restR.setData(null);
+                            return restR;
+                        }
+                    }
+                }
+            }
+
+            if (!StringUtils.isEmpty(channel)) {
+                List<Channel> channelList = apiService.getAllChannel(appInfo.getUserId());
+                if (channelList != null && channelList.size() > 0) {
+                    for (Channel channelInfo : channelList) {
+                        if (channel.equals(channelInfo.getChannelName())) {
+                            //这个渠道在黑名单中
                             restR.setData(null);
                             return restR;
                         }
