@@ -2,8 +2,9 @@
 
 1、在mysql里面建一个数据库,建表sql在tm-server/import.sql中
 
-2、在把war/1.0.2目录下的hotfix-apis.properties和hotfix-console.properties两个配置文件放到/opt/config目录下，并且修改里面对应的配置
+2、在把war/1.0.2目录下的hotfix-apis.properties和hotfix-console.properties两个配置文件放到/opt/config(*如果是windows部署，放置在tomcat的盘符下，假如tomcat在d://tomcat  配置文件放在d://opt/config下})目录下，并且修改里面对应的配置
 
 3、在把war/1.0.2目录下的hotfix-apis.war hotfix-console.war放到tomcat下面的webapps目录下
 
 等服务启动完毕就可以在浏览器上访问http://localhost:8080/tm-manager
+
