@@ -6,5 +6,5 @@
 
 3、在把war/1.0.2目录下的hotfix-apis.war hotfix-console.war放到tomcat下面的webapps目录下
 
-等服务启动完毕就可以在浏览器上访问http://localhost:8080/tm-manager
+等服务启动完毕就可以在浏览器上访问http://localhost:8080/hotfix-console
 
