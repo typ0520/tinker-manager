@@ -1,6 +1,6 @@
-需要启动三个独立的服务1、后台管理服务(tm-manager) 2、对客户端提供api的服务网 3、需要另外部署一个用于下载补丁文件的静态服务
+需要启动三个独立的服务1、后台管理服务 2、对客户端提供api的服务 3、需要另外部署一个用于下载补丁文件的静态服务
 
-1、在mysql里面建一个数据库,建表sql在tm-server/import.sql中
+1、在mysql里面建一个数据库,建表sql在patchserver-manager/import.sql中
 
 2、在把war/1.0.2目录下的hotfix-apis.properties和hotfix-console.properties两个配置文件放到/opt/config(*如果是windows部署，放置在tomcat对应的盘符下，假如tomcat在d://tomcat  配置文件放在d://opt/config下})目录下，并且修改里面对应的配置
 
