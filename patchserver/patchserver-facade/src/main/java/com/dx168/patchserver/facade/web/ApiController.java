@@ -1,11 +1,11 @@
 package com.dx168.patchserver.facade.web;
 
 import com.dx168.patchserver.core.domain.Channel;
+import com.dx168.patchserver.facade.service.RequestStatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
@@ -22,9 +22,7 @@ import com.dx168.patchserver.facade.common.RestResponse;
 import com.dx168.patchserver.facade.service.ApiService;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
@@ -37,7 +35,8 @@ public class ApiController {
     @Autowired
     private ApiService apiService;
 
-    private final AtomicInteger todayViews = new AtomicInteger(0);
+    @Autowired
+    private RequestStatService requestStatService;
 
     /**
      * 获取最新的补丁包信息
@@ -56,7 +55,7 @@ public class ApiController {
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag,
                                                  String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId) {
-        todayViews.getAndIncrement();
+        requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
@@ -152,7 +151,7 @@ public class ApiController {
     @RequestMapping(value = "/api/report",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse report(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion,
                                              String model,String channel, String sdkVersion, boolean debugMode,String deviceId,String patchUid,boolean applyResult) throws Exception {
-        todayViews.getAndIncrement();
+        requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
@@ -203,15 +202,8 @@ public class ApiController {
     @RequestMapping(value = "/health", method = RequestMethod.GET)
     public @ResponseBody RestResponse health() throws Exception {
         RestResponse restR = new RestResponse();
-        restR.setData(new HashMap<String,Object>(){{
-            put("todayViews",todayViews.get());
-        }});
         restR.setMessage("I am still alive");
+        restR.setData(requestStatService.getStatInfo());
         return restR;
-    }
-
-    @Scheduled(cron="0 0 00 * * ?")
-    public void syncPatch() {
-        todayViews.set(0);
     }
 }
