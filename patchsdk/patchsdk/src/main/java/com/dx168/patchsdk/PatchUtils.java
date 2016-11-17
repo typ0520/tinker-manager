@@ -12,9 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by jianjun.lin on 2016/10/27.
@@ -44,7 +41,6 @@ public class PatchUtils {
         return TextUtils.isEmpty(number) ? "" : number;
     }
 
-
     public static boolean writeToDisk(byte[] bytes, String targetPath) {
         try {
             File targetFile = new File(targetPath);
@@ -69,21 +65,6 @@ public class PatchUtils {
             e.printStackTrace();
             return false;
         }
-    }
-
-    public static String md5(String string) {
-        return md5(string.getBytes());
-    }
-
-    public static String md5(byte[] bytes) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        md.update(bytes);
-        return new BigInteger(1, md.digest()).toString(16);
     }
 
     public static boolean isMainProcess(Context context) {
