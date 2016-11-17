@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     ...
-    compile 'com.dx168.patchsdk:patchsdk:1.0.3-RELEASE'
+    compile 'com.dx168.patchsdk:patchsdk:1.0.4-RELEASE'
 }
 ````
 
