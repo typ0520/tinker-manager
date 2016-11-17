@@ -147,15 +147,9 @@
                     &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
                 </div>
                 <br />
-                <br />
                 #if($!restR.data.patchInfo.publishType == 0)
-                    <div id="total">
-                        应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
-                        &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
-                    </div>
-                    <br />
-                    <br />
                     当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
+                    <br />
                     <br />
 
                     <input type="button" id="stop_publish" value="停止灰度发布" /> &nbsp;&nbsp;&nbsp; <input type="button" id="normal_publish" value="全量发布" />
@@ -168,8 +162,6 @@
                     &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
                 </div>
                 <br />
-                <br />
-
 
                 <input type="button" id="normal_publish" value="继续发布(全量)" />
 

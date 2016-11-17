@@ -1,6 +1,7 @@
 package com.dx168.patchserver.facade.web;
 
 import com.dx168.patchserver.core.domain.Channel;
+import com.dx168.patchserver.facade.service.RequestStatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -34,6 +35,9 @@ public class ApiController {
     @Autowired
     private ApiService apiService;
 
+    @Autowired
+    private RequestStatService requestStatService;
+
     /**
      * 获取最新的补丁包信息
      * @param appUid        app唯一标示
@@ -43,11 +47,15 @@ public class ApiController {
      * @param platform      平台(Android|iOS)
      * @param osVersion     系统的版本号
      * @param model         手机型号
+     * @param channel       渠道号
      * @param sdkVersion    sdk版本号
+     * @param deviceId      设备id
      * @return
      */
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
-    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId) {
+    public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag,
+                                                 String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId) {
+        requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
@@ -124,9 +132,26 @@ public class ApiController {
         return restR;
     }
 
+    /**
+     * 报告补丁加载结果
+     * @param appUid        app唯一标示
+     * @param token         app的秘钥
+     * @param versionName   应用版本号
+     * @param tag           标记(用于灰度发布)
+     * @param platform      平台(Android|iOS)
+     * @param osVersion     系统的版本号
+     * @param model         手机型号
+     * @param channel       渠道号
+     * @param sdkVersion    sdk版本号
+     * @param deviceId      设备id
+     * @param patchUid      补丁唯一标示
+     * @param applyResult   是否加载成功
+     * @return
+     */
     @RequestMapping(value = "/api/report",method = {RequestMethod.GET,RequestMethod.POST})
-    public @ResponseBody RestResponse report(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId
-            ,String patchUid,boolean applyResult) throws Exception {
+    public @ResponseBody RestResponse report(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion,
+                                             String model,String channel, String sdkVersion, boolean debugMode,String deviceId,String patchUid,boolean applyResult) throws Exception {
+        requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notNull(appUid,"应用唯一id不能为空");
@@ -172,5 +197,13 @@ public class ApiController {
         apiService.clearCache();
         LOG.info("clear cache.......");
         return new RestResponse();
+    }
+
+    @RequestMapping(value = "/health", method = RequestMethod.GET)
+    public @ResponseBody RestResponse health() throws Exception {
+        RestResponse restR = new RestResponse();
+        restR.setMessage("I am still alive");
+        restR.setData(requestStatService.getStatInfo());
+        return restR;
     }
 }
