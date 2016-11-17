@@ -5,6 +5,10 @@ app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 tinker-
 
 - 1. app/build.gradle
 ````
+repositories {
+    jcenter()
+}
+
 dependencies {
     ...
     compile 'com.dx168.patchsdk:patchsdk:1.0.4-RELEASE'
@@ -33,7 +37,7 @@ public class MyApplicationLike extends TinkerApplicationLike {
         super.onCreate();
         PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/", "your appId", "your appSecret");
         PatchManager.getInstance().setTag("your tag"); //可用于灰度发布
-        PatchManager.getInstance().setChannel("360Market");
+        PatchManager.getInstance().setChannel("your channel");
         PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {
         ...
 
