@@ -1,4 +1,4 @@
-api服务增加健康状态监测的接口
+补丁页面增加成功率百分比显示
 
 把hotfix-apis.properties和hotfix-console.properties放在/opt/config下面
 
