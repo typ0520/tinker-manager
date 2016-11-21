@@ -15,6 +15,7 @@ import com.dx168.patchserver.core.utils.BizAssert;
 import com.dx168.patchserver.core.utils.BizException;
 import com.dx168.patchserver.core.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -403,6 +404,7 @@ public class ManagerController {
             throw new BizException("该版本未找到: " + patchInfo.getVersionName());
         }
         restR.getData().put("patchInfo",patchInfo);
+        restR.getData().put("successScale",patchInfo.getFormatApplyScale());
         return restR;
     }
 
