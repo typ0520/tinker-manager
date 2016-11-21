@@ -220,6 +220,13 @@ public class PatchInfo {
         return fileSizeString;
     }
 
+    public String getFormatApplyScale() {
+        if (applySize == 0) {
+            return "0%";
+        }
+        return (int)(applySuccessSize * 1.d / applySize * 1.d * 100) + "%";
+    }
+
     public String getStatusDesc() {
         return getStatusDesc(getStatus());
     }
