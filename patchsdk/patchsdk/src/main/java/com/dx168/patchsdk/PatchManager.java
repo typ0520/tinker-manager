@@ -62,7 +62,7 @@ public final class PatchManager {
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
         appInfo.setAppSecret(appSecret);
-        appInfo.setToken(PatchUtils.md5(appId + "_" + appSecret));
+        appInfo.setToken(DigestUtils.md5DigestAsHex(appId + "_" + appSecret));
         appInfo.setDeviceId(PatchUtils.getDeviceId(context));
         PatchServer.init(baseUrl);
         PackageManager packageManager = context.getPackageManager();
@@ -289,7 +289,7 @@ public final class PatchManager {
         if (bytes == null || bytes.length == 0) {
             return false;
         }
-        String downloadFileHash = PatchUtils.md5(appInfo.getAppId() + "_" + appInfo.getAppSecret() + "_" + PatchUtils.md5(bytes));
+        String downloadFileHash = DigestUtils.md5DigestAsHex(appInfo.getAppId() + "_" + appInfo.getAppSecret() + "_" + DigestUtils.md5DigestAsHex(bytes));
         return TextUtils.equals(downloadFileHash, hash);
     }
 
