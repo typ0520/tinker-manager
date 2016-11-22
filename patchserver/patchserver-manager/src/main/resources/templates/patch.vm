@@ -145,6 +145,10 @@
                 <div id="total">
                     应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
                     &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
+                    &nbsp;&nbsp;&nbsp;  成功率:
+                    <span class="t_num2" id="success_scale">
+                        $!restR.data.patchInfo.formatApplyScale
+                    </span>
                 </div>
                 <br />
                 #if($!restR.data.patchInfo.publishType == 0)
@@ -160,6 +164,10 @@
                 <div id="total">
                     应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
                     &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
+                    &nbsp;&nbsp;&nbsp;  成功率:
+                    <span class="t_num2" id="success_scale">
+                        $!restR.data.patchInfo.formatApplyScale
+                    </span>
                 </div>
                 <br />
 
@@ -184,6 +192,7 @@
 
                     $("#apply_success_size").text(res.data.patchInfo.applySuccessSize)
                     $("#apply_size").text(res.data.patchInfo.applySize)
+                    $("#success_scale").text(res.data.successScale)
                 }
             }
         });
