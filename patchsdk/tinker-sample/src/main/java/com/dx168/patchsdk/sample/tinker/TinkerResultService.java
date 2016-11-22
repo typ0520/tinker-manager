@@ -43,14 +43,14 @@ public class TinkerResultService extends DefaultTinkerResultService {
     public void onPatchResult(final PatchResult result) {
         if (result == null) {
             TinkerLog.e(TAG, "TinkerResultService received null result!!!!");
-            PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, "");
+            PatchManager.getInstance().onApplyFailure("");
             return;
         }
         TinkerLog.i(TAG, " receive result: %s", result.toString());
         if (result.isSuccess) {
-            PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
+            PatchManager.getInstance().onApplySuccess();
         } else {
-            PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, "");
+            PatchManager.getInstance().onApplyFailure("");
         }
         //first, we want to kill the recover process
         TinkerServiceInternals.killTinkerPatchServiceProcess(getApplicationContext());

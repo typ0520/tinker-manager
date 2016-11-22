@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import okhttp3.ResponseBody;
@@ -53,10 +51,7 @@ public final class PatchManager {
     private String patchDirPath;
     private AppInfo appInfo;
 
-    /**
-     * may be clear by gc
-     */
-    private Map<String, PatchInfo> patchInfoMap = new HashMap<>();
+    private PatchInfo patchInfo;
 
     public void init(Context context, String baseUrl, String appId, String appSecret, ActualPatchManager apm) {
         this.context = context;
@@ -159,6 +154,7 @@ public final class PatchManager {
 
                     @Override
                     public void onNext(PatchInfo patchInfo) {
+                        PatchManager.this.patchInfo = patchInfo;
                         if (patchInfo.getCode() != 200) {
                             if (patchListener != null) {
                                 patchListener.onQueryFailure(new Exception("code=" + patchInfo.getCode()));
@@ -200,23 +196,22 @@ public final class PatchManager {
                                         }
                                         return;
                                     }
-                                    patchInfoMap.put(patch.getAbsolutePath(), patchInfo);
                                     apm.cleanPatch(context);
                                     apm.applyPatch(context, patch.getAbsolutePath());
                                     return;
                                 }
                             }
                         }
-                        downloadAndApplyPatch(newPatchPath, patchInfo);
+                        downloadAndApplyPatch(newPatchPath, patchInfo.getData().getDownloadUrl(), patchInfo.getData().getHash());
                     }
 
                 });
 
     }
 
-    private void downloadAndApplyPatch(final String newPatchPath, final PatchInfo patchInfo) {
+    private void downloadAndApplyPatch(final String newPatchPath, String url, final String hash) {
         PatchServer.get()
-                .downloadFile(patchInfo.getData().getDownloadUrl())
+                .downloadFile(url)
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override
@@ -240,10 +235,10 @@ public final class PatchManager {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        if (!checkPatch(bytes, patchInfo.getData().getHash())) {
+                        if (!checkPatch(bytes, hash)) {
                             Log.e(TAG, "downloaded patch's hash is wrong");
                             if (patchListener != null) {
-                                patchListener.onDownloadFailure(new Exception("download patch's hash is wrong"));
+                                patchListener.onDownloadFailure(new Exception("downloaded patch's hash is wrong"));
                             }
                             return;
                         }
@@ -251,7 +246,6 @@ public final class PatchManager {
                         if (patchListener != null) {
                             patchListener.onDownloadSuccess(newPatchPath);
                         }
-                        patchInfoMap.put(newPatchPath, patchInfo);
                         apm.applyPatch(context, newPatchPath);
                     }
                 });
@@ -309,20 +303,21 @@ public final class PatchManager {
         return data.getPatchVersion() + "_" + data.getHash() + ".apk";
     }
 
-    public void onApplySuccess(String patchPath) {
+    public void onApplySuccess() {
+        String patchPath = getPatchPath(patchInfo.getData());
         SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(PatchManager.SP_KEY_USING_PATCH, patchPath);
         editor.apply();
-        report(patchPath, true);
+        report(true);
         if (patchListener != null) {
             patchListener.onApplySuccess();
             patchListener.onCompleted();
         }
     }
 
-    public void onApplyFailure(String patchPath, String msg) {
-        report(patchPath, false);
+    public void onApplyFailure(String msg) {
+        report(false);
         if (patchListener != null) {
             patchListener.onApplyFailure(msg);
         }
@@ -331,8 +326,7 @@ public final class PatchManager {
     private static final int APPLY_SUCCESS_REPORTED = 1;
     private static final int APPLY_FAILURE_REPORTED = 2;
 
-    private void report(String patchPath, final boolean applyResult) {
-        PatchInfo patchInfo = patchInfoMap.get(patchPath);
+    private void report(final boolean applyResult) {
         if (patchInfo == null) {
             return;
         }
@@ -378,7 +372,6 @@ public final class PatchManager {
                         sp.edit().putInt(patchName, flag).apply();
                     }
                 });
-        patchInfoMap.remove(patchPath);
     }
 
 }
