@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     ...
-    compile 'com.dx168.patchsdk:patchsdk:1.0.4-RELEASE'
+    compile 'com.dx168.patchsdk:patchsdk:1.0.5-RELEASE'
 }
 ````
 
@@ -35,7 +35,7 @@ public class MyApplicationLike extends TinkerApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/", "your appId", "your appSecret");
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/hotfix-apis/", "your appId", "your appSecret");
         PatchManager.getInstance().setTag("your tag"); //可用于灰度发布
         PatchManager.getInstance().setChannel("your channel");
         PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {
@@ -51,8 +51,8 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
 ````
 if (result.isSuccess) {
-    PatchManager.getInstance().onApplySuccess();
+    PatchManager.getInstance().onApplySuccess(patchPath);
 } else {
-    PatchManager.getInstance().onApplyFailure("");
+    PatchManager.getInstance().onApplyFailure(patchPath, "");
 }
 ````
