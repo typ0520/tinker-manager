@@ -36,7 +36,7 @@ public class MyApplicationLike extends TinkerApplicationLike {
         super.onCreate();
         String appId = "20161103095950020-4398";
         String appSecret = "7d13b661d9b84d40bc9bd59151568249";
-        PatchManager.getInstance().init(getApplication(), "your server", appId, appSecret, new ActualPatchManager() {
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/hotfix-apis/", appId, appSecret, new ActualPatchManager() {
             @Override
             public void cleanPatch(Context context) {
                 TinkerInstaller.cleanPatch(context);
