@@ -41,11 +41,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-    compile 'io.reactivex:rxjava:1.2.1'
 }
 
 def mavenDesc = 'Tinker patch manager'
@@ -65,8 +60,8 @@ try {
 
 }
 
-def bintray_user = props.getProperty("BINTRAY_USER","")
-def bintray_key = props.getProperty("BINTRAY_KEY","")
+def bintray_user = props.getProperty("BINTRAY_USER", "")
+def bintray_key = props.getProperty("BINTRAY_KEY", "")
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs

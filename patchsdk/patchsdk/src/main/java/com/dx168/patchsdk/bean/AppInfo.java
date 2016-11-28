@@ -3,14 +3,12 @@ package com.dx168.patchsdk.bean;
 import android.os.Build;
 
 import com.dx168.patchsdk.BuildConfig;
-import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by jianjun.lin on 2016/10/27.
  */
 public class AppInfo {
 
-    @SerializedName("appUid")
     private String appId;
     private String appSecret;
     private String token;

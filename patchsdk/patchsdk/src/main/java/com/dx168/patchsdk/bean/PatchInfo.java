@@ -33,7 +33,7 @@ public class PatchInfo {
         this.data = data;
     }
 
-    public class Data {
+    public static class Data {
 
         private String versionName;
         private String uid;
