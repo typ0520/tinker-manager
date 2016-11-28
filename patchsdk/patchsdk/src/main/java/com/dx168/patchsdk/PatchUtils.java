@@ -7,6 +7,11 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.dx168.patchsdk.bean.PatchInfo;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -144,6 +149,30 @@ public class PatchUtils {
         }
 
         return "";
+    }
+
+    public static PatchInfo convertJsonToPatchInfo(String string) {
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            PatchInfo patchInfo = new PatchInfo();
+            patchInfo.setCode(jsonObject.optInt("code"));
+            patchInfo.setMessage(jsonObject.optString("message"));
+            JSONObject dataJSONObject = jsonObject.optJSONObject("data");
+            if (dataJSONObject != null) {
+                PatchInfo.Data data = new PatchInfo.Data();
+                data.setVersionName(dataJSONObject.optString("versionName"));
+                data.setUid(dataJSONObject.optString("uid"));
+                data.setPatchVersion(dataJSONObject.optString("patchVersion"));
+                data.setDownloadUrl(dataJSONObject.optString("downloadUrl"));
+                data.setPatchSize(dataJSONObject.optLong("patchSize"));
+                data.setHash(dataJSONObject.optString("hash"));
+                patchInfo.setData(data);
+            }
+            return patchInfo;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
