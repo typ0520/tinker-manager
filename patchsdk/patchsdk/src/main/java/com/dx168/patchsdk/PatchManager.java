@@ -314,14 +314,14 @@ public final class PatchManager {
         }
         SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
         final String patchName = appInfo.getVersionName() + "_" + getPatchName(patchInfo.getData());
-        int flag = sp.getInt(patchName, -1);
+        int reportApplyFlag = sp.getInt(patchName, -1);
         /**
          * 如果已经上报过成功，不管本次是否修复成功，都不上报
          * 如果已经上报过失败，且本次修复成功，则上报成功
          * 如果已经上报过失败，且本次修复失败，则不上报
          */
-        if (flag == APPLY_SUCCESS_REPORTED
-                || (!applyResult && flag == APPLY_FAILURE_REPORTED)) {
+        if (reportApplyFlag == APPLY_SUCCESS_REPORTED
+                || (!applyResult && reportApplyFlag == APPLY_FAILURE_REPORTED)) {
             return;
         }
         PatchServer.get()
@@ -333,13 +333,13 @@ public final class PatchManager {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
-                                int flag;
+                                int reportApplyFlag;
                                 if (applyResult) {
-                                    flag = APPLY_SUCCESS_REPORTED;
+                                    reportApplyFlag = APPLY_SUCCESS_REPORTED;
                                 } else {
-                                    flag = APPLY_FAILURE_REPORTED;
+                                    reportApplyFlag = APPLY_FAILURE_REPORTED;
                                 }
-                                sp.edit().putInt(patchName, flag).apply();
+                                sp.edit().putInt(patchName, reportApplyFlag).apply();
                             }
 
                             @Override
