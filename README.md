@@ -14,5 +14,6 @@ Apache License 2.0
 ![应用管理](http://img2.ph.126.net/txeHTxXyrAlPkAY-Grmvzg==/6631617521515927688.png "Title")
 ![上传补丁](http://img1.ph.126.net/GJmvB7Oc4xQFTIOhXdBq8Q==/6631515266934546508.png "Title")
 ![发布补丁](http://img0.ph.126.net/oMbFJ-ENd5mAQNiwTK8lhQ==/6631885802350009215.png "Title")
+![补丁详情](http://img1.ph.126.net/vHobZAUeeVOnhbfuhUApBQ==/6632052928117653268.png "Title")
 ![测试人员管理](http://img2.ph.126.net/k8CFyzgbCfvugGsfrdt10g==/6631505371329905060.png "Title")
 ![机型黑名单管理](http://img2.ph.126.net/BzWzuW2X0eABYr5i-Dus1w==/6631974862791848663.png "Title")
