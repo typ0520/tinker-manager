@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-./gradlew :tc-manager:bootRun
+./gradlew :patchserver-manager:bootRun
