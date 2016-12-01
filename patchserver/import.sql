@@ -5,6 +5,8 @@ v1.0.2
 alter table t_patch_info add `apply_success_size` int COMMENT '被应用成功的次数'
 alter table t_patch_info add `apply_size` int COMMENT '被应用次数'
 
+v1.0.5
+alter table t_app_info add `package_name` varchar(64) DEFAULT NULL COMMENT 'android的包名 iOS的bundle_id'
 */
 
 /*用户表*/
@@ -37,6 +39,7 @@ CREATE TABLE `t_app_info` (
   `secret` varchar(32) NOT NULL COMMENT '应用秘钥',
   `public_key` varchar(64) DEFAULT NULL COMMENT '公钥',
   `private_key` varchar(64) DEFAULT NULL COMMENT '私钥',
+  `package_name` varchar(64) DEFAULT NULL COMMENT 'android的包名 IOS的bundle_id',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),

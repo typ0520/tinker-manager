@@ -122,6 +122,14 @@
                 </tr>
             </table>
 
+
+            #if($restR.data.qrcodeImg)
+                <img src="$!restR.data.qrcodeImg"/>
+
+                正式发布前建议您先进行本地测试
+                请使用 <a href="http://fir.im/tpks" target="_blank">debug工具</a> 扫描左侧二维码,下载补丁进行本地调试
+            #end
+
             #if($!restR.data.patchInfo.status == 0)
 
                 <div id="gray_publish_container">
