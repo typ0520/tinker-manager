@@ -8,4 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
+    <application>
+        <service android:name=".ApplyResultService"/>
+    </application>
 </manifest>

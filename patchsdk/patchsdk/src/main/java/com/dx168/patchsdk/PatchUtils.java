@@ -175,4 +175,8 @@ public class PatchUtils {
         return null;
     }
 
+    public static void restartProcess() {
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
 }

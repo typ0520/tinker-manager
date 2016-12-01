@@ -43,7 +43,7 @@ public class TinkerResultService extends DefaultTinkerResultService {
     public void onPatchResult(final PatchResult result) {
         if (result == null) {
             TinkerLog.e(TAG, "TinkerResultService received null result!!!!");
-            PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, "");
+            PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, result.e.toString());
             return;
         }
         TinkerLog.i(TAG, " receive result: %s", result.toString());
