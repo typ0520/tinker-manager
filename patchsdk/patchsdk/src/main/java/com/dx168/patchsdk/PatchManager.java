@@ -238,12 +238,19 @@ public final class PatchManager {
                             }
                             return;
                         }
-                        PatchUtils.writeToDisk(bytes, newPatchPath);
-                        if (patchListener != null) {
-                            patchListener.onDownloadSuccess(newPatchPath);
+                        try {
+                            PatchUtils.writeToDisk(bytes, newPatchPath);
+                            if (patchListener != null) {
+                                patchListener.onDownloadSuccess(newPatchPath);
+                            }
+                            patchInfoMap.put(newPatchPath, patchInfo);
+                            apm.applyPatch(context, newPatchPath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            if (patchListener != null) {
+                                patchListener.onDownloadFailure(e);
+                            }
                         }
-                        patchInfoMap.put(newPatchPath, patchInfo);
-                        apm.applyPatch(context, newPatchPath);
                     }
 
                     @Override
