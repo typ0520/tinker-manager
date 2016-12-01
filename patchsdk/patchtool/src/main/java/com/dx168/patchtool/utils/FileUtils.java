@@ -11,29 +11,26 @@ import java.io.OutputStream;
 
 public class FileUtils {
 
-    public static boolean writeToDisk(byte[] bytes, String targetPath) {
+    public static void writeToDisk(byte[] bytes, String targetPath) throws IOException {
+        File tmpFile = new File(targetPath + ".tmp");
+        if (!tmpFile.getParentFile().exists()) {
+            tmpFile.getParentFile().mkdirs();
+        }
+        OutputStream outputStream = null;
         try {
-            File targetFile = new File(targetPath);
-            if (!targetFile.getParentFile().exists()) {
-                targetFile.getParentFile().mkdirs();
-            }
-            OutputStream outputStream = null;
-            try {
-                outputStream = new FileOutputStream(targetFile);
-                outputStream.write(bytes, 0, bytes.length);
-                outputStream.flush();
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            } finally {
-                if (outputStream != null) {
+            outputStream = new FileOutputStream(tmpFile);
+            outputStream.write(bytes, 0, bytes.length);
+            outputStream.flush();
+            tmpFile.renameTo(new File(targetPath));
+        } finally {
+            tmpFile.delete();
+            if (outputStream != null) {
+                try {
                     outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 

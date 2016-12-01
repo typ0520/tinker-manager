@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
 import com.dx168.patchtool.utils.FileUtils;
 import com.dx168.patchtool.utils.HttpUtils;
@@ -19,11 +22,53 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private TextView mTvContent;
+    private View mBtnScan;
+    private View mBtnClear;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.btn_scan).setOnClickListener(this);
+        mBtnScan = findViewById(R.id.btn_scan);
+        mBtnScan.setOnClickListener(this);
+        mBtnClear = findViewById(R.id.btn_clear);
+        mBtnClear.setOnClickListener(this);
+        mTvContent = (TextView) findViewById(R.id.tv_content);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PackageManager pm = getPackageManager();
+        boolean hasPermission = (PackageManager.PERMISSION_GRANTED ==
+                pm.checkPermission("android.permission.WRITE_EXTERNAL_STORAGE", getPackageName()))
+                && (PackageManager.PERMISSION_GRANTED ==
+                pm.checkPermission("android.permission.READ_EXTERNAL_STORAGE", getPackageName()));
+        if (!hasPermission) {
+            String error = "PatchTool需要存储读写权限";
+            showDialog(error);
+            mTvContent.setText(error);
+            mBtnScan.setEnabled(false);
+            mBtnClear.setEnabled(false);
+            return;
+        }
+        mBtnScan.setEnabled(true);
+        mBtnClear.setEnabled(true);
+        updateContent();
+    }
+
+    private void updateContent() {
+        File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + getPackageName());
+        if (patchDir.exists()) {
+            StringBuilder sb = new StringBuilder();
+            for (File patch : patchDir.listFiles()) {
+                sb.append(patch.getName()).append("\n");
+            }
+            mTvContent.setText(sb);
+        } else {
+            mTvContent.setText("没有补丁");
+        }
     }
 
     @Override
@@ -34,6 +79,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new IntentIntegrator(this)
                         .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
                         .initiateScan();
+            }
+            break;
+            case R.id.btn_clear: {
+                File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + getPackageName());
+                patchDir.delete();
+                mTvContent.setText("没有补丁");
             }
             break;
         }
@@ -64,20 +115,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onSuccess(int code, byte[] bytes) {
                             if (code == 200) {
                                 try {
-                                    File filesDir = getExternalFilesDir("");
-                                    String patchPath = filesDir.getAbsolutePath() + File.separator + packageName + "_" + versionName + "_patch_" + patchVersion + ".apk";
+                                    final String patchPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + getPackageName()
+                                            + File.separator + packageName + "_" + versionName + "_" + patchVersion + ".apk";
                                     FileUtils.writeToDisk(bytes, patchPath);
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            showDialog("补丁下载成功");
+                                            showDialog("补丁下载成功\n" + patchPath);
+                                            updateContent();
                                         }
                                     });
-                                } catch (Exception e) {
+                                } catch (final Exception e) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            showDialog("下载patch出错\n" + intentResult.getContents());
+                                            showDialog("下载patch出错\n" + intentResult.getContents() + "\n" + e.getMessage());
                                         }
                                     });
                                 }
