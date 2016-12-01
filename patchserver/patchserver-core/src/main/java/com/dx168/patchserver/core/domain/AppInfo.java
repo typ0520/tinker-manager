@@ -9,6 +9,7 @@ public class AppInfo {
     private Integer id;
     private Integer userId;
     private String appname;
+    private String packageName;
     private String platform;
     private String uid;
     private String description;
@@ -106,6 +107,13 @@ public class AppInfo {
         this.updatedAt = updatedAt;
     }
 
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
 
     @Override
     public String toString() {
@@ -113,6 +121,7 @@ public class AppInfo {
                 "id=" + id +
                 ", userId=" + userId +
                 ", appname='" + appname + '\'' +
+                ", packageName='" + packageName + '\'' +
                 ", platform='" + platform + '\'' +
                 ", uid='" + uid + '\'' +
                 ", description='" + description + '\'' +
