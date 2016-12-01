@@ -9,10 +9,3 @@
 4、把hotfix-apis.war hotfix-console.war放到tomcat下面的webapps目录下
 
 等服务启动完毕就可以在浏览器上访问http://localhost:8080/hotfix-console
-
-
-## CHANGELIST
-v.1.0.5 增加对debug工具的支持，在发布前可以先使用提供的debug工具调试，然后在全量发布
-
-
-[war包下载](https://pan.baidu.com/s/1minrdgO#list/path=%2Ftinker-manager).
