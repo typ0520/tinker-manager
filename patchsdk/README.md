@@ -1,3 +1,5 @@
+[ ![Download](https://api.bintray.com/packages/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/images/download.svg) ](https://bintray.com/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/_latestVersion)
+
 ###一、集成Tinker
 app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 tinker-sample
 
@@ -11,7 +13,7 @@ repositories {
 
 dependencies {
     ...
-    compile 'com.dx168.patchsdk:patchsdk:1.0.6-RELEASE'
+    compile 'com.dx168.patchsdk:patchsdk:1.0.7'
 }
 ````
 
