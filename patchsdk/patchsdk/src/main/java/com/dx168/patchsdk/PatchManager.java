@@ -20,10 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import okhttp3.ResponseBody;
-import rx.Subscriber;
-import rx.schedulers.Schedulers;
-
 /**
  * Created by jianjun.lin on 2016/10/26.
  */
@@ -141,105 +137,77 @@ public final class PatchManager {
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
-                        appInfo.getSdkVersion(), appInfo.getDeviceId())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<PatchInfo>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        if (patchListener != null) {
-                            patchListener.onQueryFailure(e);
-                        }
-                    }
-
-                    @Override
-                    public void onNext(PatchInfo patchInfo) {
-                        if (patchInfo.getCode() != 200) {
-                            if (patchListener != null) {
-                                patchListener.onQueryFailure(new Exception("code=" + patchInfo.getCode()));
-                            }
-                            return;
-                        }
-                        if (patchListener != null) {
-                            patchListener.onQuerySuccess(patchInfo.toString());
-                        }
-                        if (patchInfo.getData() == null) {
-                            File patchDir = new File(patchDirPath);
-                            if (patchDir.exists()) {
-                                patchDir.delete();
-                            }
-                            apm.cleanPatch(context);
-                            if (patchListener != null) {
-                                patchListener.onCompleted();
-                            }
-                            return;
-                        }
-                        SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
-                        String usingPatchPath = sp.getString(SP_KEY_USING_PATCH, "");
-                        String newPatchPath = getPatchPath(patchInfo.getData());
-                        if (TextUtils.equals(usingPatchPath, newPatchPath)) {
-                            if (patchListener != null) {
-                                patchListener.onCompleted();
-                            }
-                            return;
-                        }
-                        File patchDir = new File(patchDirPath);
-                        if (patchDir.exists()) {
-                            for (File patch : patchDir.listFiles()) {
-                                String patchName = getPatchName(patchInfo.getData());
-                                if (TextUtils.equals(patch.getName(), patchName)) {
-                                    if (!checkPatch(patch, patchInfo.getData().getHash())) {
-                                        Log.e(TAG, "cache patch's hash is wrong");
-                                        if (patchListener != null) {
-                                            patchListener.onDownloadFailure(new Exception("cache patch's hash is wrong"));
-                                        }
-                                        return;
+                        appInfo.getSdkVersion(), appInfo.getDeviceId(), new PatchServer.PatchServerCallback() {
+                            @Override
+                            public void onSuccess(int code, byte[] bytes) {
+                                String response = new String(bytes);
+                                PatchInfo patchInfo = PatchUtils.convertJsonToPatchInfo(response);
+                                if (patchInfo.getCode() != 200) {
+                                    if (patchListener != null) {
+                                        patchListener.onQueryFailure(new Exception("code=" + patchInfo.getCode()));
                                     }
-                                    patchInfoMap.put(patch.getAbsolutePath(), patchInfo);
-                                    apm.cleanPatch(context);
-                                    apm.applyPatch(context, patch.getAbsolutePath());
                                     return;
                                 }
+                                if (patchListener != null) {
+                                    patchListener.onQuerySuccess(patchInfo.toString());
+                                }
+                                if (patchInfo.getData() == null) {
+                                    File patchDir = new File(patchDirPath);
+                                    if (patchDir.exists()) {
+                                        patchDir.delete();
+                                    }
+                                    apm.cleanPatch(context);
+                                    if (patchListener != null) {
+                                        patchListener.onCompleted();
+                                    }
+                                    return;
+                                }
+                                SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+                                String usingPatchPath = sp.getString(SP_KEY_USING_PATCH, "");
+                                String newPatchPath = getPatchPath(patchInfo.getData());
+                                if (TextUtils.equals(usingPatchPath, newPatchPath)) {
+                                    if (patchListener != null) {
+                                        patchListener.onCompleted();
+                                    }
+                                    return;
+                                }
+                                File patchDir = new File(patchDirPath);
+                                if (patchDir.exists()) {
+                                    for (File patch : patchDir.listFiles()) {
+                                        String patchName = getPatchName(patchInfo.getData());
+                                        if (TextUtils.equals(patch.getName(), patchName)) {
+                                            if (!checkPatch(patch, patchInfo.getData().getHash())) {
+                                                Log.e(TAG, "cache patch's hash is wrong");
+                                                if (patchListener != null) {
+                                                    patchListener.onDownloadFailure(new Exception("cache patch's hash is wrong"));
+                                                }
+                                                return;
+                                            }
+                                            patchInfoMap.put(patch.getAbsolutePath(), patchInfo);
+                                            apm.cleanPatch(context);
+                                            apm.applyPatch(context, patch.getAbsolutePath());
+                                            return;
+                                        }
+                                    }
+                                }
+                                downloadAndApplyPatch(newPatchPath, patchInfo);
                             }
-                        }
-                        downloadAndApplyPatch(newPatchPath, patchInfo);
-                    }
 
-                });
-
+                            @Override
+                            public void onFailure(Exception e) {
+                                e.printStackTrace();
+                                if (patchListener != null) {
+                                    patchListener.onQueryFailure(e);
+                                }
+                            }
+                        });
     }
 
     private void downloadAndApplyPatch(final String newPatchPath, final PatchInfo patchInfo) {
         PatchServer.get()
-                .downloadFile(patchInfo.getData().getDownloadUrl())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<ResponseBody>() {
+                .downloadPatch(patchInfo.getData().getDownloadUrl(), new PatchServer.PatchServerCallback() {
                     @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        if (patchListener != null) {
-                            patchListener.onDownloadFailure(e);
-                        }
-                    }
-
-                    @Override
-                    public void onNext(ResponseBody body) {
-                        byte[] bytes = null;
-                        try {
-                            bytes = body.bytes();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    public void onSuccess(int code, byte[] bytes) {
                         if (!checkPatch(bytes, patchInfo.getData().getHash())) {
                             Log.e(TAG, "downloaded patch's hash is wrong");
                             if (patchListener != null) {
@@ -253,6 +221,14 @@ public final class PatchManager {
                         }
                         patchInfoMap.put(newPatchPath, patchInfo);
                         apm.applyPatch(context, newPatchPath);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        e.printStackTrace();
+                        if (patchListener != null) {
+                            patchListener.onDownloadFailure(e);
+                        }
                     }
                 });
     }
@@ -338,14 +314,14 @@ public final class PatchManager {
         }
         SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
         final String patchName = appInfo.getVersionName() + "_" + getPatchName(patchInfo.getData());
-        int flag = sp.getInt(patchName, -1);
+        int reportApplyFlag = sp.getInt(patchName, -1);
         /**
          * 如果已经上报过成功，不管本次是否修复成功，都不上报
          * 如果已经上报过失败，且本次修复成功，则上报成功
          * 如果已经上报过失败，且本次修复失败，则不上报
          */
-        if (flag == APPLY_SUCCESS_REPORTED
-                || (!applyResult && flag == APPLY_FAILURE_REPORTED)) {
+        if (reportApplyFlag == APPLY_SUCCESS_REPORTED
+                || (!applyResult && reportApplyFlag == APPLY_FAILURE_REPORTED)) {
             return;
         }
         PatchServer.get()
@@ -353,31 +329,24 @@ public final class PatchManager {
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
                         appInfo.getSdkVersion(), appInfo.getDeviceId(), patchInfo.getData().getUid(),
-                        applyResult)
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Subscriber<Void>() {
-                    @Override
-                    public void onCompleted() {
+                        applyResult, new PatchServer.PatchServerCallback() {
+                            @Override
+                            public void onSuccess(int code, byte[] bytes) {
+                                SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
+                                int reportApplyFlag;
+                                if (applyResult) {
+                                    reportApplyFlag = APPLY_SUCCESS_REPORTED;
+                                } else {
+                                    reportApplyFlag = APPLY_FAILURE_REPORTED;
+                                }
+                                sp.edit().putInt(patchName, reportApplyFlag).apply();
+                            }
 
-                    }
+                            @Override
+                            public void onFailure(Exception e) {
 
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(Void aVoid) {
-                        SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
-                        int flag;
-                        if (applyResult) {
-                            flag = APPLY_SUCCESS_REPORTED;
-                        } else {
-                            flag = APPLY_FAILURE_REPORTED;
-                        }
-                        sp.edit().putInt(patchName, flag).apply();
-                    }
-                });
+                            }
+                        });
         patchInfoMap.remove(patchPath);
     }
 

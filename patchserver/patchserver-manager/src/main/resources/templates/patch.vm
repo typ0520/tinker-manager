@@ -110,7 +110,11 @@
         <div class="container-fluid">
             <table class="table table-bordered">
                 <tr>
-                    <td>应用名称: $!restR.data.appInfo.appname</td>
+                    <td>应用名称: $!restR.data.appInfo.appname
+                        #if($restR.data.appInfo.packageName)
+                            ($restR.data.appInfo.packageName)
+                        #end
+                    </td>
                     <td>应用版本: $!restR.data.versionInfo.versionName</td>
                     <td>补丁版本: $!restR.data.patchInfo.patchVersion</td>
                 </tr>
