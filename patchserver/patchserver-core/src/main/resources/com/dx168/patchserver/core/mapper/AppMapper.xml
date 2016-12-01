@@ -25,6 +25,7 @@
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="user_id" property="userId" jdbcType="INTEGER" />
         <result column="app_name" property="appName" jdbcType="VARCHAR" />
+        <result column="package_name" property="packageName" jdbcType="VARCHAR" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
     </resultMap>
@@ -32,6 +33,11 @@
     <select id="findByUserIdAndName" resultType="com.dx168.patchserver.core.domain.AppInfo" resultMap="BaseResultMap" >
         select * from t_app_info
         where user_id = #{userId} and appname = #{appname}
+    </select>
+
+    <select id="findByUserIdAndPackageName" resultType="com.dx168.patchserver.core.domain.AppInfo" resultMap="BaseResultMap" >
+        select * from t_app_info
+        where user_id = #{userId} and package_name = #{packageName}
     </select>
 
     <select id="findByUid" resultType="com.dx168.patchserver.core.domain.AppInfo" resultMap="BaseResultMap" >
@@ -44,7 +50,7 @@
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
         insert into t_app_info (
-        user_id, appname, platform,uid,description,secret,public_key,private_key, created_at, updated_at
+        user_id, appname, platform,uid,description,secret,public_key,private_key,package_name, created_at, updated_at
         )
         values (
         #{userId,jdbcType=INTEGER},
@@ -55,14 +61,27 @@
         #{secret,jdbcType=VARCHAR},
         #{publicKey,jdbcType=VARCHAR},
         #{privateKey,jdbcType=VARCHAR},
+        #{packageName,jdbcType=VARCHAR},
         #{createdAt,jdbcType=TIMESTAMP},
         #{updatedAt,jdbcType=TIMESTAMP}
         )
     </insert>
 
     <select id="findAllByUserId" resultMap="BaseResultMap">
-        SELECT id, user_id, appname, platform,uid,description,secret,public_key,private_key, created_at, updated_at
+        SELECT id, user_id, appname, platform,uid,description,secret,public_key,private_key,package_name, created_at, updated_at
         FROM t_app_info where user_id = #{userId}
         order by created_at desc ;
     </select>
+
+    <update id="updatePackageName">
+        UPDATE  t_app_info
+        SET package_name = #{packageName,jdbcType=VARCHAR}
+        <if test="updatedAt != null">
+            ,updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+        </if>
+
+        WHERE
+        id = #{id,jdbcType=INTEGER}
+    </update>
+
 </mapper>

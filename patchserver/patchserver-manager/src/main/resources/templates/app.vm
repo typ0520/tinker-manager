@@ -144,7 +144,11 @@
         <div class="container-fluid">
             <table class="table table-bordered">
                 <tr>
-                    <td>应用名称: $!restR.data.appInfo.appname</td>
+                    <td id="app-desc-node">应用名称: $!restR.data.appInfo.appname
+                        #if($restR.data.appInfo.packageName)
+                            ($restR.data.appInfo.packageName)
+                        #end
+                    </td>
                     <td>应用描述: $!restR.data.appInfo.description</td>
                 </tr>
 
@@ -180,7 +184,7 @@
 
 <script>
     console.log('ddd');
-    $(document).ready(function(){
+    $(document).ready(function() {
         $("#create_app").click(function () {
             if ($("#app-version").val().length == 0) {
                 $("#err_msg").text('请输入版本号');
@@ -216,6 +220,57 @@
                 });
             });
         });
+
+
+        function fill_package() {
+            function isPackageName(str) {
+                reg=/^[a-zA-Z0-9-\.]{1,61}$/;
+                if (!reg.test(str)) {
+                    return false;
+                }
+                return str.indexOf('..') == -1;
+            }
+
+            bootbox.prompt("此应用没有包名，请补全包名", function(result) {
+                console.log(result);
+                if (!result) {
+                    return ;
+                }
+                if (result.length == 0) {
+                    return;
+                }
+                if (!isPackageName(result)) {
+                    bootbox.alert("包名格式不正确通过");
+                }
+
+                var dialog = bootbox.dialog({
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+                });
+                dialog.init(function() {
+                    jQuery.ajax({
+                        url:  "#springUrl('')/app/fill_package?appUid=$!restR.data.appInfo.uid&packageName=" + result,
+                        type: 'post',
+                        success:function(res, textStatus, jqXHR){
+                            if (res.code == 200) {
+                                dialog.find('.bootbox-body').html("包名补全成功!");
+
+                                $("#app-desc-node").text("应用名称: $!restR.data.appInfo.appname (" + result + ")")
+
+                            } else {
+                                dialog.find('.bootbox-body').html("<font color='red'>" + res.message + "</font>");
+                            }
+                        },
+                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                            dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
+                        }
+                    });
+                });
+            });
+        }
+
+        #if(!$restR.data.appInfo.packageName)
+            fill_package();
+        #end
     });
 </script>
 </body>

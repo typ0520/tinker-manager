@@ -1,7 +1,6 @@
 package com.dx168.patchserver.manager.service;
 
 import com.dx168.patchserver.core.domain.Tester;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,16 +67,16 @@ public class PatchService {
         List<PatchInfo> patchInfoList = patchInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionInfo.getVersionName());
         int maxPatchVersion = getMaxPatchVersion(patchInfoList) + 1;
         String childPath = appInfo.getUid() + File.separator + versionInfo.getVersionName() + File.separator + maxPatchVersion + File.separator;
-        String fileName = "patch.zip";
-
-        File path = new File(new File(fileStoragePath), childPath);
-        File patchFile = new File(path,fileName);
         PatchInfo patchInfo = new PatchInfo();
         try {
+            String fileHash = DigestUtils.md5DigestAsHex(multipartFile.getBytes());
+            String fileName = fileHash + "_patch.zip";
+            File path = new File(new File(fileStoragePath), childPath);
+            File patchFile = new File(path,fileName);
+
             if (!path.exists() && !path.mkdirs()) {
                 throw new BizException("文件目录创建失败");
             }
-            String fileHash = DigestUtils.md5DigestAsHex(multipartFile.getBytes());
             multipartFile.transferTo(patchFile);
             patchInfo.setUserId(appInfo.getUserId());
             patchInfo.setAppUid(appInfo.getUid());
