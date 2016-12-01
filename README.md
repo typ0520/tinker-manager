@@ -21,7 +21,8 @@ v1.0.5 增加对debug工具的支持，在发布前可以先使用提供的debug
 
 patchsdk
 ```
-v1.0.7 增加对debug工具的支持
+v1.0.7 修复patchsdk空指针错误
+v1.0.8 增加对debug工具的支持
 ```
 
 [war包下载](https://pan.baidu.com/s/1minrdgO#list/path=%2Ftinker-manager).
