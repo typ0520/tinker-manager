@@ -16,4 +16,6 @@ cp patchserver-manager/build/libs/hotfix-console.war ../war/$1/
 cp ../war/hotfix-apis.properties ../war/$1/
 cp ../war/hotfix-console.properties ../war/$1/
 
-cp ../war/readme.txt ../war/$1/
+cp README.md ../war/$1/
+
+cp import.sql ../war/$1/

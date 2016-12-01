@@ -1,12 +1,14 @@
 package com.dx168.patchsdk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
@@ -50,9 +52,10 @@ public final class PatchManager {
     private AppInfo appInfo;
 
     /**
-     * may be clear by gc
+     * may be reset by gc
      */
     private Map<String, PatchInfo> patchInfoMap = new HashMap<>();
+    private boolean isDebugPatch = false;
 
     public void init(Context context, String baseUrl, String appId, String appSecret, ActualPatchManager apm) {
         this.context = context;
@@ -65,6 +68,7 @@ public final class PatchManager {
         appInfo.setAppSecret(appSecret);
         appInfo.setToken(DigestUtils.md5DigestAsHex(appId + "_" + appSecret));
         appInfo.setDeviceId(PatchUtils.getDeviceId(context));
+        appInfo.setPackageName(context.getPackageName());
         PatchServer.init(baseUrl);
         PackageManager packageManager = context.getPackageManager();
         try {
@@ -133,6 +137,27 @@ public final class PatchManager {
             return;
         }
         this.patchListener = listener;
+
+        SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        final String usingPatchPath = sp.getString(SP_KEY_USING_PATCH, "");
+        File debugPatch = DebugUtils.findDebugPatch(appInfo);
+        if (debugPatch != null && TextUtils.equals(usingPatchPath, debugPatch.getAbsolutePath())) {
+            Toast.makeText(context, debugPatch.getName() + " 是已应用成功的调试补丁", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (debugPatch != null) {
+            isDebugPatch = true;
+            Intent intent = new Intent(context, ApplyResultService.class);
+            intent.putExtra("msg", "开始应用调试补丁");
+            context.startService(intent);
+            apm.cleanPatch(context);
+            apm.applyPatch(context, debugPatch.getAbsolutePath());
+            if (patchListener != null) {
+                patchListener.onQuerySuccess(debugPatch.getAbsolutePath());
+            }
+            return;
+        }
+
         PatchServer.get()
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
@@ -162,8 +187,6 @@ public final class PatchManager {
                                     }
                                     return;
                                 }
-                                SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
-                                String usingPatchPath = sp.getString(SP_KEY_USING_PATCH, "");
                                 String newPatchPath = getPatchPath(patchInfo.getData());
                                 if (TextUtils.equals(usingPatchPath, newPatchPath)) {
                                     if (patchListener != null) {
@@ -215,12 +238,19 @@ public final class PatchManager {
                             }
                             return;
                         }
-                        PatchUtils.writeToDisk(bytes, newPatchPath);
-                        if (patchListener != null) {
-                            patchListener.onDownloadSuccess(newPatchPath);
+                        try {
+                            PatchUtils.writeToDisk(bytes, newPatchPath);
+                            if (patchListener != null) {
+                                patchListener.onDownloadSuccess(newPatchPath);
+                            }
+                            patchInfoMap.put(newPatchPath, patchInfo);
+                            apm.applyPatch(context, newPatchPath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            if (patchListener != null) {
+                                patchListener.onDownloadFailure(e);
+                            }
                         }
-                        patchInfoMap.put(newPatchPath, patchInfo);
-                        apm.applyPatch(context, newPatchPath);
                     }
 
                     @Override
@@ -290,7 +320,13 @@ public final class PatchManager {
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(PatchManager.SP_KEY_USING_PATCH, patchPath);
         editor.apply();
-        report(patchPath, true);
+        if (isDebugPatch) {
+            Intent intent = new Intent(context, ApplyResultService.class);
+            intent.putExtra("msg", "应用调试补丁成功");
+            context.startService(intent);
+        } else {
+            report(patchPath, true);
+        }
         if (patchListener != null) {
             patchListener.onApplySuccess();
             patchListener.onCompleted();
@@ -298,7 +334,13 @@ public final class PatchManager {
     }
 
     public void onApplyFailure(String patchPath, String msg) {
-        report(patchPath, false);
+        if (isDebugPatch) {
+            Intent intent = new Intent(context, ApplyResultService.class);
+            intent.putExtra("msg", "应用调试补丁失败");
+            context.startService(intent);
+        } else {
+            report(patchPath, false);
+        }
         if (patchListener != null) {
             patchListener.onApplyFailure(msg);
         }

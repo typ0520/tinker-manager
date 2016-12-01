@@ -119,30 +119,26 @@ class PatchServer {
                         writer.close();
                     }
                     int code = conn.getResponseCode();
+                    if (callback == null) {
+                        return;
+                    }
                     if (code == 200) {
                         inputStream = conn.getInputStream();
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         byte[] buf = new byte[1024];
                         int read;
                         while ((read = inputStream.read(buf)) != -1) {
-                            byteArrayOutputStream.write(buf, 0, read);
+                            baos.write(buf, 0, read);
                         }
-                        if (callback != null) {
-                            callback.onSuccess(code, byteArrayOutputStream.toByteArray());
+                        byte[] bytes = baos.toByteArray();
+                        if (bytes == null || bytes.length == 0) {
+                            callback.onFailure(new Exception("code=200, bytes is empty"));
+                        } else {
+                            callback.onSuccess(code, bytes);
                         }
-                        byteArrayOutputStream.close();
+                        baos.close();
                     } else {
-                        inputStream = conn.getErrorStream();
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        byte[] buf = new byte[1024];
-                        int read;
-                        while ((read = inputStream.read(buf)) != -1) {
-                            byteArrayOutputStream.write(buf, 0, read);
-                        }
-                        if (callback != null) {
-                            callback.onFailure(new Exception(byteArrayOutputStream.toString()));
-                        }
-                        byteArrayOutputStream.close();
+                        callback.onFailure(new Exception("code=" + code));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

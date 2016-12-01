@@ -21,6 +21,7 @@ public class AppInfo {
     private final String model = Build.MODEL;
     private String sdkVersion = BuildConfig.SDK_VERSION;
     private String deviceId;
+    private String packageName;
 
     public String getSdkVersion() {
         return sdkVersion;
@@ -100,5 +101,13 @@ public class AppInfo {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }

@@ -49,6 +49,11 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="app-package-name" class="form-control-label">应用包名:</label>
+                            <input type="text" class="form-control" id="app-package-name" maxlength="32" placeholder="Android的包名 iOS的bundle_id">
+                        </div>
+
+                        <div class="form-group">
                             <label for="app-desc" class="form-control-label">应用描述:</label>
                             <input type="text" class="form-control" id="app-desc" maxlength="32">
                         </div>
@@ -184,11 +189,30 @@
 <script>
     console.log('ddd');
     $(document).ready(function(){
+        function isPackageName(str) {
+            reg=/^[a-zA-Z0-9-\.]{1,61}$/;
+            if (!reg.test(str)) {
+                return false;
+            }
+            return str.indexOf('..') == -1;
+        }
+
         $("#create_app").click(function () {
             if ($("#app-name").val().length == 0) {
                 $("#err_msg").text('请输入应用名称');
                 return;
             }
+
+            if ($("#app-package-name").val().length == 0) {
+                $("#err_msg").text('请输入应用包名');
+                return;
+            }
+
+            if (!isPackageName($("#app-package-name").val())) {
+                $("#err_msg").text('包名的格式不正确');
+                return;
+            }
+
             if ($("#app-desc").val().length == 0) {
                 $("#err_msg").text('请输入应用描述');
                 return;
@@ -200,7 +224,7 @@
             });
             dialog.init(function(){
                 jQuery.ajax({
-                    url:  "#springUrl('')/app/create?appname=" + $("#app-name").val() + "&description=" + $("#app-desc").val(),
+                    url:  "#springUrl('')/app/create?appname=" + $("#app-name").val() + "&description=" + $("#app-desc").val() + "&packageName=" + $("#app-package-name").val(),
                     type: 'post',
                     success:function(res, textStatus, jqXHR){
                         if (res.code == 200) {

@@ -1,5 +1,6 @@
 package com.dx168.patchserver.manager.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dx168.patchserver.core.domain.AppInfo;
@@ -27,11 +28,15 @@ public class AppService {
     @Autowired
     private AccountService accountService;
 
-    public AppInfo addApp(BasicUser basicUser,String appname,String description,String platform) {
+    public AppInfo addApp(BasicUser basicUser,String appname,String description,String packageName,String platform) {
         Integer rootUserId = accountService.getRootUserId(basicUser);
         AppInfo appInfo = appMapper.findByUserIdAndName(rootUserId,appname);
         if (appInfo != null) {
             throw new BizException("名字为: " + appname + "的应用已存在");
+        }
+
+        if (appMapper.findByUserIdAndPackageName(rootUserId,packageName) != null) {
+            throw new BizException("包名为: " + packageName + "的应用已存在");
         }
 
         appInfo = new AppInfo();
@@ -40,6 +45,7 @@ public class AppService {
         appInfo.setUpdatedAt(new Date());
         appInfo.setAppname(appname);
         appInfo.setDescription(description);
+        appInfo.setPackageName(packageName);
         appInfo.setPlatform(platform);
         appInfo.setUid(generateAppUid(rootUserId));
         appInfo.setSecret(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -74,5 +80,19 @@ public class AppService {
         versionInfo.setCreatedAt(new Date());
         versionInfo.setUpdatedAt(new Date());
         versionInfoMapper.insert(versionInfo);
+    }
+
+    //补全包名
+    public void fillPackageName(BasicUser basicUser, String appUid, String packageName) {
+        AppInfo appInfo = findByUid(appUid);
+        if (StringUtils.isNotBlank(appInfo.getPackageName())) {
+            throw new BizException("此app的包名已经补全");
+        }
+        Integer rootUserId = accountService.getRootUserId(basicUser);
+        if (appMapper.findByUserIdAndPackageName(rootUserId,packageName) != null) {
+            throw new BizException("包名为: " + packageName + "的应用已存在");
+        }
+        appInfo.setPackageName(packageName);
+        appMapper.updatePackageName(appInfo);
     }
 }
