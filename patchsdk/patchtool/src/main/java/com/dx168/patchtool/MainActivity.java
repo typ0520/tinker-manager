@@ -22,6 +22,8 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String PATCH_DIR_NAME = "com.dx168.patchtool";
+
     private TextView mTvContent;
     private View mBtnScan;
     private View mBtnClear;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateContent() {
-        File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + getPackageName());
+        File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
         if (patchDir.exists()) {
             StringBuilder sb = new StringBuilder();
             for (File patch : patchDir.listFiles()) {
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             break;
             case R.id.btn_clear: {
-                File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + getPackageName());
+                File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
                 patchDir.delete();
                 mTvContent.setText("没有补丁");
             }
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onSuccess(int code, byte[] bytes) {
                             if (code == 200) {
                                 try {
-                                    final String patchPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + getPackageName()
+                                    final String patchPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME
                                             + File.separator + packageName + "_" + versionName + "_" + patchVersion + ".apk";
                                     FileUtils.writeToDisk(bytes, patchPath);
                                     runOnUiThread(new Runnable() {
