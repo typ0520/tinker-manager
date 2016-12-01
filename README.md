@@ -11,11 +11,15 @@
 Apache License 2.0
 
 ## CHANGELIST
-server:
+server
+```
 v1.0.5 增加对debug工具的支持，在发布前可以先使用提供的debug工具调试，然后在全量发布
+```
 
 patchsdk
+```
 v1.0.7 增加对debug工具的支持
+```
 
 [war包下载](https://pan.baidu.com/s/1minrdgO#list/path=%2Ftinker-manager).
 [aar包下载](http://jcenter.bintray.com/com/dx168/patchsdk/patchsdk/).
