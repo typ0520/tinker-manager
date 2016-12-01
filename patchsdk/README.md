@@ -6,14 +6,15 @@ app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 tinker-
 ###二、集成SDK
 
 - 1. app/build.gradle
-````
+
+````gradle
 repositories {
     jcenter()
 }
 
 dependencies {
     ...
-    compile 'com.dx168.patchsdk:patchsdk:1.0.7'
+    compile 'com.dx168.patchsdk:patchsdk:1.0.8'
 }
 ````
 
