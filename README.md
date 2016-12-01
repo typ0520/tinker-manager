@@ -2,6 +2,9 @@
 
 [![license](https://img.shields.io/hexpm/l/plug.svg)](https://raw.githubusercontent.com/baidao/tinker-manager/master/LICENSE)
 
+[ ![Download](https://api.bintray.com/packages/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/images/download.svg) ](https://bintray.com/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/_latestVersion)
+
+
 关于Tinker请移步: https://github.com/Tencent/tinker
 
 [服务器端部署文档](https://github.com/baidao/tinker-manager/tree/master/patchserver).
@@ -22,7 +25,7 @@ v1.0.7 增加对debug工具的支持
 ```
 
 [war包下载](https://pan.baidu.com/s/1minrdgO#list/path=%2Ftinker-manager).
-[aar包下载](http://jcenter.bintray.com/com/dx168/patchsdk/patchsdk/).
+[sdk下载](https://bintray.com/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/_latestVersion).
 [debug工具下载](http://fir.im/tpks).
 
 ## 后台效果
