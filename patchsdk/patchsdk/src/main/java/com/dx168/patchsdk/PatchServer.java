@@ -119,6 +119,9 @@ class PatchServer {
                         writer.close();
                     }
                     int code = conn.getResponseCode();
+                    if (callback == null) {
+                        return;
+                    }
                     if (code == 200) {
                         inputStream = conn.getInputStream();
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -128,18 +131,14 @@ class PatchServer {
                             baos.write(buf, 0, read);
                         }
                         byte[] bytes = baos.toByteArray();
-                        if (callback != null) {
-                            if (bytes == null || bytes.length == 0) {
-                                callback.onFailure(new Exception("code=200, bytes is empty"));
-                            } else {
-                                callback.onSuccess(code, bytes);
-                            }
+                        if (bytes == null || bytes.length == 0) {
+                            callback.onFailure(new Exception("code=200, bytes is empty"));
+                        } else {
+                            callback.onSuccess(code, bytes);
                         }
                         baos.close();
                     } else {
-                        if (callback != null) {
-                            callback.onFailure(new Exception("code=" + code));
-                        }
+                        callback.onFailure(new Exception("code=" + code));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

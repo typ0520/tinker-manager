@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dx168.patchtool.utils.FileUtils;
 import com.dx168.patchtool.utils.HttpUtils;
@@ -62,14 +63,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void updateContent() {
         File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
-        if (patchDir.exists() && patchDir.listFiles() != null && patchDir.listFiles().length > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (File patch : patchDir.listFiles()) {
-                sb.append(patch.getName()).append("\n");
+        StringBuilder sb = new StringBuilder();
+        if (patchDir.exists()) {
+            File[] patches = patchDir.listFiles();
+            if (patches != null) {
+                for (File patch : patches) {
+                    sb.append(patch.getName()).append("\n");
+                }
             }
-            mTvContent.setText(sb);
-        } else {
+        }
+        if (TextUtils.isEmpty(sb)) {
             mTvContent.setText("没有补丁");
+        } else {
+            mTvContent.setText(sb);
         }
     }
 
@@ -84,13 +90,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             break;
             case R.id.btn_clear: {
-                File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
-                if (patchDir.exists() && patchDir.listFiles() != null && patchDir.listFiles().length > 0) {
-                    for (File patch : patchDir.listFiles()) {
-                        patch.delete();
-                    }
-                }
-                mTvContent.setText("没有补丁");
+                new AlertDialog.Builder(this)
+                        .setMessage("确定清理全部补丁吗?")
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface anInterface, int which) {
+
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface anInterface, int which) {
+                                File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
+                                if (patchDir.exists() && patchDir.listFiles() != null && patchDir.listFiles().length > 0) {
+                                    for (File patch : patchDir.listFiles()) {
+                                        patch.delete();
+                                    }
+                                }
+                                mTvContent.setText("没有补丁");
+                            }
+                        }).show();
             }
             break;
         }
@@ -121,13 +140,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onSuccess(int code, byte[] bytes) {
                             if (code == 200) {
                                 try {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(), "正在下载补丁", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                     final String patchPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME
                                             + File.separator + packageName + "_" + versionName + "_" + patchVersion + ".apk";
                                     FileUtils.writeToDisk(bytes, patchPath);
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            showDialog("补丁下载成功\n" + patchPath);
+                                            showDialog("下载补丁成功\n" + patchPath);
                                             updateContent();
                                         }
                                     });
@@ -135,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            showDialog("下载patch出错\n" + intentResult.getContents() + "\n" + e.getMessage());
+                                            showDialog("下载补丁出错\n" + intentResult.getContents() + "\n" + e.toString());
                                         }
                                     });
                                 }
@@ -143,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        showDialog("访问patch url出错\n" + intentResult.getContents());
+                                        showDialog("访问补丁下载地址出错\n" + intentResult.getContents());
                                     }
                                 });
                             }
@@ -155,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    showDialog("访问patch url出错\n" + intentResult.getContents());
+                                    showDialog("访问补丁下载地址出错\n" + intentResult.getContents());
                                 }
                             });
                         }
@@ -167,6 +192,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showDialog(intentResult.getContents());
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        HttpUtils.cancel();
+        super.onDestroy();
     }
 
     private void showDialog(String msg) {

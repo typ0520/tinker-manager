@@ -19,9 +19,15 @@ import java.util.concurrent.Executors;
  */
 
 public class HttpUtils {
+    private static HttpCallback sCallback;
     private static Executor sThreadPool = Executors.newSingleThreadExecutor();
 
-    public static void request(final String url, final Map<String, Object> paramMap, final HttpCallback callback) {
+    public static void cancel() {
+        sCallback = null;
+    }
+
+    public static void request(final String url, final Map<String, Object> paramMap, HttpCallback callback) {
+        sCallback = callback;
         sThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -45,35 +51,31 @@ public class HttpUtils {
                         writer.close();
                     }
                     int code = conn.getResponseCode();
+                    if (sCallback == null) {
+                        return;
+                    }
                     if (code == 200) {
                         inputStream = conn.getInputStream();
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         byte[] buf = new byte[1024];
                         int read;
                         while ((read = inputStream.read(buf)) != -1) {
-                            byteArrayOutputStream.write(buf, 0, read);
+                            baos.write(buf, 0, read);
                         }
-                        if (callback != null) {
-                            callback.onSuccess(code, byteArrayOutputStream.toByteArray());
+                        byte[] bytes = baos.toByteArray();
+                        if (bytes == null || bytes.length == 0) {
+                            sCallback.onFailure(new Exception("code=200, bytes is empty"));
+                        } else {
+                            sCallback.onSuccess(code, bytes);
                         }
-                        byteArrayOutputStream.close();
+                        baos.close();
                     } else {
-                        inputStream = conn.getErrorStream();
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        byte[] buf = new byte[1024];
-                        int read;
-                        while ((read = inputStream.read(buf)) != -1) {
-                            byteArrayOutputStream.write(buf, 0, read);
-                        }
-                        if (callback != null) {
-                            callback.onFailure(new Exception(byteArrayOutputStream.toString()));
-                        }
-                        byteArrayOutputStream.close();
+                        sCallback.onFailure(new Exception("code=" + code));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    if (callback != null) {
-                        callback.onFailure(e);
+                    if (sCallback != null) {
+                        sCallback.onFailure(e);
                     }
                 } finally {
                     if (outputStream != null) {
