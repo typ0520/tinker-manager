@@ -65,6 +65,7 @@ public final class PatchManager {
         appInfo.setAppSecret(appSecret);
         appInfo.setToken(DigestUtils.md5DigestAsHex(appId + "_" + appSecret));
         appInfo.setDeviceId(PatchUtils.getDeviceId(context));
+        appInfo.setPackageName(context.getPackageName());
         PatchServer.init(baseUrl);
         PackageManager packageManager = context.getPackageManager();
         try {
@@ -133,6 +134,7 @@ public final class PatchManager {
             return;
         }
         this.patchListener = listener;
+
         PatchServer.get()
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
