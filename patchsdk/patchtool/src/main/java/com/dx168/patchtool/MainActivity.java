@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void updateContent() {
         File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
-        if (patchDir.exists()) {
+        if (patchDir.exists() && patchDir.listFiles() != null && patchDir.listFiles().length > 0) {
             StringBuilder sb = new StringBuilder();
             for (File patch : patchDir.listFiles()) {
                 sb.append(patch.getName()).append("\n");
@@ -85,7 +85,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             break;
             case R.id.btn_clear: {
                 File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
-                patchDir.delete();
+                if (patchDir.exists() && patchDir.listFiles() != null && patchDir.listFiles().length > 0) {
+                    for (File patch : patchDir.listFiles()) {
+                        patch.delete();
+                    }
+                }
                 mTvContent.setText("没有补丁");
             }
             break;
