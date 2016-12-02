@@ -1,4 +1,4 @@
-package com.dx168.patchsdk;
+package com.dx168.patchsdk.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

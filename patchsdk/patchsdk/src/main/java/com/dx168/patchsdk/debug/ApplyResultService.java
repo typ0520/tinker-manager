@@ -1,4 +1,4 @@
-package com.dx168.patchsdk;
+package com.dx168.patchsdk.debug;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
+
+import com.dx168.patchsdk.utils.DebugUtils;
 
 /**
  * Created by jianjun.lin on 2016/12/1.

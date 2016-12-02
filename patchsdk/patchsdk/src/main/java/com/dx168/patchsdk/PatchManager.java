@@ -12,6 +12,10 @@ import android.widget.Toast;
 
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
+import com.dx168.patchsdk.debug.ApplyResultService;
+import com.dx168.patchsdk.utils.DebugUtils;
+import com.dx168.patchsdk.utils.DigestUtils;
+import com.dx168.patchsdk.utils.PatchUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -238,12 +242,19 @@ public final class PatchManager {
                             }
                             return;
                         }
-                        PatchUtils.writeToDisk(bytes, newPatchPath);
-                        if (patchListener != null) {
-                            patchListener.onDownloadSuccess(newPatchPath);
+                        try {
+                            PatchUtils.writeToDisk(bytes, newPatchPath);
+                            if (patchListener != null) {
+                                patchListener.onDownloadSuccess(newPatchPath);
+                            }
+                            patchInfoMap.put(newPatchPath, patchInfo);
+                            apm.applyPatch(context, newPatchPath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            if (patchListener != null) {
+                                patchListener.onDownloadFailure(e);
+                            }
                         }
-                        patchInfoMap.put(newPatchPath, patchInfo);
-                        apm.applyPatch(context, newPatchPath);
                     }
 
                     @Override
