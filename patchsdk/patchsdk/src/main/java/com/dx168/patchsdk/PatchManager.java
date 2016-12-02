@@ -12,6 +12,10 @@ import android.widget.Toast;
 
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
+import com.dx168.patchsdk.debug.ApplyResultService;
+import com.dx168.patchsdk.utils.DebugUtils;
+import com.dx168.patchsdk.utils.DigestUtils;
+import com.dx168.patchsdk.utils.PatchUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
