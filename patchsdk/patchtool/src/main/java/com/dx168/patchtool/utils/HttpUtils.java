@@ -11,24 +11,30 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by jianjun.lin on 2016/11/30.
  */
 
 public class HttpUtils {
-    private static HttpCallback sCallback;
-    private static Executor sThreadPool = Executors.newSingleThreadExecutor();
+
+    private static ExecutorService sThreadPool = Executors.newSingleThreadExecutor();
+    private static Future sFuture;
 
     public static void cancel() {
-        sCallback = null;
+        if (sFuture != null) {
+            sFuture.cancel(true);
+        }
     }
 
-    public static void request(final String url, final Map<String, Object> paramMap, HttpCallback callback) {
-        sCallback = callback;
-        sThreadPool.execute(new Runnable() {
+    public static void request(final String url, final Map<String, Object> paramMap, final HttpCallback callback) {
+        if (sFuture != null) {
+            sFuture.cancel(true);
+        }
+        sFuture = sThreadPool.submit(new Runnable() {
             @Override
             public void run() {
                 OutputStream outputStream = null;
@@ -51,7 +57,7 @@ public class HttpUtils {
                         writer.close();
                     }
                     int code = conn.getResponseCode();
-                    if (sCallback == null) {
+                    if (callback == null || Thread.interrupted()) {
                         return;
                     }
                     if (code == 200) {
@@ -60,22 +66,25 @@ public class HttpUtils {
                         byte[] buf = new byte[1024];
                         int read;
                         while ((read = inputStream.read(buf)) != -1) {
+                            if (Thread.interrupted()) {
+                                return;
+                            }
                             baos.write(buf, 0, read);
                         }
                         byte[] bytes = baos.toByteArray();
                         if (bytes == null || bytes.length == 0) {
-                            sCallback.onFailure(new Exception("code=200, bytes is empty"));
+                            callback.onFailure(new Exception("code=200, bytes is empty"));
                         } else {
-                            sCallback.onSuccess(code, bytes);
+                            callback.onSuccess(code, bytes);
                         }
                         baos.close();
                     } else {
-                        sCallback.onFailure(new Exception("code=" + code));
+                        callback.onFailure(new Exception("code=" + code));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    if (sCallback != null) {
-                        sCallback.onFailure(e);
+                    if (callback != null) {
+                        callback.onFailure(e);
                     }
                 } finally {
                     if (outputStream != null) {
@@ -95,6 +104,7 @@ public class HttpUtils {
                 }
             }
         });
+
     }
 
 }

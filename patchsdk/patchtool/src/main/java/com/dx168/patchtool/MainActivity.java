@@ -135,17 +135,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         showDialog("补丁versionName=" + versionName + "\n" + "App versionName=" + appVersionName);
                         return;
                     }
+                    Toast.makeText(getApplicationContext(), "正在下载补丁", Toast.LENGTH_LONG).show();
                     HttpUtils.request(url, null, new HttpCallback() {
                         @Override
                         public void onSuccess(int code, byte[] bytes) {
                             if (code == 200) {
                                 try {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(getApplicationContext(), "正在下载补丁", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
                                     final String patchPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME
                                             + File.separator + packageName + "_" + versionName + "_" + patchVersion + ".apk";
                                     FileUtils.writeToDisk(bytes, patchPath);
