@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -16,25 +17,32 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.dx168.patchtool.utils.FileUtils;
 import com.dx168.patchtool.utils.HttpUtils;
 import com.dx168.patchtool.utils.Utils;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.FileCallBack;
+import com.zhy.http.okhttp.callback.StringCallback;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.io.File;
+import okhttp3.Call;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
     private static final String PATCH_DIR_NAME = "com.dx168.patchtool";
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private TextView mTvContent;
     private View mBtnScan;
     private View mBtnClear;
+    private Button mbtnUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +51,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnScan = findViewById(R.id.btn_scan);
         mBtnScan.setOnClickListener(this);
         mBtnClear = findViewById(R.id.btn_clear);
+
+        mbtnUpdate = (Button) findViewById(R.id.btn_update);
         mBtnClear.setOnClickListener(this);
+        mbtnUpdate.setOnClickListener(this);
         mTvContent = (TextView) findViewById(R.id.tv_content);
+
+        checkUpdate();
+    }
+
+    private void checkUpdate() {
+        OkHttpUtils
+                .get()
+                .url("http://api.fir.im/apps/latest/com.dx168.patchtool/?api_token=ce5ab187df9e366390dba9f9315c8292&type=android")
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        if (e != null) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Log.d(TAG,response);
+                        JSONObject obj = null;
+                        try {
+                            obj = new JSONObject(response);
+                        } catch (JSONException e) {
+                            return;
+                        }
+                        String versionShort = obj.optString("versionShort");
+                        if (TextUtils.isEmpty(versionShort)
+                                || BuildConfig.VERSION_NAME.equals(versionShort)
+                                || TextUtils.isEmpty(obj.optString("installUrl"))
+                                || !obj.optString("installUrl").startsWith("http")) {
+                            return;
+                        }
+
+                        mbtnUpdate.setVisibility(View.VISIBLE);
+                        mbtnUpdate.setTag(obj.optString("installUrl"));
+                    }
+                });
     }
 
     @Override
@@ -118,8 +167,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }).show();
             }
+            case R.id.btn_update: {
+                if (mbtnUpdate.getTag() == null) {
+                    return;
+                }
+                Toast.makeText(MainActivity.this,"开始下载",Toast.LENGTH_LONG).show();
+                String downloadUrl = (String) mbtnUpdate.getTag();
+
+                final File apkFile = new File(Environment.getExternalStorageDirectory().getPath(),getPackageName() + "_patchTool.apk");
+                OkHttpUtils.get().url(downloadUrl).build().execute(new FileCallBack(apkFile.getParent(),apkFile.getName()) {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        if (e != null) {
+                            e.printStackTrace();
+                        }
+                        Toast.makeText(MainActivity.this,"下载失败!",Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onResponse(File response, int id) {
+                        final Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.parse("file://" + apkFile.getAbsolutePath()), "application/vnd.android.package-archive");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//4.0以上系统弹出安装成功打开界面
+
+                        mbtnUpdate.setText("下载完成，点击安装");
+                        mbtnUpdate.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startActivity(intent);
+                            }
+                        });
+
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setCancelable(false)
+                                .setMessage("下载完成是否安装?")
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface anInterface, int which) {
+
+                                    }
+                                })
+                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface anInterface, int which) {
+                                        startActivity(intent);
+                                    }
+                                }).show();
+                    }
+                });
+            }
             break;
         }
+    }
+
+    private void install(String path) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse("file://" + path), "application/vnd.android.package-archive");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//4.0以上系统弹出安装成功打开界面
+        startActivity(intent);
     }
 
     @Override
@@ -283,5 +388,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }).show();
     }
-
 }
