@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mTvContent;
     private View mBtnScan;
     private View mBtnClear;
+    private AppServer mAppServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         @Override
                                         public void run() {
                                             new AlertDialog.Builder(MainActivity.this)
-                                                    .setMessage("下载补丁成功\n" + patchPath + "\n是否立即应用?")
+                                                    .setMessage("下载补丁成功\n" + patchPath + "\n\n是否立即应用?")
                                                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface anInterface, int which) {
@@ -164,7 +165,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface anInterface, int which) {
-                                                            remoteApplyPatch(packageName);
+                                                            if (mAppServer != null) {
+                                                                mAppServer.destroy();
+                                                            }
+                                                            mAppServer = new AppServer(MainActivity.this, packageName);
+                                                            mAppServer.applyPatch(new AppServer.Callback() {
+                                                                @Override
+                                                                public void onSuccess() {
+                                                                    showDialog("应用成功");
+                                                                }
+
+                                                                @Override
+                                                                public void onFailure() {
+                                                                    showDialog("应用失败");
+                                                                }
+                                                            });
                                                         }
                                                     }).show();
                                             updateContent();
@@ -208,68 +223,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private String mLastPackageName;
-    private ServiceConnection mLastConnection;
-    private Messenger mRemoteMessenger;
-
-    private void remoteApplyPatch(String packageName) {
-        if (TextUtils.equals(mLastPackageName, packageName) && mRemoteMessenger != null) {
-            realRemoteApplyPatch();
-            return;
-        }
-        mLastPackageName = packageName;
-        if (mLastConnection != null) {
-            unbindService(mLastConnection);
-        }
-        mLastConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                mRemoteMessenger = new Messenger(service);
-                realRemoteApplyPatch();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mRemoteMessenger = null;
-            }
-        };
-        Intent intent = new Intent();
-        intent.setClassName(packageName, "com.dx168.patchsdk.debug.DebugService");
-        bindService(intent, mLastConnection, BIND_AUTO_CREATE);
-    }
-
-    private void realRemoteApplyPatch() {
-        Message msg = Message.obtain();
-        msg.what = 1;
-        msg.replyTo = mMessenger;
-        try {
-            mRemoteMessenger.send(msg);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1: {
-                    Bundle bundle = msg.getData();
-                    showDialog(bundle.getString("TEST"));
-                }
-                break;
-                case 2: {
-                }
-                break;
-            }
-        }
-    };
-    private Messenger mMessenger = new Messenger(mHandler);
-
-
     @Override
     protected void onDestroy() {
         HttpUtils.cancel();
+        if (mAppServer != null) {
+            mAppServer.destroy();
+        }
         super.onDestroy();
     }
 
