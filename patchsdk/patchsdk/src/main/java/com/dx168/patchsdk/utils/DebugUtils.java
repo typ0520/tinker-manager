@@ -1,4 +1,4 @@
-package com.dx168.patchsdk;
+package com.dx168.patchsdk.utils;
 
 import android.app.Notification;
 import android.app.NotificationManager;

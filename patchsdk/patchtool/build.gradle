@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.dx168.patchtool"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0.0"
 

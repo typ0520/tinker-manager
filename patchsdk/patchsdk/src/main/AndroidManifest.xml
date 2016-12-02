@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application>
-        <service android:name=".ApplyResultService"/>
+        <service android:name=".debug.ApplyResultService"/>
+        <service
+            android:name=".debug.DebugService"
+            android:exported="true"/>
     </application>
 </manifest>

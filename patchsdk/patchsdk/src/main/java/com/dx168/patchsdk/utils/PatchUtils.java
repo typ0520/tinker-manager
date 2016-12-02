@@ -1,4 +1,4 @@
-package com.dx168.patchsdk;
+package com.dx168.patchsdk.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
