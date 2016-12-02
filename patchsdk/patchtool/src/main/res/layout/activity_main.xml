@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="清理全部补丁"/>
+            android:text="清除全部补丁"/>
 
         <Button
             android:id="@+id/btn_update"
@@ -52,7 +52,7 @@
         android:id="@+id/tv_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="注: patchsdk 1.0.8开始支持debug工具"
+        android:text="注：patchsdk 1.0.9 开始支持debug工具"
         android:textColor="@android:color/darker_gray"
         android:layout_alignParentBottom="true"
         android:gravity="center" />

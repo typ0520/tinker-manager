@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * Created by jianjun.lin on 2016/10/27.
@@ -172,8 +173,15 @@ public class PatchUtils {
         return null;
     }
 
-    public static void restartProcess() {
-        android.os.Process.killProcess(android.os.Process.myPid());
+    public static boolean isMainProcessRunning(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> processes = activityManager.getRunningAppProcesses();
+        for (int i = 0; i < processes.size(); i++) {
+            if (processes.get(i).processName.equals(context.getPackageName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -15,12 +14,13 @@ import android.os.RemoteException;
  * Created by jianjun.lin on 2016/12/2.
  */
 
-public class AppServer implements ServiceConnection {
+public class AppServer {
 
     private Context mContext;
     private String mPackageName;
     private Messenger mRemoteMessenger;
     private Callback mApplyPatchCallback;
+    private ServiceConnection mConnection;
 
     public AppServer(Context context, String packageName) {
         mContext = context;
@@ -55,7 +55,22 @@ public class AppServer implements ServiceConnection {
         }
         Intent intent = new Intent("com.dx168.patchsdk.DebugService.BIND");
         intent.setPackage(mPackageName);
-        mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        if (mConnection != null) {
+            mContext.unbindService(mConnection);
+        }
+        mConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                mRemoteMessenger = new Messenger(service);
+                realApplyPatch();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mRemoteMessenger = null;
+            }
+        };
+        mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void realApplyPatch() {
@@ -69,19 +84,46 @@ public class AppServer implements ServiceConnection {
         }
     }
 
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        mRemoteMessenger = new Messenger(service);
-        realApplyPatch();
+    public void restart() {
+        if (mRemoteMessenger != null) {
+            realRestart();
+            return;
+        }
+        Intent intent = new Intent("com.dx168.patchsdk.DebugService.BIND");
+        intent.setPackage(mPackageName);
+        if (mConnection != null) {
+            mContext.unbindService(mConnection);
+        }
+        mConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                mRemoteMessenger = new Messenger(service);
+                realRestart();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mRemoteMessenger = null;
+            }
+        };
+        mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        mRemoteMessenger = null;
+    private void realRestart() {
+        Message msg = Message.obtain();
+        msg.what = 2;
+        msg.replyTo = mMessenger;
+        try {
+            mRemoteMessenger.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     public void destroy() {
-        mContext.unbindService(this);
+        if (mConnection != null) {
+            mContext.unbindService(mConnection);
+        }
         mRemoteMessenger = null;
     }
 

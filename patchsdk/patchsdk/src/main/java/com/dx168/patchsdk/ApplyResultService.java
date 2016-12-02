@@ -29,29 +29,35 @@ public class ApplyResultService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mHandler.removeCallbacksAndMessages(null);
-        String msg = intent.getStringExtra("msg");
-        if (!TextUtils.isEmpty(msg)) {
-            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-            DebugUtils.sendNotify(this, msg);
-        }
-        PatchListener patchListener = PatchManager.getInstance().getPatchListener();
-        if (patchListener != null) {
-            boolean success = intent.getBooleanExtra("success", false);
-            if (success) {
-                patchListener.onApplySuccess();
-                patchListener.onCompleted();
-            } else {
-                patchListener.onApplyFailure(msg);
+        try {
+            if (intent == null) {
+                return super.onStartCommand(intent, flags, startId);
             }
-        }
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopSelf();
+            mHandler.removeCallbacksAndMessages(null);
+            String msg = intent.getStringExtra("msg");
+            if (!TextUtils.isEmpty(msg)) {
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                DebugUtils.sendNotify(this, msg);
             }
-        }, 5000);
-        return super.onStartCommand(intent, flags, startId);
+            PatchListener patchListener = PatchManager.getInstance().getPatchListener();
+            if (patchListener != null) {
+                boolean success = intent.getBooleanExtra("success", false);
+                if (success) {
+                    patchListener.onApplySuccess();
+                    patchListener.onCompleted();
+                } else {
+                    patchListener.onApplyFailure(msg);
+                }
+            }
+            return super.onStartCommand(intent, flags, startId);
+        } finally {
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    stopSelf();
+                }
+            }, 5000);
+        }
     }
 
 }
