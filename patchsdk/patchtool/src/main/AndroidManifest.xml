@@ -20,6 +20,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <receiver android:name=".DebugReceiver">
+            <intent-filter>
+                <action android:name="com.dx168.patchtool.RECEIVE_APPLY_PATCH_RESULT"/>
+            </intent-filter>
+        </receiver>
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"

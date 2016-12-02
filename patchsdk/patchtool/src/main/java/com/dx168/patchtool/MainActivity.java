@@ -2,19 +2,12 @@ package com.dx168.patchtool;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.dx168.patchtool.utils.FileUtils;
 import com.dx168.patchtool.utils.HttpUtils;
 import com.dx168.patchtool.utils.Utils;
@@ -30,34 +24,35 @@ import com.google.zxing.integration.android.IntentResult;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 import com.zhy.http.okhttp.callback.StringCallback;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.File;
+
 import okhttp3.Call;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, DebugReceiver.OnReceiveListener {
     private static final String PATCH_DIR_NAME = "com.dx168.patchtool";
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private TextView mTvContent;
     private View mBtnScan;
     private View mBtnClear;
-    private Button mbtnUpdate;
-    private AppServer mAppServer;
+    private Button mBtnUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        DebugReceiver.register(this);
         mBtnScan = findViewById(R.id.btn_scan);
         mBtnScan.setOnClickListener(this);
         mBtnClear = findViewById(R.id.btn_clear);
-
-        mbtnUpdate = (Button) findViewById(R.id.btn_update);
+        mBtnUpdate = (Button) findViewById(R.id.btn_update);
         mBtnClear.setOnClickListener(this);
-        mbtnUpdate.setOnClickListener(this);
+        mBtnUpdate.setOnClickListener(this);
         mTvContent = (TextView) findViewById(R.id.tv_content);
-
         checkUpdate();
     }
 
@@ -76,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onResponse(String response, int id) {
-                        Log.d(TAG,response);
+                        Log.d(TAG, response);
                         JSONObject obj = null;
                         try {
                             obj = new JSONObject(response);
@@ -91,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             return;
                         }
 
-                        mbtnUpdate.setVisibility(View.VISIBLE);
-                        mbtnUpdate.setTag(obj.optString("installUrl"));
+                        mBtnUpdate.setVisibility(View.VISIBLE);
+                        mBtnUpdate.setTag(obj.optString("installUrl"));
                     }
                 });
     }
@@ -149,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_clear: {
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
-                        .setMessage("确定清理全部补丁吗?")
+                        .setMessage("确定清除全部补丁吗?")
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface anInterface, int which) {
@@ -170,20 +165,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }).show();
             }
             case R.id.btn_update: {
-                if (mbtnUpdate.getTag() == null) {
+                if (mBtnUpdate.getTag() == null) {
                     return;
                 }
-                Toast.makeText(MainActivity.this,"开始下载",Toast.LENGTH_LONG).show();
-                String downloadUrl = (String) mbtnUpdate.getTag();
+                Toast.makeText(MainActivity.this, "开始下载", Toast.LENGTH_LONG).show();
+                String downloadUrl = (String) mBtnUpdate.getTag();
 
-                final File apkFile = new File(Environment.getExternalStorageDirectory().getPath(),getPackageName() + "_patchTool.apk");
-                OkHttpUtils.get().url(downloadUrl).build().execute(new FileCallBack(apkFile.getParent(),apkFile.getName()) {
+                final File apkFile = new File(Environment.getExternalStorageDirectory().getPath(), getPackageName() + "_patchTool.apk");
+                OkHttpUtils.get().url(downloadUrl).build().execute(new FileCallBack(apkFile.getParent(), apkFile.getName()) {
                     @Override
                     public void onError(Call call, Exception e, int id) {
                         if (e != null) {
                             e.printStackTrace();
                         }
-                        Toast.makeText(MainActivity.this,"下载失败!",Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "下载失败!", Toast.LENGTH_LONG).show();
                     }
 
                     @Override
@@ -192,8 +187,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         intent.setDataAndType(Uri.parse("file://" + apkFile.getAbsolutePath()), "application/vnd.android.package-archive");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//4.0以上系统弹出安装成功打开界面
 
-                        mbtnUpdate.setText("下载完成，点击安装");
-                        mbtnUpdate.setOnClickListener(new View.OnClickListener() {
+                        mBtnUpdate.setText("下载完成，点击安装");
+                        mBtnUpdate.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 startActivity(intent);
@@ -272,21 +267,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface anInterface, int which) {
-                                                            if (mAppServer != null) {
-                                                                mAppServer.destroy();
-                                                            }
-                                                            mAppServer = new AppServer(MainActivity.this, packageName);
-                                                            mAppServer.applyPatch(new AppServer.Callback() {
-                                                                @Override
-                                                                public void onSuccess() {
-                                                                    showDialog("应用成功");
-                                                                }
-
-                                                                @Override
-                                                                public void onFailure() {
-                                                                    showDialog("应用失败");
-                                                                }
-                                                            });
+                                                            Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.APPLY_PATCH");
+                                                            intent.putExtra("packageName", packageName);
+                                                            intent.putExtra("what", 1);
+                                                            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                                                            sendBroadcast(intent);
                                                         }
                                                     }).show();
                                             updateContent();
@@ -333,9 +318,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         HttpUtils.cancel();
-        if (mAppServer != null) {
-            mAppServer.destroy();
-        }
+        DebugReceiver.unregister(this);
         super.onDestroy();
     }
 
@@ -347,6 +330,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(DialogInterface anInterface, int which) {
 
+                    }
+                }).show();
+    }
+
+    @Override
+    public void onReceive(Intent intent) {
+        final Bundle data = intent.getExtras();
+        if (data == null) {
+            return;
+        }
+        boolean success = data.getBoolean("success", false);
+        new AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setMessage("补丁应用成功，是否重启App?")
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface anInterface, int which) {
+                        Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.RESTART");
+                        intent.putExtra("what", 2);
+                        intent.putExtra("packageName", data.getString("packageName"));
+                        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                        sendBroadcast(intent);
                     }
                 }).show();
     }
