@@ -23,6 +23,13 @@ patchsdk
 ```
 v1.0.7 修复patchsdk空指针错误
 v1.0.8 增加对debug工具的支持
+v1.0.9 优化对debug工具的支持
+```
+
+debugtool
+```
+v1.0.0 基础功能
+v1.0.8 优化流程，增加自动更新的功能
 ```
 
 [war包下载](https://pan.baidu.com/s/1minrdgO#list/path=%2Ftinker-manager).
