@@ -1,10 +1,11 @@
-package com.dx168.patchsdk.debug;
+package com.dx168.patchsdk;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.dx168.patchsdk.utils.DebugUtils;
@@ -27,8 +28,20 @@ public class ApplyResultService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         mHandler.removeCallbacksAndMessages(null);
         String msg = intent.getStringExtra("msg");
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-        DebugUtils.sendNotify(this, msg);
+        if (!TextUtils.isEmpty(msg)) {
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            DebugUtils.sendNotify(this, msg);
+        }
+        PatchListener patchListener = PatchManager.getInstance().getPatchListener();
+        if (patchListener != null) {
+            boolean success = intent.getBooleanExtra("success", false);
+            if (success) {
+                patchListener.onApplySuccess();
+                patchListener.onCompleted();
+            } else {
+                patchListener.onApplyFailure(msg);
+            }
+        }
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {

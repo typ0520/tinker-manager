@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
-import com.dx168.patchsdk.debug.ApplyResultService;
 import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
 import com.dx168.patchsdk.utils.PatchUtils;
@@ -151,9 +150,8 @@ public final class PatchManager {
         }
         if (debugPatch != null) {
             isDebugPatch = true;
-            Intent intent = new Intent(context, ApplyResultService.class);
-            intent.putExtra("msg", "开始应用调试补丁");
-            context.startService(intent);
+            Toast.makeText(context, "开始应用调试补丁", Toast.LENGTH_LONG).show();
+            DebugUtils.sendNotify(context, "开始应用调试补丁");
             apm.cleanPatch(context);
             apm.applyPatch(context, debugPatch.getAbsolutePath());
             if (patchListener != null) {
@@ -324,30 +322,29 @@ public final class PatchManager {
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(PatchManager.SP_KEY_USING_PATCH, patchPath);
         editor.apply();
+        Intent intent = new Intent(context, ApplyResultService.class);
+        intent.putExtra("success", true);
         if (isDebugPatch) {
-            Intent intent = new Intent(context, ApplyResultService.class);
             intent.putExtra("msg", "应用调试补丁成功");
-            context.startService(intent);
         } else {
             report(patchPath, true);
         }
-        if (patchListener != null) {
-            patchListener.onApplySuccess();
-            patchListener.onCompleted();
-        }
+        context.startService(intent);
     }
 
     public void onApplyFailure(String patchPath, String msg) {
+        Intent intent = new Intent(context, ApplyResultService.class);
+        intent.putExtra("success", false);
         if (isDebugPatch) {
-            Intent intent = new Intent(context, ApplyResultService.class);
             intent.putExtra("msg", "应用调试补丁失败");
-            context.startService(intent);
         } else {
             report(patchPath, false);
         }
-        if (patchListener != null) {
-            patchListener.onApplyFailure(msg);
-        }
+        context.startService(intent);
+    }
+
+    PatchListener getPatchListener() {
+        return patchListener;
     }
 
     private static final int APPLY_SUCCESS_REPORTED = 1;
