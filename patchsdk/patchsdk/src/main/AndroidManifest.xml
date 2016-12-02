@@ -9,9 +9,13 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application>
-        <service android:name=".debug.ApplyResultService"/>
+        <service android:name=".ApplyResultService"/>
         <service
-            android:name=".debug.DebugService"
-            android:exported="true"/>
+            android:name=".DebugService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.dx168.patchsdk.DebugService.BIND"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>
