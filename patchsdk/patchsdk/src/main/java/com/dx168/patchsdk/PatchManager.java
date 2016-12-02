@@ -145,7 +145,7 @@ public final class PatchManager {
         final String usingPatchPath = sp.getString(SP_KEY_USING_PATCH, "");
         File debugPatch = DebugUtils.findDebugPatch(appInfo);
         if (debugPatch != null && TextUtils.equals(usingPatchPath, debugPatch.getAbsolutePath())) {
-            Toast.makeText(context, debugPatch.getName() + " 是已应用成功的调试补丁", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "已应用成功调试补丁 " + debugPatch.getName(), Toast.LENGTH_LONG).show();
             return;
         }
         if (debugPatch != null) {

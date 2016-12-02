@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             break;
             case R.id.btn_clear: {
                 new AlertDialog.Builder(this)
+                        .setCancelable(false)
                         .setMessage("确定清理全部补丁吗?")
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                             @Override
@@ -156,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         @Override
                                         public void run() {
                                             new AlertDialog.Builder(MainActivity.this)
+                                                    .setCancelable(false)
                                                     .setMessage("下载补丁成功\n" + patchPath + "\n\n是否立即应用?")
                                                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                                         @Override
@@ -234,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void showDialog(String msg) {
         new AlertDialog.Builder(this)
+                .setCancelable(false)
                 .setMessage(msg)
                 .setNegativeButton("确定", new DialogInterface.OnClickListener() {
                     @Override
