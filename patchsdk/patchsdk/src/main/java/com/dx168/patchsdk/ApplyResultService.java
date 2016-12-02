@@ -14,6 +14,9 @@ import com.dx168.patchsdk.utils.DebugUtils;
  * Created by jianjun.lin on 2016/12/1.
  */
 
+/**
+ * Tinker apply 的回调是处于后台进程，ApplyResultService 的主要目的是让回调回到主进程
+ */
 public class ApplyResultService extends Service {
 
     private Handler mHandler = new Handler();
