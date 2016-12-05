@@ -22,7 +22,7 @@
         </activity>
         <receiver android:name=".DebugReceiver">
             <intent-filter>
-                <action android:name="com.dx168.patchtool.RECEIVE_APPLY_PATCH_RESULT"/>
+                <action android:name="com.dx168.patchtool.APPLY_PATCH_RESULT"/>
             </intent-filter>
         </receiver>
         <activity

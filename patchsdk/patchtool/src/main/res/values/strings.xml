@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">PatchTool</string>
+    <string name="cancel">取消</string>
+    <string name="ok">确定</string>
 </resources>

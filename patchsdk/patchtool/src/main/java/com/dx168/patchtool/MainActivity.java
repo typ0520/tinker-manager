@@ -145,13 +145,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setMessage("确定清除全部补丁吗?")
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface anInterface, int which) {
 
                             }
                         })
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface anInterface, int which) {
                                 File patchDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME);
@@ -198,13 +198,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         new AlertDialog.Builder(MainActivity.this)
                                 .setCancelable(false)
                                 .setMessage("下载完成是否安装?")
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface anInterface, int which) {
 
                                     }
                                 })
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface anInterface, int which) {
                                         startActivity(intent);
@@ -259,17 +259,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             new AlertDialog.Builder(MainActivity.this)
                                                     .setCancelable(false)
                                                     .setMessage("下载补丁成功\n" + patchPath + "\n\n是否立即应用?")
-                                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface anInterface, int which) {
                                                         }
                                                     })
-                                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface anInterface, int which) {
                                                             Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.APPLY_PATCH");
-                                                            intent.putExtra("packageName", packageName);
-                                                            intent.putExtra("what", 1);
+                                                            intent.putExtra("PACKAGE_NAME", packageName);
+                                                            intent.putExtra("WHAT", 1);
                                                             intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                                                             sendBroadcast(intent);
                                                         }
@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setMessage(msg)
-                .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface anInterface, int which) {
 
@@ -340,25 +340,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (data == null) {
             return;
         }
-        boolean success = data.getBoolean("success", false);
-        new AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setMessage("补丁应用成功，是否重启App?")
-                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        boolean isApplySuccess = data.getBoolean("IS_APPLY_SUCCESS", false);
+        final String packageName = data.getString("PACKAGE_NAME");
+        if (isApplySuccess) {
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setMessage("补丁应用成功，是否重启?")
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                    }
-                })
-                .setNegativeButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface anInterface, int which) {
-                        Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.RESTART");
-                        intent.putExtra("what", 2);
-                        intent.putExtra("packageName", data.getString("packageName"));
-                        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                        sendBroadcast(intent);
-                    }
-                }).show();
+                        }
+                    })
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface anInterface, int which) {
+                            Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.RESTART");
+                            intent.putExtra("WHAT", 2);
+                            intent.putExtra("PACKAGE_NAME", packageName);
+                            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                            sendBroadcast(intent);
+                        }
+                    }).show();
+        } else {
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setMessage("补丁应用失败")
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface anInterface, int which) {
+                            Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.RESTART");
+                            intent.putExtra("WHAT", 2);
+                            intent.putExtra("PACKAGE_NAME", packageName);
+                            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                            sendBroadcast(intent);
+                        }
+                    }).show();
+        }
+
     }
 }
