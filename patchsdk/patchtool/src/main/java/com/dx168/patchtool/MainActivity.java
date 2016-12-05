@@ -369,11 +369,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface anInterface, int which) {
-                            Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.RESTART");
-                            intent.putExtra("WHAT", 2);
-                            intent.putExtra("PACKAGE_NAME", packageName);
-                            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                            sendBroadcast(intent);
+
                         }
                     }).show();
         }
