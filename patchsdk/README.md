@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     ...
-    compile 'com.dx168.patchsdk:patchsdk:1.0.8'
+    compile 'com.dx168.patchsdk:patchsdk:1.0.9'
 }
 ````
 
@@ -54,8 +54,18 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
 ````
 if (result.isSuccess) {
-    PatchManager.getInstance().onApplySuccess(patchPath);
+    PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
 } else {
-    PatchManager.getInstance().onApplyFailure(patchPath, "");
+    PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, "");
 }
+
 ````
+
+- 4. LoadReporter 通知 PatchManager 补丁应用失败
+
+````
+PatchManager.getInstance().onApplyFailure(patchFile.getAbsolutePath(), "errorCode=" + errorCode);
+````
+
+###三、补丁调试工具(patchtool)
+扫描补丁管理后台的补丁二维码来下载补丁，可以立即应用补丁、重启应用，可以用来调试即将发布的补丁
