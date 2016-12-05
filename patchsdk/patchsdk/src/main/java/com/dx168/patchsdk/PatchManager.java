@@ -323,9 +323,9 @@ public final class PatchManager {
         editor.putString(PatchManager.SP_KEY_USING_PATCH, patchPath);
         editor.apply();
         Intent intent = new Intent(context, ApplyResultService.class);
-        intent.putExtra("success", true);
+        intent.putExtra("IS_APPLY_SUCCESS", true);
         if (isDebugPatch) {
-            intent.putExtra("msg", "应用调试补丁成功");
+            intent.putExtra("MSG", "应用调试补丁成功");
         } else {
             report(patchPath, true);
         }
@@ -334,9 +334,9 @@ public final class PatchManager {
 
     public void onApplyFailure(String patchPath, String msg) {
         Intent intent = new Intent(context, ApplyResultService.class);
-        intent.putExtra("success", false);
+        intent.putExtra("IS_APPLY_SUCCESS", false);
         if (isDebugPatch) {
-            intent.putExtra("msg", "应用调试补丁失败");
+            intent.putExtra("MSG", "应用调试补丁失败");
         } else {
             report(patchPath, false);
         }
