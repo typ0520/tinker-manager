@@ -18,33 +18,31 @@ public class DebugReceiver extends BroadcastReceiver {
         if (data == null) {
             return;
         }
-        final String packageName = data.getString("packageName");
+        final String packageName = data.getString("PACKAGE_NAME");
         if (!TextUtils.equals(packageName, context.getPackageName())) {
             return;
         }
-        int what = data.getInt("what");
+        int what = data.getInt("WHAT");
         if (what == 1) {
             PatchManager.getInstance().queryAndApplyPatch(new SimplePatchListener() {
                 @Override
                 public void onApplySuccess() {
-                    Intent intent = new Intent("com.dx168.patchtool.RECEIVE_APPLY_PATCH_RESULT");
-                    intent.putExtra("packageName", packageName);
-                    intent.putExtra("success", true);
+                    Intent intent = new Intent("com.dx168.patchtool.APPLY_PATCH_RESULT");
+                    intent.putExtra("PACKAGE_NAME", packageName);
+                    intent.putExtra("IS_APPLY_SUCCESS", true);
                     context.sendBroadcast(intent);
                 }
 
                 @Override
                 public void onApplyFailure(String msg) {
-                    Intent intent = new Intent("com.dx168.patchtool.RECEIVE_APPLY_PATCH_RESULT");
-                    intent.putExtra("packageName", packageName);
-                    intent.putExtra("success", false);
+                    Intent intent = new Intent("com.dx168.patchtool.APPLY_PATCH_RESULT");
+                    intent.putExtra("PACKAGE_NAME", packageName);
+                    intent.putExtra("IS_APPLY_SUCCESS", false);
                     context.sendBroadcast(intent);
                 }
             });
         } else if (what == 2) {
             RestartService.start(context);
-            System.exit(0);
-            Process.killProcess(Process.myPid());
         }
     }
 }

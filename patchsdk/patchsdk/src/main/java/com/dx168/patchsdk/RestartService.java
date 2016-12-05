@@ -66,5 +66,7 @@ public class RestartService extends Service {
     public static void start(Context context) {
         Intent intent = new Intent(context, RestartService.class);
         context.startService(intent);
+        System.exit(0);
+        Process.killProcess(Process.myPid());
     }
 }
