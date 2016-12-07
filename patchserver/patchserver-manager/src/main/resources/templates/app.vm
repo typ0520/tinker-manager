@@ -44,7 +44,7 @@
                     <form>
                         <div class="form-group">
                             <label for="app-name" class="form-control-label">版本号:</label>
-                            <input type="text" class="form-control" id="app-version">
+                            <input type="text" class="form-control" id="app-version" placeholder="Android的versionName">
                         </div>
 
                         <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
