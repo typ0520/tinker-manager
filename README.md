@@ -17,6 +17,7 @@ Apache License 2.0
 server
 ```
 v1.0.5 增加对debug工具的支持，在发布前可以先使用提供的debug工具调试，然后在全量发布
+v1.0.6 补全包名时不在检查重复;解决ajax提交表单登录超时报系统异常的问题
 ```
 
 patchsdk

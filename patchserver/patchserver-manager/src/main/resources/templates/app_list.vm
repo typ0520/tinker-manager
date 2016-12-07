@@ -237,7 +237,12 @@
                         }
                     },
                     error:function(XMLHttpRequest, textStatus, errorThrown){
-                        dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
+                        if (XMLHttpRequest.status == 401) {
+                            window.location.href = window.location.href;
+                        }
+                        else {
+                            dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
+                        }
                     }
                 });
             });
