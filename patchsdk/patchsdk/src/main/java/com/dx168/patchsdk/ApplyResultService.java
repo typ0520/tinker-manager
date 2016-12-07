@@ -34,15 +34,15 @@ public class ApplyResultService extends Service {
                 return super.onStartCommand(intent, flags, startId);
             }
             mHandler.removeCallbacksAndMessages(null);
-            String msg = intent.getStringExtra("msg");
+            String msg = intent.getStringExtra("MSG");
             if (!TextUtils.isEmpty(msg)) {
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                 DebugUtils.sendNotify(this, msg);
             }
             PatchListener patchListener = PatchManager.getInstance().getPatchListener();
             if (patchListener != null) {
-                boolean success = intent.getBooleanExtra("success", false);
-                if (success) {
+                boolean isApplySuccess = intent.getBooleanExtra("IS_APPLY_SUCCESS", false);
+                if (isApplySuccess) {
                     patchListener.onApplySuccess();
                     patchListener.onCompleted();
                 } else {
