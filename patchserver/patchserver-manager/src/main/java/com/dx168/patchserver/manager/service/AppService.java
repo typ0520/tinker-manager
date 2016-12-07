@@ -88,10 +88,10 @@ public class AppService {
         if (StringUtils.isNotBlank(appInfo.getPackageName())) {
             throw new BizException("此app的包名已经补全");
         }
-        Integer rootUserId = accountService.getRootUserId(basicUser);
-        if (appMapper.findByUserIdAndPackageName(rootUserId,packageName) != null) {
-            throw new BizException("包名为: " + packageName + "的应用已存在");
-        }
+//        Integer rootUserId = accountService.getRootUserId(basicUser);
+//        if (appMapper.findByUserIdAndPackageName(rootUserId,packageName) != null) {
+//            throw new BizException("包名为: " + packageName + "的应用已存在");
+//        }
         appInfo.setPackageName(packageName);
         appMapper.updatePackageName(appInfo);
     }

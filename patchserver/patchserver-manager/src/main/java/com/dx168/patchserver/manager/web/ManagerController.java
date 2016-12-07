@@ -356,6 +356,11 @@ public class ManagerController {
         return new ModelAndView("version","restR",restR);
     }
 
+    @RequestMapping(value = "/patch/add",method = RequestMethod.GET)
+    public ModelAndView on_patch_add_session_time_out(String appUid,String versionName) {
+        return new ModelAndView("redirect:/app/version?appUid=" + appUid + "&versionName=" + versionName);
+    }
+
     @RequestMapping(value = "/patch/add",method = RequestMethod.POST)
     public ModelAndView patch_create(String appUid,String versionName,String description,@RequestParam("file") MultipartFile multipartFile) {
         RestResponse restR = new RestResponse();
