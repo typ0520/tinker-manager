@@ -41,7 +41,7 @@
                     <h4 class="modal-title" id="exampleModalLabel">上传补丁</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="create_patch_form" action="#springUrl('')/patch/add" method="post" enctype="multipart/form-data">
+                    <form id="create_patch_form" action="#springUrl('')/patch/add?appUid=$restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName" method="post" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="description" class="form-control-label">补丁描述:</label>
                             <input type="text" class="form-control" id="description" name="description" maxlength="32" placeholder="文件最大为: $!restR.data.maxPatchSize">
