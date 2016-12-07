@@ -4,7 +4,7 @@
 
 2、在mysql里面建一个数据库,建表sql在patchserver-manager/import.sql中
 
-3、把hotfix-apis.properties和hotfix-console.properties两个配置文件放到/opt/config(*如果是windows部署，放置在tomcat对应的盘符下，假如tomcat在d://tomcat  配置文件放在d://opt/config下})目录下，并且修改里面对应的配置
+3、把hotfix-apis.properties和hotfix-console.properties两个配置文件放到/opt/config(*如果是windows部署，放置在tomcat对应的盘符下，假如tomcat在d://tomcat  配置文件放在d://opt/config下})目录下，并且修改里面对应的配置(数据源配置、访问路径配置、补丁存放目录)
 
 4、把hotfix-apis.war hotfix-console.war放到tomcat下面的webapps目录下
 
