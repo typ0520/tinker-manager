@@ -40,7 +40,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:24.0.0'
 }
 
 def mavenDesc = 'Tinker patch manager'
