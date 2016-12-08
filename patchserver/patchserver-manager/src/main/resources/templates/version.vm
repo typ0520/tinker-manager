@@ -54,8 +54,8 @@
 
                         <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
 
-                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
-                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
+##                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
+##                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
                     </form>
                 </div>
 
