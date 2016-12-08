@@ -25,6 +25,7 @@ patchsdk
 v1.0.7 修复patchsdk空指针错误
 v1.0.8 增加对debug工具的支持
 v1.0.9 优化对debug工具的支持
+v1.1.0 修复bug增加容错处理
 ```
 
 debugtool
