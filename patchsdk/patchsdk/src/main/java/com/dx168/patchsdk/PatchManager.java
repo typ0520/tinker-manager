@@ -9,13 +9,11 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
 import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
 import com.dx168.patchsdk.utils.PatchUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,6 +62,9 @@ public final class PatchManager {
         this.context = context;
         if (!PatchUtils.isMainProcess(context)) {
             return;
+        }
+        if (!TextUtils.isEmpty(baseUrl) && !baseUrl.endsWith("/")) {
+            baseUrl = baseUrl + "/";
         }
         this.apm = apm;
         appInfo = new AppInfo();
@@ -167,8 +168,17 @@ public final class PatchManager {
                         appInfo.getSdkVersion(), appInfo.getDeviceId(), new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
+                                if (bytes == null) {
+                                    return;
+                                }
                                 String response = new String(bytes);
                                 PatchInfo patchInfo = PatchUtils.convertJsonToPatchInfo(response);
+                                if (patchInfo == null) {
+                                    if (patchListener != null) {
+                                        patchListener.onQueryFailure(new Exception("can not parse response to object: " + response));
+                                    }
+                                    return;
+                                }
                                 if (patchInfo.getCode() != 200) {
                                     if (patchListener != null) {
                                         patchListener.onQueryFailure(new Exception("code=" + patchInfo.getCode()));
@@ -220,7 +230,9 @@ public final class PatchManager {
 
                             @Override
                             public void onFailure(Exception e) {
-                                e.printStackTrace();
+                                if (e != null) {
+                                    e.printStackTrace();
+                                }
                                 if (patchListener != null) {
                                     patchListener.onQueryFailure(e);
                                 }
