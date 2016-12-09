@@ -78,6 +78,10 @@
                 <li>
                     <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
                 </li>
+
+                <div class="bt_l">
+                    <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
+                </div>
             </ul>
         </div>
         <!-- /.navbar-collapse -->

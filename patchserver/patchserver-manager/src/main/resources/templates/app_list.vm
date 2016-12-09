@@ -129,7 +129,13 @@
                 <li>
                     <a href="#springUrl('/channel/list')"><i class="fa fa-fw fa-file"></i> 渠道黑名单</a>
                 </li>
+
+                <div class="bt_l">
+                    <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
+                </div>
             </ul>
+
+            <span >hahahh</span>
         </div>
         <!-- /.navbar-collapse -->
     </nav>
