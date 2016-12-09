@@ -114,6 +114,10 @@
                 <li>
                     <a href="#springUrl('')/tester/list?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 测试人员管理</a>
                 </li>
+
+                <div class="bt_l">
+                    <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
+                </div>
             </ul>
         </div>
         <!-- /.navbar-collapse -->

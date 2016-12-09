@@ -251,7 +251,8 @@ public final class PatchManager {
                     @Override
                     public void onSuccess(int code, byte[] bytes) {
                         if (!checkPatch(bytes, patchInfo.getData().getHash())) {
-                            Log.e(TAG, "downloaded patch's hash is wrong");
+                            Log.e(TAG, "downloaded patch's hash is wrong: " + new String(bytes));
+
                             if (patchListener != null) {
                                 patchListener.onDownloadFailure(new Exception("download patch's hash is wrong"));
                             }
