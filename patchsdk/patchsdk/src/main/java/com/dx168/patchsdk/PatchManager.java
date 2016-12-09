@@ -9,11 +9,13 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
 import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
 import com.dx168.patchsdk.utils.PatchUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -169,13 +171,16 @@ public final class PatchManager {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 if (bytes == null) {
+                                    if (patchListener != null) {
+                                        patchListener.onQueryFailure(new Exception("response is null, code=" + code));
+                                    }
                                     return;
                                 }
                                 String response = new String(bytes);
                                 PatchInfo patchInfo = PatchUtils.convertJsonToPatchInfo(response);
                                 if (patchInfo == null) {
                                     if (patchListener != null) {
-                                        patchListener.onQueryFailure(new Exception("can not parse response to object: " + response));
+                                        patchListener.onQueryFailure(new Exception("can not parse response to object: " + response + ", code=" + code));
                                     }
                                     return;
                                 }
