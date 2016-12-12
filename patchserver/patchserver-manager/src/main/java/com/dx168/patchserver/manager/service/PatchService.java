@@ -66,7 +66,7 @@ public class PatchService {
     public PatchInfo savePatch(AppInfo appInfo, VersionInfo versionInfo, String description, MultipartFile multipartFile) {
         List<PatchInfo> patchInfoList = patchInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionInfo.getVersionName());
         int maxPatchVersion = getMaxPatchVersion(patchInfoList) + 1;
-        String childPath = appInfo.getUid() + File.separator + versionInfo.getVersionName() + File.separator + maxPatchVersion + File.separator;
+        String childPath = appInfo.getUid() + "/" + versionInfo.getVersionName() + "/" + maxPatchVersion + "/";
         PatchInfo patchInfo = new PatchInfo();
         try {
             String fileHash = DigestUtils.md5DigestAsHex(multipartFile.getBytes());
