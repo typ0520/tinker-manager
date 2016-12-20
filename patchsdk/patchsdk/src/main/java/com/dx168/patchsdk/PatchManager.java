@@ -184,9 +184,10 @@ public final class PatchManager {
                                     }
                                     return;
                                 }
-                                if (patchInfo.getCode() != 200) {
+                                int resCode = patchInfo.getCode();
+                                if (resCode != 200) {
                                     if (patchListener != null) {
-                                        patchListener.onQueryFailure(new Exception("code=" + patchInfo.getCode()));
+                                        patchListener.onQueryFailure(new Exception("code=" + resCode));
                                     }
                                     return;
                                 }
