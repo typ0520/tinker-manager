@@ -22,13 +22,10 @@ import android.os.MessageQueue;
 
 import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.reporter.DefaultLoadReporter;
-import com.tencent.tinker.lib.tinker.TinkerInstaller;
-import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 
 import java.io.File;
 import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -45,34 +42,9 @@ public class SampleLoadReporter extends DefaultLoadReporter {
     }
 
     @Override
-    public void onLoadPatchListenerReceiveFail(final File patchFile, int errorCode, final boolean isUpgrade) {
+    public void onLoadPatchListenerReceiveFail(final File patchFile, int errorCode) {
         PatchManager.getInstance().onApplyFailure(patchFile.getAbsolutePath(), "errorCode=" + errorCode);
-        super.onLoadPatchListenerReceiveFail(patchFile, errorCode, isUpgrade);
-        switch (errorCode) {
-            case ShareConstants.ERROR_PATCH_NOTEXIST:
-                TinkerLog.e(TAG, "patch file is not exist");
-                break;
-            case ShareConstants.ERROR_PATCH_RUNNING:
-                // try later
-                // only retry for upgrade patch
-                if (isUpgrade) {
-                    if (timer != null) {
-                        timer.cancel();
-                        timer.purge();
-                    }
-                    timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            TinkerInstaller.onReceiveUpgradePatch(context, patchFile.getAbsolutePath());
-                        }
-                    }, 60 * 1000);
-                }
-                break;
-            case SampleUtils.ERROR_PATCH_ROM_SPACE:
-                TinkerLog.e(TAG, "rom space is not enough");
-                break;
-        }
+        super.onLoadPatchListenerReceiveFail(patchFile, errorCode);
         SampleTinkerReport.onTryApplyFail(errorCode);
     }
 

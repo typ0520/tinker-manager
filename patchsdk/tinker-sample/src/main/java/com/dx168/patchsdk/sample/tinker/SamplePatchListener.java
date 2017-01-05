@@ -60,17 +60,13 @@ public class SamplePatchListener extends DefaultPatchListener {
      * @return
      */
     @Override
-    public int patchCheck(String path, boolean isUpgrade) {
+    public int patchCheck(String path) {
         File patchFile = new File(path);
-        TinkerLog.i(TAG, "receive a patch file: %s, isUpgrade:%b, file size:%d", path, isUpgrade, SharePatchFileUtil.getFileOrDirectorySize(patchFile));
-        int returnCode = super.patchCheck(path, isUpgrade);
+        TinkerLog.i(TAG, "receive a patch file: %s, file size:%d", path, SharePatchFileUtil.getFileOrDirectorySize(patchFile));
+        int returnCode = super.patchCheck(path);
 
         if (returnCode == ShareConstants.ERROR_PATCH_OK) {
-            if (isUpgrade) {
-                returnCode = SampleUtils.checkForPatchRecover(NEW_PATCH_RESTRICTION_SPACE_SIZE_MIN, maxMemory);
-            } else {
-                returnCode = SampleUtils.checkForPatchRecover(OLD_PATCH_RESTRICTION_SPACE_SIZE_MIN, maxMemory);
-            }
+            returnCode = SampleUtils.checkForPatchRecover(NEW_PATCH_RESTRICTION_SPACE_SIZE_MIN, maxMemory);
         }
 
         if (returnCode == ShareConstants.ERROR_PATCH_OK) {
@@ -82,7 +78,7 @@ public class SamplePatchListener extends DefaultPatchListener {
                 returnCode = SampleUtils.ERROR_PATCH_CRASH_LIMIT;
             } else {
                 //for upgrade patch, version must be not the same
-                //for repair patch, we won't has the com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker load flag
+                //for repair patch, we won't has the tinker load flag
                 Tinker tinker = Tinker.with(context);
 
                 if (tinker.isTinkerLoaded()) {
@@ -94,6 +90,11 @@ public class SamplePatchListener extends DefaultPatchListener {
                         }
                     }
                 }
+            }
+            //check whether retry so many times
+            if (returnCode == ShareConstants.ERROR_PATCH_OK) {
+                returnCode = UpgradePatchRetry.getInstance(context).onPatchListenerCheck(patchMd5)
+                        ? ShareConstants.ERROR_PATCH_OK : SampleUtils.ERROR_PATCH_RETRY_COUNT_LIMIT;
             }
         }
         // Warning, it is just a sample case, you don't need to copy all of these
@@ -112,7 +113,7 @@ public class SamplePatchListener extends DefaultPatchListener {
             }
         }
 
-        SampleTinkerReport.onTryApply(isUpgrade, returnCode == ShareConstants.ERROR_PATCH_OK);
+        SampleTinkerReport.onTryApply(returnCode == ShareConstants.ERROR_PATCH_OK);
         return returnCode;
     }
 }
