@@ -46,25 +46,26 @@ public class UpgradePatchRetry {
     private static final String TEMP_PATCH_NAME = "temp.apk";
 
     private static final String RETRY_FILE_MD5_PROPERTY = "md5";
-    private static final String RETRY_COUNT_PROPERTY = "times";
-    private static final int RETRY_MAX_COUNT = 2;
+    private static final String RETRY_COUNT_PROPERTY    = "times";
+    private static final int    RETRY_MAX_COUNT         = 4;
+
 
     private boolean isRetryEnable = false;
-    private File retryInfoFile = null;
-    private File tempPatchFile = null;
+    private File    retryInfoFile = null;
+    private File    tempPatchFile = null;
 
     private Context context = null;
     private static UpgradePatchRetry sInstance;
 
     /**
-     * you must set after com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker has installed
+     * you must set after tinker has installed
      *
      * @param context
      */
     public UpgradePatchRetry(Context context) {
         this.context = context;
-        retryInfoFile = new File(SharePatchFileUtil.getPatchDirectory(context), RETRY_INFO_NAME);
-        tempPatchFile = new File(SharePatchFileUtil.getPatchDirectory(context), TEMP_PATCH_NAME);
+        retryInfoFile = new File(SharePatchFileUtil.getPatchTempDirectory(context), RETRY_INFO_NAME);
+        tempPatchFile = new File(SharePatchFileUtil.getPatchTempDirectory(context), TEMP_PATCH_NAME);
     }
 
     public static UpgradePatchRetry getInstance(Context context) {
@@ -92,7 +93,7 @@ public class UpgradePatchRetry {
         }
 
         if (TinkerServiceInternals.isTinkerPatchServiceRunning(context)) {
-            TinkerLog.w(TAG, "onPatchRetryLoad com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker service is running, just return");
+            TinkerLog.w(TAG, "onPatchRetryLoad tinker service is running, just return");
             return;
         }
         //must use temp file
@@ -106,18 +107,6 @@ public class UpgradePatchRetry {
         SampleTinkerReport.onReportRetryPatch();
     }
 
-    private void copyToTempFile(File patchFile) {
-        if (patchFile.getAbsolutePath().equals(tempPatchFile.getAbsolutePath())) {
-            return;
-        }
-        TinkerLog.w(TAG, "try copy file: %s to %s", patchFile.getAbsolutePath(), tempPatchFile.getAbsolutePath());
-
-        try {
-            SharePatchFileUtil.copyFileUsingStream(patchFile, tempPatchFile);
-        } catch (IOException e) {
-        }
-    }
-
     public void onPatchServiceStart(Intent intent) {
         if (!isRetryEnable) {
             TinkerLog.w(TAG, "onPatchServiceStart retry disabled, just return");
@@ -126,13 +115,6 @@ public class UpgradePatchRetry {
 
         if (intent == null) {
             TinkerLog.e(TAG, "onPatchServiceStart intent is null, just return");
-            return;
-        }
-
-        boolean isUpgrade = TinkerPatchService.getPatchUpgradeExtra(intent);
-
-        if (!isUpgrade) {
-            TinkerLog.w(TAG, "onPatchServiceStart is not upgrade patch, just return");
             return;
         }
 
@@ -161,7 +143,6 @@ public class UpgradePatchRetry {
             } else {
                 int nowTimes = Integer.parseInt(retryInfo.times);
                 if (nowTimes >= RETRY_MAX_COUNT) {
-                    SharePatchFileUtil.safeDeleteFile(retryInfoFile);
                     SharePatchFileUtil.safeDeleteFile(tempPatchFile);
                     TinkerLog.w(TAG, "onPatchServiceStart retry more than max count, delete retry info file!");
                     return;
@@ -176,29 +157,41 @@ public class UpgradePatchRetry {
         }
 
         RetryInfo.writeRetryProperty(retryInfoFile, retryInfo);
-
     }
 
+    public boolean onPatchListenerCheck(String md5) {
+        if (!isRetryEnable) {
+            TinkerLog.w(TAG, "onPatchListenerCheck retry disabled, just return");
+            return true;
+        }
+        if (!retryInfoFile.exists()) {
+            TinkerLog.w(TAG, "onPatchListenerCheck retry file is not exist, just return");
+            return true;
+        }
+        if (md5 == null) {
+            TinkerLog.w(TAG, "onPatchListenerCheck md5 is null, just return");
+            return true;
+        }
+        RetryInfo retryInfo = RetryInfo.readRetryProperty(retryInfoFile);
+        if (md5.equals(retryInfo.md5)) {
+            int nowTimes = Integer.parseInt(retryInfo.times);
+            if (nowTimes >= RETRY_MAX_COUNT) {
+                TinkerLog.w(TAG, "onPatchListenerCheck, retry count %d must exceed than max retry count", nowTimes);
+                SharePatchFileUtil.safeDeleteFile(tempPatchFile);
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      * if we receive any result, we can delete the temp retry info file
-     *
-     * @param isUpgradePatch
      */
-    public void onPatchServiceResult(boolean isUpgradePatch) {
+    public void onPatchServiceResult() {
         if (!isRetryEnable) {
             TinkerLog.w(TAG, "onPatchServiceResult retry disabled, just return");
             return;
         }
 
-        if (!isUpgradePatch) {
-            TinkerLog.w(TAG, "onPatchServiceResult is not upgrade patch, just return");
-            return;
-        }
-
-        //delete info file
-        if (retryInfoFile.exists()) {
-            SharePatchFileUtil.safeDeleteFile(retryInfoFile);
-        }
         //delete temp patch file
         if (tempPatchFile.exists()) {
             SharePatchFileUtil.safeDeleteFile(tempPatchFile);
@@ -207,6 +200,20 @@ public class UpgradePatchRetry {
 
     public void setRetryEnable(boolean enable) {
         isRetryEnable = enable;
+    }
+
+
+    private void copyToTempFile(File patchFile) {
+        if (patchFile.getAbsolutePath().equals(tempPatchFile.getAbsolutePath())) {
+            return;
+        }
+        TinkerLog.w(TAG, "try copy file: %s to %s", patchFile.getAbsolutePath(), tempPatchFile.getAbsolutePath());
+
+        try {
+            SharePatchFileUtil.copyFileUsingStream(patchFile, tempPatchFile);
+        } catch (IOException e) {
+            TinkerLog.e(TAG, "fail to copy file: %s to %s", patchFile.getAbsolutePath(), tempPatchFile.getAbsolutePath());
+        }
     }
 
     static class RetryInfo {
@@ -230,7 +237,7 @@ public class UpgradePatchRetry {
                 md5 = properties.getProperty(RETRY_FILE_MD5_PROPERTY);
                 times = properties.getProperty(RETRY_COUNT_PROPERTY);
             } catch (IOException e) {
-                e.printStackTrace();
+                TinkerLog.e(TAG, "fail to readRetryProperty:" + e);
             } finally {
                 SharePatchFileUtil.closeQuietly(inputStream);
             }
@@ -256,7 +263,7 @@ public class UpgradePatchRetry {
                 outputStream = new FileOutputStream(infoFile, false);
                 newProperties.store(outputStream, null);
             } catch (Exception e) {
-//                e.printStackTrace();
+                //                e.printStackTrace();
                 TinkerLog.printErrStackTrace(TAG, e, "retry write property fail");
             } finally {
                 SharePatchFileUtil.closeQuietly(outputStream);
