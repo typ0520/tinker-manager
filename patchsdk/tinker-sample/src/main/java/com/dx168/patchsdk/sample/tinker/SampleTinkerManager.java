@@ -18,7 +18,6 @@ package com.dx168.patchsdk.sample.tinker;
 
 import com.tencent.tinker.lib.listener.PatchListener;
 import com.tencent.tinker.lib.patch.AbstractPatch;
-import com.tencent.tinker.lib.patch.RepairPatch;
 import com.tencent.tinker.lib.patch.UpgradePatch;
 import com.tencent.tinker.lib.reporter.LoadReporter;
 import com.tencent.tinker.lib.reporter.PatchReporter;
@@ -88,12 +87,9 @@ public class SampleTinkerManager {
         PatchListener patchListener = new SamplePatchListener(appLike.getApplication());
         //you can set your own upgrade patch if you need
         AbstractPatch upgradePatchProcessor = new UpgradePatch();
-        //you can set your own repair patch if you need
-        AbstractPatch repairPatchProcessor = new RepairPatch();
 
-        TinkerInstaller.install(appLike,
-                loadReporter, patchReporter, patchListener,
-                TinkerResultService.class, upgradePatchProcessor, repairPatchProcessor);
+        TinkerInstaller.install(appLike, loadReporter, patchReporter, patchListener, TinkerResultService.class,
+                upgradePatchProcessor);
 
         isInstalled = true;
     }

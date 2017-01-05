@@ -26,7 +26,6 @@ import android.os.Looper;
 import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
 import com.tencent.tinker.lib.service.PatchResult;
-import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.lib.util.TinkerServiceInternals;
 
@@ -68,7 +67,7 @@ public class TinkerResultService extends DefaultTinkerResultService {
         });
         // is success and newPatch, it is nice to delete the raw file, and restart at once
         // for old patch, you can't delete the patch file
-        if (result.isSuccess && result.isUpgradePatch) {
+        if (result.isSuccess) {
             /*
             File rawFile = new File(result.rawPatchFilePath);
             if (rawFile.exists()) {
@@ -96,12 +95,6 @@ public class TinkerResultService extends DefaultTinkerResultService {
             } else {
                 TinkerLog.i(TAG, "I have already install the newly patch version!");
             }
-        }
-
-        //repair current patch fail, just clean!
-        if (!result.isSuccess && !result.isUpgradePatch) {
-            //if you have not install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker this moment, you can use TinkerApplicationHelper api
-            Tinker.with(getApplicationContext()).cleanPatch();
         }
     }
 
