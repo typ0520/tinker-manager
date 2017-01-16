@@ -155,7 +155,7 @@ public final class PatchManager {
             isDebugPatch = true;
             Toast.makeText(context, "开始应用调试补丁", Toast.LENGTH_LONG).show();
             DebugUtils.sendNotify(context, "开始应用调试补丁");
-            apm.cleanPatch(context);
+            //apm.cleanPatch(context);
             apm.applyPatch(context, debugPatch.getAbsolutePath());
             if (patchListener != null) {
                 patchListener.onQuerySuccess(debugPatch.getAbsolutePath());
@@ -225,7 +225,7 @@ public final class PatchManager {
                                                 return;
                                             }
                                             patchInfoMap.put(patch.getAbsolutePath(), patchInfo);
-                                            apm.cleanPatch(context);
+                                            //apm.cleanPatch(context);
                                             apm.applyPatch(context, patch.getAbsolutePath());
                                             return;
                                         }
