@@ -4,6 +4,7 @@
 
 [ ![Download](https://api.bintray.com/packages/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/images/download.svg) ](https://bintray.com/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/_latestVersion)
 
+QQ群: 338491549
 
 关于Tinker请移步: https://github.com/Tencent/tinker
 
