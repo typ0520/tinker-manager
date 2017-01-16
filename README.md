@@ -7,6 +7,8 @@
 
 关于Tinker请移步: https://github.com/Tencent/tinker
 
+QQ群: 338491549
+
 [服务器端部署文档](https://github.com/baidao/tinker-manager/tree/master/patchserver).
 [客户端接入文档](https://github.com/baidao/tinker-manager/tree/master/patchsdk).
 
