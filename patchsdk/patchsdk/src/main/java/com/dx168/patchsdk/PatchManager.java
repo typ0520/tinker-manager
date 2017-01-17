@@ -155,7 +155,7 @@ public final class PatchManager {
             isDebugPatch = true;
             Toast.makeText(context, "开始应用调试补丁", Toast.LENGTH_LONG).show();
             DebugUtils.sendNotify(context, "开始应用调试补丁");
-            apm.cleanPatch(context);
+            //apm.cleanPatch(context);
             apm.applyPatch(context, debugPatch.getAbsolutePath());
             if (patchListener != null) {
                 patchListener.onQuerySuccess(debugPatch.getAbsolutePath());
@@ -184,9 +184,10 @@ public final class PatchManager {
                                     }
                                     return;
                                 }
-                                if (patchInfo.getCode() != 200) {
+                                int resCode = patchInfo.getCode();
+                                if (resCode != 200) {
                                     if (patchListener != null) {
-                                        patchListener.onQueryFailure(new Exception("code=" + patchInfo.getCode()));
+                                        patchListener.onQueryFailure(new Exception("code=" + resCode));
                                     }
                                     return;
                                 }
@@ -224,7 +225,7 @@ public final class PatchManager {
                                                 return;
                                             }
                                             patchInfoMap.put(patch.getAbsolutePath(), patchInfo);
-                                            apm.cleanPatch(context);
+                                            //apm.cleanPatch(context);
                                             apm.applyPatch(context, patch.getAbsolutePath());
                                             return;
                                         }
@@ -336,6 +337,9 @@ public final class PatchManager {
     }
 
     public void onApplySuccess(String patchPath) {
+        if (patchPath.endsWith("/patch.apk")) {
+            patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
+        }
         SharedPreferences sp = context.getSharedPreferences(PatchManager.SP_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(PatchManager.SP_KEY_USING_PATCH, patchPath);
@@ -351,6 +355,9 @@ public final class PatchManager {
     }
 
     public void onApplyFailure(String patchPath, String msg) {
+        if (patchPath.endsWith("/patch.apk")) {
+            patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
+        }
         Intent intent = new Intent(context, ApplyResultService.class);
         intent.putExtra("IS_APPLY_SUCCESS", false);
         if (isDebugPatch) {

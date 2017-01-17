@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 
 import com.dx168.patchsdk.utils.FileUtils;
 import com.tencent.tinker.lib.listener.DefaultPatchListener;
+import com.tencent.tinker.lib.service.TinkerPatchService;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerLoadResult;
 import com.tencent.tinker.lib.util.TinkerLog;
@@ -46,7 +47,6 @@ public class SamplePatchListener extends DefaultPatchListener {
     private static final String TAG = "Tinker.SamplePatchListener";
 
     protected static final long NEW_PATCH_RESTRICTION_SPACE_SIZE_MIN = 60 * 1024 * 1024;
-    protected static final long OLD_PATCH_RESTRICTION_SPACE_SIZE_MIN = 30 * 1024 * 1024;
 
     private final int maxMemory;
 
@@ -65,17 +65,13 @@ public class SamplePatchListener extends DefaultPatchListener {
      * @return
      */
     @Override
-    public int patchCheck(String path, boolean isUpgrade) {
+    public int patchCheck(String path) {
         File patchFile = new File(path);
-        TinkerLog.i(TAG, "receive a patch file: %s, isUpgrade:%b, file size:%d", path, isUpgrade, SharePatchFileUtil.getFileOrDirectorySize(patchFile));
-        int returnCode = super.patchCheck(path, isUpgrade);
+        TinkerLog.i(TAG, "receive a patch file: %s, file size:%d", path, SharePatchFileUtil.getFileOrDirectorySize(patchFile));
+        int returnCode = super.patchCheck(path);
 
         if (returnCode == ShareConstants.ERROR_PATCH_OK) {
-            if (isUpgrade) {
-                returnCode = SampleUtils.checkForPatchRecover(NEW_PATCH_RESTRICTION_SPACE_SIZE_MIN, maxMemory);
-            } else {
-                returnCode = SampleUtils.checkForPatchRecover(OLD_PATCH_RESTRICTION_SPACE_SIZE_MIN, maxMemory);
-            }
+            returnCode = SampleUtils.checkForPatchRecover(NEW_PATCH_RESTRICTION_SPACE_SIZE_MIN, maxMemory);
         }
 
         if (returnCode == ShareConstants.ERROR_PATCH_OK) {
@@ -87,7 +83,7 @@ public class SamplePatchListener extends DefaultPatchListener {
                 returnCode = SampleUtils.ERROR_PATCH_CRASH_LIMIT;
             } else {
                 //for upgrade patch, version must be not the same
-                //for repair patch, we won't has the com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker load flag
+                //for repair patch, we won't has the tinker load flag
                 Tinker tinker = Tinker.with(context);
 
                 if (tinker.isTinkerLoaded()) {
@@ -100,6 +96,11 @@ public class SamplePatchListener extends DefaultPatchListener {
                     }
                 }
             }
+            //check whether retry so many times
+            if (returnCode == ShareConstants.ERROR_PATCH_OK) {
+                returnCode = UpgradePatchRetry.getInstance(context).onPatchListenerCheck(patchMd5)
+                        ? ShareConstants.ERROR_PATCH_OK : SampleUtils.ERROR_PATCH_RETRY_COUNT_LIMIT;
+            }
         }
         // Warning, it is just a sample case, you don't need to copy all of these
         // Interception some of the request
@@ -111,52 +112,53 @@ public class SamplePatchListener extends DefaultPatchListener {
                 String platform = properties.getProperty(SampleUtils.PLATFORM);
                 TinkerLog.i(TAG, "get platform:" + platform);
                 // check patch platform require
-                if (platform == null) {// || !platform.equals(BuildInfo.PLATFORM)
+                if (platform == null) {//|| !platform.equals(SampleUtils.PLATFORM)
                     returnCode = SampleUtils.ERROR_PATCH_CONDITION_NOT_SATISFIED;
                 }
             }
         }
 
-        SampleTinkerReport.onTryApply(isUpgrade, returnCode == ShareConstants.ERROR_PATCH_OK);
+        SampleTinkerReport.onTryApply(returnCode == ShareConstants.ERROR_PATCH_OK);
         return returnCode;
     }
 
     @Override
-    public int onPatchReceived(String path, boolean isUpgrade) {
+    public int onPatchReceived(String path) {
         try {
             ZipFile zipFile = new ZipFile(path);
             boolean isFullPatch = zipFile.getEntry("FULL_PATCH") != null;
             if (isFullPatch) {
                 Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zipFile.entries();
-                File dexDir = new File(path.substring(0, path.length() - 4));
-                if (!dexDir.exists()) {
+                File releaseDir = new File(path.substring(0, path.length() - 4));
+                if (!releaseDir.exists()) {
+                    releaseDir.mkdir();
                     while (entries.hasMoreElements()) {
                         ZipEntry zipEntry = entries.nextElement();
                         String fileName = zipEntry.getName();
                         if (fileName.startsWith("classes") && fileName.endsWith(".dex")) {
-                            FileUtils.copyFile(zipFile.getInputStream(zipEntry), dexDir + "/" + fileName);
+                            FileUtils.copyFile(zipFile.getInputStream(zipEntry), releaseDir + "/dex/" + fileName);
                         }
                     }
                 }
-                FileUtils.copyFile(zipFile.getInputStream(zipFile.getEntry("patch.apk")), path);
+                final String APK_NAME = "patch.apk";
+                path = releaseDir + "/" + APK_NAME;
+                File patchFile = new File(path);
+                if (!patchFile.exists()) {
+                    FileUtils.copyFile(zipFile.getInputStream(zipFile.getEntry(APK_NAME)), path);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        int returnCode = patchCheck(path, isUpgrade);
+        int returnCode = patchCheck(path);
 
         if (returnCode == ShareConstants.ERROR_PATCH_OK) {
-            SamplePatchService.runPatchService(context, path, isUpgrade);
+            SamplePatchService.runPatchService(context, path);
         } else {
-            Tinker.with(context).getLoadReporter().onLoadPatchListenerReceiveFail(new File(path), returnCode, isUpgrade);
+            Tinker.with(context).getLoadReporter().onLoadPatchListenerReceiveFail(new File(path), returnCode);
         }
         return returnCode;
-
-    }
-
-    private void releaseFullPatch() {
-
     }
 
 }

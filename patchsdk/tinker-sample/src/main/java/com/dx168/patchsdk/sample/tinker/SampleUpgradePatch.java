@@ -1,6 +1,7 @@
 package com.dx168.patchsdk.sample.tinker;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.tencent.tinker.lib.patch.UpgradePatch;
 import com.tencent.tinker.lib.service.PatchResult;
@@ -26,7 +27,7 @@ public class SampleUpgradePatch extends UpgradePatch {
     public boolean tryPatch(Context context, String tempPatchPath, PatchResult patchResult) {
         Tinker manager = Tinker.with(context);
 
-        File patchFile = new File(tempPatchPath);
+        final File patchFile = new File(tempPatchPath);
 
         if (!manager.isTinkerEnabled() || !ShareTinkerInternals.isTinkerEnableWithSharedPreferences(context)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:patch is disabled, just return");
@@ -37,19 +38,15 @@ public class SampleUpgradePatch extends UpgradePatch {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:patch file is not found, just return");
             return false;
         }
-
         //check the signature, we should create a new checker
         ShareSecurityCheck signatureCheck = new ShareSecurityCheck(context);
 
         int returnCode = ShareTinkerInternals.checkTinkerPackage(context, manager.getTinkerFlags(), patchFile, signatureCheck);
         if (returnCode != ShareConstants.ERROR_PACKAGE_CHECK_OK) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:onPatchPackageCheckFail");
-            manager.getPatchReporter().onPatchPackageCheckFail(patchFile, true, returnCode);
+            manager.getPatchReporter().onPatchPackageCheckFail(patchFile, returnCode);
             return false;
         }
-
-        patchResult.patchTinkerID = signatureCheck.getNewTinkerID();
-        patchResult.baseTinkerID = signatureCheck.getTinkerID();
 
         //it is a new patch, so we should not find a exist
         SharePatchInfo oldInfo = manager.getTinkerLoadResultIfPresent().patchInfo;
@@ -69,24 +66,24 @@ public class SampleUpgradePatch extends UpgradePatch {
         if (oldInfo != null) {
             if (oldInfo.oldVersion == null || oldInfo.newVersion == null) {
                 TinkerLog.e(TAG, "UpgradePatch tryPatch:onPatchInfoCorrupted");
-                manager.getPatchReporter().onPatchInfoCorrupted(patchFile, oldInfo.oldVersion, oldInfo.newVersion, true);
+                manager.getPatchReporter().onPatchInfoCorrupted(patchFile, oldInfo.oldVersion, oldInfo.newVersion);
                 return false;
             }
 
             if (oldInfo.oldVersion.equals(patchMd5) || oldInfo.newVersion.equals(patchMd5)) {
                 TinkerLog.e(TAG, "UpgradePatch tryPatch:onPatchVersionCheckFail");
-                manager.getPatchReporter().onPatchVersionCheckFail(patchFile, oldInfo, patchMd5, true);
+                manager.getPatchReporter().onPatchVersionCheckFail(patchFile, oldInfo, patchMd5);
                 return false;
             }
-            newInfo = new SharePatchInfo(oldInfo.oldVersion, patchMd5);
+            newInfo = new SharePatchInfo(oldInfo.oldVersion, patchMd5, Build.FINGERPRINT);
         } else {
-            newInfo = new SharePatchInfo("", patchMd5);
+            newInfo = new SharePatchInfo("", patchMd5, Build.FINGERPRINT);
         }
 
         //check ok, we can real recover a new patch
         final String patchDirectory = manager.getPatchDirectory().getAbsolutePath();
 
-        TinkerLog.i(TAG, "UpgradePatch tryPatch:dexDiffMd5:%s", patchMd5);
+        TinkerLog.i(TAG, "UpgradePatch tryPatch:patchMd5:%s", patchMd5);
 
         final String patchName = SharePatchFileUtil.getPatchVersionDirectory(patchMd5);
 
@@ -100,11 +97,11 @@ public class SampleUpgradePatch extends UpgradePatch {
 
         //copy file
         File destPatchFile = new File(patchVersionDirectory + "/" + SharePatchFileUtil.getPatchVersionFile(patchMd5));
+        File[] dexFiles = new File(patchFile.getParentFile() + "/dex/").listFiles();
         try {
-            String patchPath = patchFile.getAbsolutePath(); // xxx/xxx/xxx.apk
-            File[] patchDexFiles = new File(patchPath.substring(0, patchPath.length() - 4)).listFiles();
-            for (File dexFile : patchDexFiles) {
-                SharePatchFileUtil.copyFileUsingStream(dexFile, new File(patchVersionDirectory + "/" + ShareConstants.DEX_PATH + "/" + dexFile.getName()));
+            for (File dexFile : dexFiles) {
+                File dest = new File(patchVersionDirectory + "/" + ShareConstants.DEX_PATH + "/" + dexFile.getName());
+                SharePatchFileUtil.copyFileUsingStream(dexFile, dest);
             }
             SharePatchFileUtil.copyFileUsingStream(patchFile, destPatchFile);
             TinkerLog.w(TAG, "UpgradePatch after %s size:%d, %s size:%d", patchFile.getAbsolutePath(), patchFile.length(),
@@ -112,22 +109,22 @@ public class SampleUpgradePatch extends UpgradePatch {
         } catch (IOException e) {
 //            e.printStackTrace();
             TinkerLog.e(TAG, "UpgradePatch tryPatch:copy patch file fail from %s to %s", patchFile.getPath(), destPatchFile.getPath());
-            manager.getPatchReporter().onPatchTypeExtractFail(patchFile, destPatchFile, patchFile.getName(), ShareConstants.TYPE_PATCH_FILE, true);
+            manager.getPatchReporter().onPatchTypeExtractFail(patchFile, destPatchFile, patchFile.getName(), ShareConstants.TYPE_PATCH_FILE);
             return false;
         }
 
         //we use destPatchFile instead of patchFile, because patchFile may be deleted during the patch process
-        if (!SampleDexDiffPatchInternal.tryRecoverDexFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile, true)) {
+        if (!SampleDexDiffPatchInternal.tryRecoverDexFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, try patch dex failed");
             return false;
         }
 
-        if (!SampleBsDiffPatchInternal.tryRecoverLibraryFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile, true)) {
+        if (!SampleBsDiffPatchInternal.tryRecoverLibraryFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, try patch library failed");
             return false;
         }
 
-        if (!SampleResDiffPatchInternal.tryRecoverResourceFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile, true)) {
+        if (!SampleResDiffPatchInternal.tryRecoverResourceFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, try patch resource failed");
             return false;
         }
@@ -136,7 +133,7 @@ public class SampleUpgradePatch extends UpgradePatch {
 
         if (!SharePatchInfo.rewritePatchInfoFileWithLock(patchInfoFile, newInfo, SharePatchFileUtil.getPatchInfoLockFile(patchDirectory))) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, rewrite patch info failed");
-            manager.getPatchReporter().onPatchInfoCorrupted(patchFile, newInfo.oldVersion, newInfo.newVersion, true);
+            manager.getPatchReporter().onPatchInfoCorrupted(patchFile, newInfo.oldVersion, newInfo.newVersion);
             return false;
         }
 
