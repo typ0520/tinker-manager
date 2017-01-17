@@ -87,7 +87,7 @@ public class SampleTinkerManager {
         //or you can just use DefaultPatchListener
         PatchListener patchListener = new SamplePatchListener(appLike.getApplication());
         //you can set your own upgrade patch if you need
-        AbstractPatch upgradePatchProcessor = new UpgradePatch();
+        AbstractPatch upgradePatchProcessor = new SampleUpgradePatch();
         //you can set your own repair patch if you need
         AbstractPatch repairPatchProcessor = new RepairPatch();
 
