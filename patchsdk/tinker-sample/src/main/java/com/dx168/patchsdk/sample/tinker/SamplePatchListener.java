@@ -20,6 +20,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.dx168.patchsdk.utils.FileUtils;
 import com.tencent.tinker.lib.listener.DefaultPatchListener;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerLoadResult;
@@ -29,7 +30,11 @@ import com.tencent.tinker.loader.shareutil.SharePatchFileUtil;
 import com.tencent.tinker.loader.shareutil.ShareTinkerInternals;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Created by zhangshaowen on 16/4/30.
@@ -115,4 +120,43 @@ public class SamplePatchListener extends DefaultPatchListener {
         SampleTinkerReport.onTryApply(isUpgrade, returnCode == ShareConstants.ERROR_PATCH_OK);
         return returnCode;
     }
+
+    @Override
+    public int onPatchReceived(String path, boolean isUpgrade) {
+        try {
+            ZipFile zipFile = new ZipFile(path);
+            boolean isFullPatch = zipFile.getEntry("FULL_PATCH") != null;
+            if (isFullPatch) {
+                Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zipFile.entries();
+                File dexDir = new File(path.substring(0, path.length() - 4));
+                if (!dexDir.exists()) {
+                    while (entries.hasMoreElements()) {
+                        ZipEntry zipEntry = entries.nextElement();
+                        String fileName = zipEntry.getName();
+                        if (fileName.startsWith("classes") && fileName.endsWith(".dex")) {
+                            FileUtils.copyFile(zipFile.getInputStream(zipEntry), dexDir + "/" + fileName);
+                        }
+                    }
+                }
+                FileUtils.copyFile(zipFile.getInputStream(zipFile.getEntry("patch.apk")), path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int returnCode = patchCheck(path, isUpgrade);
+
+        if (returnCode == ShareConstants.ERROR_PATCH_OK) {
+            SamplePatchService.runPatchService(context, path, isUpgrade);
+        } else {
+            Tinker.with(context).getLoadReporter().onLoadPatchListenerReceiveFail(new File(path), returnCode, isUpgrade);
+        }
+        return returnCode;
+
+    }
+
+    private void releaseFullPatch() {
+
+    }
+
 }
