@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.sample.tinker;
+package com.dx168.patchsdk.tinker;
 
 import android.content.Context;
 import android.content.SharedPreferences;

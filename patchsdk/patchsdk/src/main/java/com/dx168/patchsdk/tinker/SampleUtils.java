@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.sample.tinker;
+package com.dx168.patchsdk.tinker;
 
 import android.os.Environment;
 import android.os.StatFs;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.sample.tinker;
+package com.dx168.patchsdk.tinker;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,15 +22,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
+import android.util.Log;
 
-import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.lib.util.TinkerServiceInternals;
-
-import java.io.File;
 
 /**
  * optional, you can just use DefaultTinkerResultService
@@ -41,10 +38,10 @@ import java.io.File;
 public class SampleResultService extends DefaultTinkerResultService {
     private static final String TAG = "Tinker.SampleResultService";
 
-
     @Override
     public void onPatchResult(final PatchResult result) {
         //TODO callback PatchManager
+        Log.d("TEST", "onPatchResult");
         if (result == null) {
             TinkerLog.e(TAG, "SampleResultService received null result!!!!");
             return;

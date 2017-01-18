@@ -15,6 +15,7 @@ import com.dx168.patchsdk.bean.PatchInfo;
 import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
 import com.dx168.patchsdk.utils.PatchUtils;
+import com.tencent.tinker.lib.tinker.TinkerInstaller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,16 +42,15 @@ public final class PatchManager {
         return instance;
     }
 
-    public static void free() {
+    public void free() {
         instance = null;
-        PatchServer.free();
+        PatchServer.get().free();
     }
 
     public static final String SP_NAME = "patchsdk";
     public static final String SP_KEY_USING_PATCH = "using_patch";
 
     private Context context;
-    private ActualPatchManager apm;
     private String patchDirPath;
     private AppInfo appInfo;
 
@@ -60,7 +60,8 @@ public final class PatchManager {
     private Map<String, PatchInfo> patchInfoMap = new HashMap<>();
     private boolean isDebugPatch = false;
 
-    public void init(Context context, String baseUrl, String appId, String appSecret, ActualPatchManager apm) {
+    public void init(Context context, String baseUrl, String appId, String appSecret) {
+        Log.d("TEST", "PatchManager init");
         this.context = context;
         if (!PatchUtils.isMainProcess(context)) {
             return;
@@ -68,7 +69,6 @@ public final class PatchManager {
         if (!TextUtils.isEmpty(baseUrl) && !baseUrl.endsWith("/")) {
             baseUrl = baseUrl + "/";
         }
-        this.apm = apm;
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
         appInfo.setAppSecret(appSecret);
@@ -154,9 +154,8 @@ public final class PatchManager {
         if (debugPatch != null) {
             isDebugPatch = true;
             Toast.makeText(context, "开始应用调试补丁", Toast.LENGTH_LONG).show();
-            DebugUtils.sendNotify(context, "开始应用调试补丁");
-            //apm.cleanPatch(context);
-            apm.applyPatch(context, debugPatch.getAbsolutePath());
+            DebugUtils.sendNotification(context, "开始应用调试补丁");
+            TinkerInstaller.onReceiveUpgradePatch(context, debugPatch.getAbsolutePath());
             if (patchListener != null) {
                 patchListener.onQuerySuccess(debugPatch.getAbsolutePath());
             }
@@ -199,7 +198,7 @@ public final class PatchManager {
                                     if (patchDir.exists()) {
                                         patchDir.delete();
                                     }
-                                    apm.cleanPatch(context);
+                                    TinkerInstaller.cleanPatch(context);
                                     if (patchListener != null) {
                                         patchListener.onCompleted();
                                     }
@@ -225,8 +224,7 @@ public final class PatchManager {
                                                 return;
                                             }
                                             patchInfoMap.put(patch.getAbsolutePath(), patchInfo);
-                                            //apm.cleanPatch(context);
-                                            apm.applyPatch(context, patch.getAbsolutePath());
+                                            TinkerInstaller.onReceiveUpgradePatch(context, patch.getAbsolutePath());
                                             return;
                                         }
                                     }
@@ -265,7 +263,7 @@ public final class PatchManager {
                                 patchListener.onDownloadSuccess(newPatchPath);
                             }
                             patchInfoMap.put(newPatchPath, patchInfo);
-                            apm.applyPatch(context, newPatchPath);
+                            TinkerInstaller.onReceiveUpgradePatch(context, newPatchPath);
                         } catch (IOException e) {
                             e.printStackTrace();
                             if (patchListener != null) {

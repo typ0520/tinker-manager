@@ -37,7 +37,7 @@ public class ApplyResultService extends Service {
             String msg = intent.getStringExtra("MSG");
             if (!TextUtils.isEmpty(msg)) {
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-                DebugUtils.sendNotify(this, msg);
+                DebugUtils.sendNotification(this, msg);
             }
             PatchListener patchListener = PatchManager.getInstance().getPatchListener();
             if (patchListener != null) {

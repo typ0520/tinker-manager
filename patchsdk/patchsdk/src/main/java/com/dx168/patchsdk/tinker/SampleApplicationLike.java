@@ -1,4 +1,4 @@
-package com.dx168.patchsdk.sample.tinker;
+package com.dx168.patchsdk.tinker;
 
 import android.annotation.TargetApi;
 import android.app.Application;

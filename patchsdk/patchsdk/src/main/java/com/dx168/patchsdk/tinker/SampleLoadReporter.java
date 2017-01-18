@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.sample.tinker;
+package com.dx168.patchsdk.tinker;
 
 import android.content.Context;
 import android.os.Looper;
 import android.os.MessageQueue;
+import android.util.Log;
 
 import com.tencent.tinker.lib.reporter.DefaultLoadReporter;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -52,6 +53,7 @@ public class SampleLoadReporter extends DefaultLoadReporter {
     public void onLoadResult(File patchDirectory, int loadCode, long cost) {
         super.onLoadResult(patchDirectory, loadCode, cost);
         //TODO callback PatchManager
+        Log.d("TEST", "onLoadResult");
         switch (loadCode) {
             case ShareConstants.ERROR_LOAD_OK:
                 SampleTinkerReport.onLoaded(cost);
