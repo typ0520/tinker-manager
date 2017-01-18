@@ -41,7 +41,6 @@ public class SamplePatchListener extends DefaultPatchListener {
     private static final String TAG = "Tinker.SamplePatchListener";
 
     protected static final long NEW_PATCH_RESTRICTION_SPACE_SIZE_MIN = 60 * 1024 * 1024;
-    protected static final long OLD_PATCH_RESTRICTION_SPACE_SIZE_MIN = 30 * 1024 * 1024;
 
     private final int maxMemory;
 

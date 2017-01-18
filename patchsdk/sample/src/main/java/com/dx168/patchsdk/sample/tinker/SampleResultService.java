@@ -22,12 +22,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.util.TinkerLog;
 import com.tencent.tinker.lib.util.TinkerServiceInternals;
+
+import java.io.File;
 
 /**
  * optional, you can just use DefaultTinkerResultService
@@ -38,19 +41,16 @@ import com.tencent.tinker.lib.util.TinkerServiceInternals;
 public class SampleResultService extends DefaultTinkerResultService {
     private static final String TAG = "Tinker.SampleResultService";
 
+
     @Override
     public void onPatchResult(final PatchResult result) {
+        //TODO callback PatchManager
         if (result == null) {
             TinkerLog.e(TAG, "SampleResultService received null result!!!!");
-            PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, result.e.toString());
             return;
         }
-        TinkerLog.i(TAG, " receive result: %s", result.toString());
-        if (result.isSuccess) {
-            PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
-        } else {
-            PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, "");
-        }
+        TinkerLog.i(TAG, "SampleResultService receive result: %s", result.toString());
+
         //first, we want to kill the recover process
         TinkerServiceInternals.killTinkerPatchServiceProcess(getApplicationContext());
 
@@ -68,15 +68,10 @@ public class SampleResultService extends DefaultTinkerResultService {
         // is success and newPatch, it is nice to delete the raw file, and restart at once
         // for old patch, you can't delete the patch file
         if (result.isSuccess) {
-            /*
-            File rawFile = new File(result.rawPatchFilePath);
-            if (rawFile.exists()) {
-                TinkerLog.i(TAG, "save delete raw patch file");
-                SharePatchFileUtil.safeDeleteFile(rawFile);
-            }
-             */
-            //not like SampleResultService, I want to restart just when I am at background!
-            //if you have not install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker this moment, you can use TinkerApplicationHelper api
+            //deleteRawPatchFile(new File(result.rawPatchFilePath));
+
+            //not like TinkerResultService, I want to restart just when I am at background!
+            //if you have not install tinker this moment, you can use TinkerApplicationHelper api
             if (checkIfNeedKill(result)) {
                 if (SampleUtils.isBackground()) {
                     TinkerLog.i(TAG, "it is in background, just restart process");
@@ -84,7 +79,7 @@ public class SampleResultService extends DefaultTinkerResultService {
                 } else {
                     //we can wait process at background, such as onAppBackground
                     //or we can restart when the screen off
-                    TinkerLog.i(TAG, "com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker wait screen to restart process");
+                    TinkerLog.i(TAG, "tinker wait screen to restart process");
                     new ScreenState(getApplicationContext(), new ScreenState.IOnScreenOff() {
                         @Override
                         public void onScreenOff() {
