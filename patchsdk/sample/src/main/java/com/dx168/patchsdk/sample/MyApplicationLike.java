@@ -1,18 +1,13 @@
 package com.dx168.patchsdk.sample;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.util.Log;
 
-import com.dx168.patchsdk.ActualPatchManager;
 import com.dx168.patchsdk.PatchListener;
 import com.dx168.patchsdk.PatchManager;
-import com.dx168.patchsdk.sample.tinker.SampleApplicationLike;
+import com.dx168.patchsdk.tinker.SampleApplicationLike;
 import com.tencent.tinker.anno.DefaultLifeCycle;
-import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 
 /**
@@ -34,19 +29,9 @@ public class MyApplicationLike extends SampleApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        String appId = "20161103095950020-4398";
-        String appSecret = "7d13b661d9b84d40bc9bd59151568249";
-        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/hotfix-apis/", appId, appSecret, new ActualPatchManager() {
-            @Override
-            public void cleanPatch(Context context) {
-                TinkerInstaller.cleanPatch(context);
-            }
-
-            @Override
-            public void applyPatch(Context context, String patchPath) {
-                TinkerInstaller.onReceiveUpgradePatch(context, patchPath);
-            }
-        });
+        String appId = "20170112162040035-6936";
+        String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
+        PatchManager.getInstance().init(getApplication(), "http://hotfix.dx168.com/hotfix-apis/", appId, appSecret);
         PatchManager.getInstance().setTag("your tag");
         PatchManager.getInstance().setChannel("");
         PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {

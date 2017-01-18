@@ -13,9 +13,6 @@ buildscript {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.tencent.tinker:tinker-android-anno:1.7.7'
-    compile 'com.tencent.tinker:tinker-android-lib:1.7.7'
     compile project(':patchsdk')
 }
 
@@ -66,7 +63,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.dx168.patchsdk.sample.tinker"
+        applicationId "com.dx168.patchsdk.sample"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
@@ -166,7 +163,7 @@ def getTinkerBuildFlavorDirectory() {
 }
 
 def getBaseApkPrefix() {
-    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "tinker-sample-debug-1201-17-26-16"
+    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0118-15-53-22"
 }
 
 if (buildWithTinker()) {

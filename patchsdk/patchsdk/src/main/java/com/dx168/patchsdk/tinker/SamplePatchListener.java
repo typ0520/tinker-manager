@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.sample.tinker;
+package com.dx168.patchsdk.tinker;
 
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.listener.DefaultPatchListener;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerLoadResult;
@@ -115,4 +116,10 @@ public class SamplePatchListener extends DefaultPatchListener {
         SampleTinkerReport.onTryApply(returnCode == ShareConstants.ERROR_PATCH_OK);
         return returnCode;
     }
+
+    @Override
+    public int onPatchReceived(String path) {
+        return super.onPatchReceived(path);
+    }
+
 }

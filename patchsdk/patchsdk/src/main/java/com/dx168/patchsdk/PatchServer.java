@@ -20,7 +20,7 @@ class PatchServer {
 
     private static PatchServer instance;
 
-    static void free() {
+    void free() {
         instance = null;
     }
 
@@ -99,10 +99,11 @@ class PatchServer {
         threadPool.execute(new Runnable() {
             @Override
             public void run() {
+                HttpURLConnection conn = null;
                 OutputStream outputStream = null;
                 InputStream inputStream = null;
                 try {
-                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                    conn = (HttpURLConnection) new URL(url).openConnection();
                     conn.setRequestMethod("GET");
                     conn.setConnectTimeout(30 * 1000);
                     conn.setDoInput(true);
@@ -146,6 +147,9 @@ class PatchServer {
                         callback.onFailure(e);
                     }
                 } finally {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
                     if (outputStream != null) {
                         try {
                             outputStream.close();

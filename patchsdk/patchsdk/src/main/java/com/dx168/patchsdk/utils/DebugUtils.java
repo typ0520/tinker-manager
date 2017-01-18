@@ -32,11 +32,11 @@ public class DebugUtils {
         return null;
     }
 
-    public static void sendNotify(Context context, String text) {
+    public static void sendNotification(Context context, String text) {
         //消息通知栏
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
-        mBuilder//设置通知栏标题
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder//设置通知栏标题
                 .setContentTitle(context.getApplicationInfo().loadLabel(context.getPackageManager()))
                 .setContentText(text) //设置通知栏显示内容
                 .setAutoCancel(true)
@@ -46,7 +46,7 @@ public class DebugUtils {
                 .setOngoing(false)//ture，设置他为一个正在进行的通知。他们通常是用来表示一个后台任务,用户积极参与(如播放音乐)或以某种方式正在等待,因此占用设备(如一个文件下载,同步操作,主动网络连接)
                 .setDefaults(Notification.DEFAULT_VIBRATE)//向通知添加声音、闪灯和振动效果的最简单、最一致的方式是使用当前的用户默认设置，使用defaults属性，可以组合
                 .setSmallIcon(context.getApplicationInfo().icon);
-        mNotificationManager.notify(new Random().nextInt(), mBuilder.build());
+        notificationManager.notify(new Random().nextInt(), builder.build());
     }
 
 }
