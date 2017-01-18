@@ -15,13 +15,13 @@ import com.tencent.tinker.loader.app.DefaultApplicationLike;
 /**
  * Created by jianjun.lin on 2016/10/25.
  */
-public class TinkerApplicationLike extends DefaultApplicationLike {
+public class SampleApplicationLike extends DefaultApplicationLike {
 
     public static Application application;
 
-    private static final String TAG = TinkerApplicationLike.class.getSimpleName();
+    private static final String TAG = SampleApplicationLike.class.getSimpleName();
 
-    public TinkerApplicationLike(Application application, int tinkerFlags, boolean tinkerLoadVerifyFlag,
+    public SampleApplicationLike(Application application, int tinkerFlags, boolean tinkerLoadVerifyFlag,
                                  long applicationStartElapsedTime, long applicationStartMillisTime, Intent tinkerResultIntent,
                                  Resources[] resources, ClassLoader[] classLoader, AssetManager[] assetManager) {
         super(application, tinkerFlags, tinkerLoadVerifyFlag, applicationStartElapsedTime, applicationStartMillisTime, tinkerResultIntent, resources, classLoader, assetManager);

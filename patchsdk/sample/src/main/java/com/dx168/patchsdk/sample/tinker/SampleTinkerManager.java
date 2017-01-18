@@ -88,7 +88,7 @@ public class SampleTinkerManager {
         //you can set your own upgrade patch if you need
         AbstractPatch upgradePatchProcessor = new UpgradePatch();
 
-        TinkerInstaller.install(appLike, loadReporter, patchReporter, patchListener, TinkerResultService.class,
+        TinkerInstaller.install(appLike, loadReporter, patchReporter, patchListener, SampleResultService.class,
                 upgradePatchProcessor);
 
         isInstalled = true;
