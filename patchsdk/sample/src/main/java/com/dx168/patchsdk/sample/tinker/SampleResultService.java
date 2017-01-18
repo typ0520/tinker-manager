@@ -35,13 +35,13 @@ import com.tencent.tinker.lib.util.TinkerServiceInternals;
  * Created by zhangshaowen on 16/4/13.
  * Updated by jianjun.lin on 16/10/28.
  */
-public class TinkerResultService extends DefaultTinkerResultService {
-    private static final String TAG = "Tinker.TinkerResultService";
+public class SampleResultService extends DefaultTinkerResultService {
+    private static final String TAG = "Tinker.SampleResultService";
 
     @Override
     public void onPatchResult(final PatchResult result) {
         if (result == null) {
-            TinkerLog.e(TAG, "TinkerResultService received null result!!!!");
+            TinkerLog.e(TAG, "SampleResultService received null result!!!!");
             PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, result.e.toString());
             return;
         }
@@ -75,7 +75,7 @@ public class TinkerResultService extends DefaultTinkerResultService {
                 SharePatchFileUtil.safeDeleteFile(rawFile);
             }
              */
-            //not like TinkerResultService, I want to restart just when I am at background!
+            //not like SampleResultService, I want to restart just when I am at background!
             //if you have not install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker this moment, you can use TinkerApplicationHelper api
             if (checkIfNeedKill(result)) {
                 if (SampleUtils.isBackground()) {

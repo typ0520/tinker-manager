@@ -10,7 +10,7 @@ import android.util.Log;
 import com.dx168.patchsdk.ActualPatchManager;
 import com.dx168.patchsdk.PatchListener;
 import com.dx168.patchsdk.PatchManager;
-import com.dx168.patchsdk.sample.tinker.TinkerApplicationLike;
+import com.dx168.patchsdk.sample.tinker.SampleApplicationLike;
 import com.tencent.tinker.anno.DefaultLifeCycle;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
@@ -22,7 +22,7 @@ import com.tencent.tinker.loader.shareutil.ShareConstants;
 @DefaultLifeCycle(application = "com.dx168.patchsdk.sample.MyApplication",
         flags = ShareConstants.TINKER_ENABLE_ALL,
         loadVerifyFlag = false)
-public class MyApplicationLike extends TinkerApplicationLike {
+public class MyApplicationLike extends SampleApplicationLike {
 
     private OriginalApplication originalApplication;
 
