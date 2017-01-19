@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
