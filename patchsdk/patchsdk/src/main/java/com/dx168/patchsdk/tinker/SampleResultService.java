@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.service.DefaultTinkerResultService;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.util.TinkerLog;
@@ -40,8 +41,6 @@ public class SampleResultService extends DefaultTinkerResultService {
 
     @Override
     public void onPatchResult(final PatchResult result) {
-        //TODO callback PatchManager
-        Log.d("TEST", "onPatchResult");
         if (result == null) {
             TinkerLog.e(TAG, "SampleResultService received null result!!!!");
             return;
@@ -64,29 +63,33 @@ public class SampleResultService extends DefaultTinkerResultService {
         });
         // is success and newPatch, it is nice to delete the raw file, and restart at once
         // for old patch, you can't delete the patch file
-        if (result.isSuccess) {
-            //deleteRawPatchFile(new File(result.rawPatchFilePath));
+        if (!result.isSuccess) {
+            PatchManager.getInstance().onPatchFailure(result.rawPatchFilePath);
+            return;
+        }
+        //deleteRawPatchFile(new File(result.rawPatchFilePath));
 
-            //not like TinkerResultService, I want to restart just when I am at background!
-            //if you have not install tinker this moment, you can use TinkerApplicationHelper api
-            if (checkIfNeedKill(result)) {
-                if (SampleUtils.isBackground()) {
-                    TinkerLog.i(TAG, "it is in background, just restart process");
-                    restartProcess();
-                } else {
-                    //we can wait process at background, such as onAppBackground
-                    //or we can restart when the screen off
-                    TinkerLog.i(TAG, "tinker wait screen to restart process");
-                    new ScreenState(getApplicationContext(), new ScreenState.IOnScreenOff() {
-                        @Override
-                        public void onScreenOff() {
-                            restartProcess();
-                        }
-                    });
-                }
+        PatchManager.getInstance().onPatchSuccess(result.rawPatchFilePath);
+
+        //not like TinkerResultService, I want to restart just when I am at background!
+        //if you have not install tinker this moment, you can use TinkerApplicationHelper api
+        if (checkIfNeedKill(result)) {
+            if (SampleUtils.isBackground()) {
+                TinkerLog.i(TAG, "it is in background, just restart process");
+                restartProcess();
             } else {
-                TinkerLog.i(TAG, "I have already install the newly patch version!");
+                //we can wait process at background, such as onAppBackground
+                //or we can restart when the screen off
+                TinkerLog.i(TAG, "tinker wait screen to restart process");
+                new ScreenState(getApplicationContext(), new ScreenState.IOnScreenOff() {
+                    @Override
+                    public void onScreenOff() {
+                        restartProcess();
+                    }
+                });
             }
+        } else {
+            TinkerLog.i(TAG, "I have already install the newly patch version!");
         }
     }
 

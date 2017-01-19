@@ -19,8 +19,8 @@ package com.dx168.patchsdk.tinker;
 import android.content.Context;
 import android.os.Looper;
 import android.os.MessageQueue;
-import android.util.Log;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.reporter.DefaultLoadReporter;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
@@ -52,11 +52,13 @@ public class SampleLoadReporter extends DefaultLoadReporter {
     @Override
     public void onLoadResult(File patchDirectory, int loadCode, long cost) {
         super.onLoadResult(patchDirectory, loadCode, cost);
-        //TODO callback PatchManager
-        Log.d("TEST", "onLoadResult");
         switch (loadCode) {
             case ShareConstants.ERROR_LOAD_OK:
+                PatchManager.getInstance().onLoadSuccess();
                 SampleTinkerReport.onLoaded(cost);
+                break;
+            default:
+                PatchManager.getInstance().onLoadFailure();
                 break;
         }
         Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler() {

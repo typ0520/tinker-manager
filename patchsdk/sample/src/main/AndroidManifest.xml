@@ -17,10 +17,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".tinker.SampleResultService"
-            android:exported="false"/>
-
     </application>
 
 </manifest>
