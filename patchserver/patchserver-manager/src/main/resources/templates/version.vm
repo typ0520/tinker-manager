@@ -41,7 +41,7 @@
                     <h4 class="modal-title" id="exampleModalLabel">上传补丁</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="create_patch_form" action="#springUrl('')/patch/add" method="post" enctype="multipart/form-data">
+                    <form id="create_patch_form" action="#springUrl('')/patch/add?appUid=$restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName" method="post" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="description" class="form-control-label">补丁描述:</label>
                             <input type="text" class="form-control" id="description" name="description" maxlength="32" placeholder="文件最大为: $!restR.data.maxPatchSize">
@@ -54,8 +54,8 @@
 
                         <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
 
-                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
-                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
+##                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
+##                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
                     </form>
                 </div>
 
@@ -119,6 +119,10 @@
                 <li>
                     <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
                 </li>
+
+                <div class="bt_l">
+                    <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
+                </div>
             </ul>
         </div>
         <!-- /.navbar-collapse -->

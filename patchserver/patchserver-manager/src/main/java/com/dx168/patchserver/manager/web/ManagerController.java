@@ -2,8 +2,10 @@ package com.dx168.patchserver.manager.web;
 
 import com.dx168.patchserver.core.domain.*;
 import com.dx168.patchserver.manager.service.*;
+import net.glxn.qrgen.javase.QRCode;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.dx168.patchserver.manager.common.Constants;
@@ -15,7 +17,7 @@ import com.dx168.patchserver.core.utils.BizAssert;
 import com.dx168.patchserver.core.utils.BizException;
 import com.dx168.patchserver.core.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;
-import java.text.DecimalFormat;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -67,13 +69,37 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/app/create",method = RequestMethod.POST)
-    public @ResponseBody RestResponse app_create(HttpServletRequest req, String appname, String description) {
+    public @ResponseBody RestResponse app_create(HttpServletRequest req, String appname, String description,String packageName) {
         RestResponse restR = new RestResponse();
         try {
             BizAssert.notEpmty(appname,"应用名不能为空");
             BizAssert.notEpmty(description,"描述信息不能为空");
+            BizAssert.notEpmty(packageName,"包名不能为空");
+
+            if (packageName.matches("[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?$")) {
+                throw new BizException("包名格式不正确");
+            }
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-            appService.addApp(basicUser,appname,description,"Android");
+            appService.addApp(basicUser,appname,description,packageName,"Android");
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return restR;
+    }
+
+    @RequestMapping(value = "/app/fill_package",method = RequestMethod.POST)
+    public @ResponseBody RestResponse fill_package(HttpServletRequest req, String appUid,String packageName) {
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notEpmty(appUid,"应用编号不能为空");
+            BizAssert.notEpmty(packageName,"包名不能为空");
+            if (packageName.matches("[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?$")) {
+                throw new BizException("包名格式不正确");
+            }
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            appService.fillPackageName(basicUser,appUid,packageName);
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());
@@ -330,6 +356,11 @@ public class ManagerController {
         return new ModelAndView("version","restR",restR);
     }
 
+    @RequestMapping(value = "/patch/add",method = RequestMethod.GET)
+    public ModelAndView on_patch_add_session_time_out(String appUid,String versionName) {
+        return new ModelAndView("redirect:/app/version?appUid=" + appUid + "&versionName=" + versionName);
+    }
+
     @RequestMapping(value = "/patch/add",method = RequestMethod.POST)
     public ModelAndView patch_create(String appUid,String versionName,String description,@RequestParam("file") MultipartFile multipartFile) {
         RestResponse restR = new RestResponse();
@@ -381,6 +412,11 @@ public class ManagerController {
         restR.getData().put("appInfo",appInfo);
         restR.getData().put("versionInfo",versionInfo);
         restR.getData().put("patchInfo",patchInfo);
+
+        if (StringUtils.isNotBlank(appInfo.getPackageName())) {
+            ByteArrayOutputStream bos = QRCode.from("ldpv1;" + appInfo.getPackageName() + ";" + versionInfo.getVersionName() + ";" + patchInfo.getPatchVersion() + ";" + patchInfo.getDownloadUrl()).withSize(180, 180).stream();
+            restR.getData().put("qrcodeImg","data:image/jpeg;base64," + Base64Utils.encodeToString(bos.toByteArray()));
+        }
         return new ModelAndView("patch","restR",restR);
     }
 

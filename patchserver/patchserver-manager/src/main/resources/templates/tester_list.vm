@@ -118,6 +118,10 @@
                 <li>
                     <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
                 </li>
+
+                <div class="bt_l">
+                    <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
+                </div>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -273,7 +277,12 @@
                         }
                     },
                     error:function(XMLHttpRequest, textStatus, errorThrown){
-                        dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
+                        if (XMLHttpRequest.status == 401) {
+                            window.location.href = window.location.href;
+                        }
+                        else {
+                            dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
+                        }
                     }
                 });
             });
