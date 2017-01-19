@@ -30,12 +30,12 @@ public class SamplePatchService extends TinkerPatchService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        //TODO just for debug
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+// just for debug
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         super.onHandleIntent(intent);
     }
 
