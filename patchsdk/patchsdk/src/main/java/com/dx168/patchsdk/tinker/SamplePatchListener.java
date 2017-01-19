@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 
 import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.listener.DefaultPatchListener;
+import com.tencent.tinker.lib.service.TinkerPatchService;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerLoadResult;
 import com.tencent.tinker.lib.util.TinkerLog;
@@ -119,7 +120,16 @@ public class SamplePatchListener extends DefaultPatchListener {
 
     @Override
     public int onPatchReceived(String path) {
-        return super.onPatchReceived(path);
+
+        int returnCode = patchCheck(path);
+
+        if (returnCode == ShareConstants.ERROR_PATCH_OK) {
+            SamplePatchService.runPatchService(context, path);
+        } else {
+            Tinker.with(context).getLoadReporter().onLoadPatchListenerReceiveFail(new File(path), returnCode);
+        }
+        return returnCode;
+
     }
 
 }

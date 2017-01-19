@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application>
-        <service android:name=".ApplyResultService"/>
         <service
             android:name=".RestartService"
             android:process=":restart"/>
@@ -20,5 +19,15 @@
                 <action android:name="com.dx168.patchsdk.DebugReceiver.RESTART"/>
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".tinker.SampleResultService"
+            android:exported="false"/>
+
+        <service
+            android:name=".tinker.SamplePatchService"
+            android:exported="false"
+            android:process=":patch"/>
+
     </application>
 </manifest>
