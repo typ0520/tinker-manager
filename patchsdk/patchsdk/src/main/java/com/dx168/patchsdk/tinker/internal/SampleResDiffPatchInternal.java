@@ -31,9 +31,9 @@ import java.util.zip.ZipFile;
  * Created by jianjun.lin on 2017/1/13.
  */
 
-public class ResDiffPatchInternal extends com.tencent.tinker.lib.patch.ResDiffPatchInternal {
+public class SampleResDiffPatchInternal extends com.tencent.tinker.lib.patch.ResDiffPatchInternal {
 
-    protected static final String TAG = "Tinker.ResDiffPatchInternal";
+    protected static final String TAG = "Tinker.SampleResDiffPatchInternal";
 
     public static boolean tryRecoverResourceFiles(Tinker manager, ShareSecurityCheck checker, Context context,
                                                      String patchVersionDirectory, File patchFile) {
@@ -304,5 +304,4 @@ public class ResDiffPatchInternal extends com.tencent.tinker.lib.patch.ResDiffPa
         }
         return true;
     }
-
 }

@@ -36,8 +36,8 @@ import dalvik.system.DexFile;
  * Created by jianjun.lin on 2017/1/13.
  */
 
-public class DexDiffPatchInternal extends com.tencent.tinker.lib.patch.DexDiffPatchInternal {
-    protected static final String TAG = "Tinker.DexDiffPatchInternal";
+public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.DexDiffPatchInternal {
+    protected static final String TAG = "Tinker.SampleDexDiffPatchInternal";
 
     protected static final int WAIT_ASYN_OAT_TIME = 8 * 1000;
     protected static final int MAX_WAIT_COUNT     = 30;
@@ -66,7 +66,7 @@ public class DexDiffPatchInternal extends com.tencent.tinker.lib.patch.DexDiffPa
         return result;
     }
 
-    protected static boolean waitDexOptFile() {
+    public static boolean waitDexOptFile() {
         if (optFiles.isEmpty()) {
             return true;
         }
@@ -107,15 +107,21 @@ public class DexDiffPatchInternal extends com.tencent.tinker.lib.patch.DexDiffPa
     private static boolean patchDexExtractViaDexDiff(Context context, String patchVersionDirectory, String meta, final File patchFile) {
         String dir = patchVersionDirectory + "/" + DEX_PATH + "/";
 
-        if (!extractDexDiffInternals(context, dir, meta, patchFile, TYPE_DEX)) {
-            TinkerLog.w(TAG, "patch recover, extractDiffInternals fail");
-            return false;
+        File dexFiles = new File(dir);
+        File[] files = dexFiles.listFiles();
+
+        boolean isFullPatch = files != null && files.length > 0;
+
+        if (!isFullPatch) {
+            if (!extractDexDiffInternals(context, dir, meta, patchFile, TYPE_DEX)) {
+                TinkerLog.w(TAG, "patch recover, extractDiffInternals fail");
+                return false;
+            }
+            files = dexFiles.listFiles();
         }
 
         final Tinker manager = Tinker.with(context);
 
-        File dexFiles = new File(dir);
-        File[] files = dexFiles.listFiles();
         optFiles.clear();
 
         if (files != null) {
@@ -530,4 +536,5 @@ public class DexDiffPatchInternal extends com.tencent.tinker.lib.patch.DexDiffPa
             SharePatchFileUtil.closeQuietly(patchFileStream);
         }
     }
+
 }

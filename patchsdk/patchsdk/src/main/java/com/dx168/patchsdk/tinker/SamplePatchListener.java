@@ -20,6 +20,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.dx168.patchsdk.utils.PatchUtils;
 import com.tencent.tinker.lib.listener.DefaultPatchListener;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerLoadResult;
@@ -106,7 +107,7 @@ public class SamplePatchListener extends DefaultPatchListener {
                 String platform = properties.getProperty(SampleUtils.PLATFORM);
                 TinkerLog.i(TAG, "get platform:" + platform);
                 // check patch platform require
-                if (platform == null) {// || !platform.equals(BuildInfo.PLATFORM)
+                if (platform == null) { // || !platform.equals(BuildInfo.PLATFORM)
                     returnCode = SampleUtils.ERROR_PATCH_CONDITION_NOT_SATISFIED;
                 }
             }
@@ -118,6 +119,8 @@ public class SamplePatchListener extends DefaultPatchListener {
 
     @Override
     public int onPatchReceived(String path) {
+
+        path = PatchUtils.release(path);
 
         int returnCode = patchCheck(path);
 

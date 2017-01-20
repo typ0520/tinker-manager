@@ -2,6 +2,8 @@ package com.dx168.patchsdk.sample;
 
 import android.app.Application;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.dx168.patchsdk.Listener;

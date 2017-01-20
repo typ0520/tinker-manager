@@ -86,16 +86,6 @@ android {
         buildConfigField "String", "CLIENTVERSION", "\"${getTinkerIdValue()}\""
         buildConfigField "String", "PLATFORM", "\"all\""
     }
-//    //use to test flavors support
-//    productFlavors {
-//        flavor1 {
-//            applicationId 'com.dx168.patchsdk.sample.tinker.sample.android.flavor1'
-//        }
-//
-//        flavor2 {
-//            applicationId 'com.dx168.patchsdk.sample.tinker.sample.android.flavor2'
-//        }
-//    }
 
     buildTypes {
         release {
@@ -163,7 +153,7 @@ def getTinkerBuildFlavorDirectory() {
 }
 
 def getBaseApkPrefix() {
-    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0119-14-41-28"
+    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0120-14-28-37"
 }
 
 if (buildWithTinker()) {
@@ -185,7 +175,7 @@ if (buildWithTinker()) {
          * case 2: newly added Android Component in AndroidManifest.xml,
          *         it must be crash when load.
          * case 3: loader classes in dex.loader{} are not keep in the main dex,
-         *         it must be let com.dx168.patchsdk.sample.tinker not work.
+         *         it must be let com.dx168.patchsdk.sample not work.
          * case 4: loader classes in dex.loader{} changes,
          *         loader classes is ues to load patch dex. it is useless to change them.
          *         it won't crash, but these changes can't effect. you may ignore it
@@ -264,13 +254,13 @@ if (buildWithTinker()) {
              * Warning, it is very very important, loader classes can't change with patch.
              * thus, they will be removed from patch dexes.
              * you must put the following class into main dex.
-             * Simply, you should add your own application {@code com.dx168.patchsdk.sample.tinker.sample.android.SampleApplication}
+             * Simply, you should add your own application {@code com.dx168.patchsdk.sample.SampleApplication}
              * own tinkerLoader, and the classes you use in them
              *
              */
             loader = [
-                      //use sample, let BaseBuildInfo unchangeable with com.dx168.patchsdk.sample.tinker
-                      "com.dx168.patchsdk.sample.tinker.sample.android.app.BaseBuildInfo"
+                      //use sample, let BaseBuildInfo unchangeable with com.dx168.patchsdk.sample
+                      "com.dx168.patchsdk.sample.BaseBuildInfo"
             ]
         }
 
@@ -320,7 +310,7 @@ if (buildWithTinker()) {
              * we will get the TINKER_ID from the old apk manifest for you automatic,
              * other config files (such as patchMessage below)is not necessary
              */
-            configField("patchMessage", "com.dx168.patchsdk.sample.tinker is sample to use")
+            configField("patchMessage", "com.dx168.patchsdk.sample is sample to use")
             /**
              * just a sample case, you can use such as sdkVersion, brand, channel...
              * you can parse it in the SamplePatchListener.
@@ -403,7 +393,7 @@ if (buildWithTinker()) {
         //sample use for build all flavor for one time
         if (hasFlavors) {
             task(tinkerPatchAllFlavorRelease) {
-                group = 'com.dx168.patchsdk.sample.tinker'
+                group = 'com.dx168.patchsdk.sample'
                 def originOldPath = getTinkerBuildFlavorDirectory()
                 for (String flavor : flavors) {
                     def tinkerTask = tasks.getByName("tinkerPatch${flavor.capitalize()}Release")
@@ -421,7 +411,7 @@ if (buildWithTinker()) {
             }
 
             task(tinkerPatchAllFlavorDebug) {
-                group = 'com.dx168.patchsdk.sample.tinker'
+                group = 'com.dx168.patchsdk.sample'
                 def originOldPath = getTinkerBuildFlavorDirectory()
                 for (String flavor : flavors) {
                     def tinkerTask = tasks.getByName("tinkerPatch${flavor.capitalize()}Debug")

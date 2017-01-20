@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -38,6 +37,8 @@ public final class PatchManager {
 
     private static final String TAG = "PatchManager";
 
+    public static final String FULL_PATCH_NAME = "patch.apk";
+
     private static PatchManager instance;
 
     public static PatchManager getInstance() {
@@ -54,7 +55,7 @@ public final class PatchManager {
 
     private Context context;
     private List<Listener> listeners = new ArrayList<>();
-    private String patchDirPath;
+    private String versionDirPath;
     private AppInfo appInfo;
 
     /**
@@ -67,55 +68,55 @@ public final class PatchManager {
         if (!PatchUtils.isMainProcess(context)) {
             return;
         }
-        if (!TextUtils.isEmpty(baseUrl) && !baseUrl.endsWith("/")) {
-            baseUrl = baseUrl + "/";
-        }
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
         appInfo.setAppSecret(appSecret);
         appInfo.setToken(DigestUtils.md5DigestAsHex(appId + "_" + appSecret));
         appInfo.setDeviceId(PatchUtils.getDeviceId(context));
         appInfo.setPackageName(context.getPackageName());
-        PatchServer.init(baseUrl);
         PackageManager packageManager = context.getPackageManager();
         try {
             PackageInfo pkgInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
             appInfo.setVersionName(pkgInfo.versionName);
             appInfo.setVersionCode(pkgInfo.versionCode);
-            String sdkDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getPackageName() + "/patchsdk";
-            patchDirPath = sdkDirPath + "/" + appInfo.getVersionName();
-            File sdkDir = new File(sdkDirPath);
-            if (sdkDir.exists()) {
-                for (File patchDir : sdkDir.listFiles()) {
-                    if (TextUtils.equals(appInfo.getVersionName(), patchDir.getName())) {
-                        continue;
-                    }
-                    patchDir.delete();
-                }
-                SharedPreferences sp = SPUtils.getSharedPreferences(context);
-                Set<String> spKeys = sp.getAll().keySet();
-                SharedPreferences.Editor editor = sp.edit();
-                for (String key : spKeys) {
-                    if (key.startsWith(appInfo.getVersionName())
-                            || TextUtils.equals(KEY_LOADED_PATCH, key)
-                            || TextUtils.equals(KEY_PATCHED_PATCH, key)) {
-                        continue;
-                    }
-                    editor.remove(key);
-                }
-                editor.commit();
-            }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
+        }
+        if (!TextUtils.isEmpty(baseUrl) && !baseUrl.endsWith("/")) {
+            baseUrl = baseUrl + "/";
+        }
+        PatchServer.init(baseUrl);
+        String patchDirPath = context.getFilesDir() + "/patch";
+        versionDirPath = patchDirPath + "/" + appInfo.getVersionName();
+        File patchDir = new File(patchDirPath);
+        if (patchDir.exists()) {
+            for (File versionDir : patchDir.listFiles()) {
+                if (TextUtils.equals(appInfo.getVersionName(), versionDir.getName())) {
+                    continue;
+                }
+                versionDir.delete();
+            }
+            SharedPreferences sp = SPUtils.getSharedPreferences(context);
+            Set<String> spKeys = sp.getAll().keySet();
+            SharedPreferences.Editor editor = sp.edit();
+            for (String key : spKeys) {
+                if (key.startsWith(appInfo.getVersionName())
+                        || TextUtils.equals(KEY_LOADED_PATCH, key)
+                        || TextUtils.equals(KEY_PATCHED_PATCH, key)) {
+                    continue;
+                }
+                editor.remove(key);
+            }
+            editor.commit();
         }
     }
 
     public void register(Listener listener) {
         listeners.add(listener);
-        Runnable r = mTasks.poll();
+        Runnable r = loadResultQueue.poll();
         while (r != null) {
             r.run();
-            r = mTasks.poll();
+            r = loadResultQueue.poll();
         }
     }
 
@@ -183,7 +184,7 @@ public final class PatchManager {
                                     return;
                                 }
                                 String response = new String(bytes);
-                                PatchInfo patchInfo = PatchUtils.convertJsonToPatchInfo(response);
+                                PatchInfo patchInfo = PatchUtils.toPatchInfo(response);
                                 if (patchInfo == null) {
                                     for (Listener listener : listeners) {
                                         listener.onQueryFailure(new Exception("can not parse response to object: " + response + ", code=" + code));
@@ -201,9 +202,9 @@ public final class PatchManager {
                                     listener.onQuerySuccess(patchInfo.toString());
                                 }
                                 if (patchInfo.getData() == null) {
-                                    File patchDir = new File(patchDirPath);
-                                    if (patchDir.exists()) {
-                                        patchDir.delete();
+                                    File versionDir = new File(versionDirPath);
+                                    if (versionDir.exists()) {
+                                        versionDir.delete();
                                     }
                                     TinkerInstaller.cleanPatch(context);
                                     return;
@@ -212,9 +213,9 @@ public final class PatchManager {
                                 if (TextUtils.equals(loadedPatchPath, newPatchPath)) {
                                     return;
                                 }
-                                File patchDir = new File(patchDirPath);
-                                if (patchDir.exists()) {
-                                    for (File patch : patchDir.listFiles()) {
+                                File versionDir = new File(versionDirPath);
+                                if (versionDir.exists()) {
+                                    for (File patch : versionDir.listFiles()) {
                                         String patchName = getPatchName(patchInfo.getData());
                                         if (TextUtils.equals(patch.getName(), patchName)) {
                                             if (!checkPatch(patch, patchInfo.getData().getHash())) {
@@ -229,7 +230,7 @@ public final class PatchManager {
                                         }
                                     }
                                 }
-                                downloadAndApplyPatch(newPatchPath, patchInfo);
+                                downloadAndPatch(newPatchPath, patchInfo);
                             }
 
                             @Override
@@ -244,7 +245,7 @@ public final class PatchManager {
                         });
     }
 
-    private void downloadAndApplyPatch(final String newPatchPath, final PatchInfo patchInfo) {
+    private void downloadAndPatch(final String newPatchPath, final PatchInfo patchInfo) {
         PatchServer.get()
                 .downloadPatch(patchInfo.getData().getDownloadUrl(), new PatchServer.PatchServerCallback() {
                     @Override
@@ -326,7 +327,7 @@ public final class PatchManager {
     }
 
     private String getPatchPath(PatchInfo.Data data) {
-        return patchDirPath + "/" + getPatchName(data);
+        return versionDirPath + "/" + getPatchName(data);
     }
 
     private String getPatchName(PatchInfo.Data data) {
@@ -343,7 +344,7 @@ public final class PatchManager {
      * @param patchPath
      */
     public void onPatchSuccess(String patchPath) {
-        if (patchPath.endsWith("/patch.apk")) {
+        if (patchPath.endsWith("/" + FULL_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
         SPUtils.put(context, KEY_PATCHED_PATCH, patchPath);
@@ -363,7 +364,7 @@ public final class PatchManager {
      * @param patchPath
      */
     public void onPatchFailure(String patchPath) {
-        if (patchPath.endsWith("/patch.apk")) {
+        if (patchPath.endsWith("/" + FULL_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
         if (isDebugPatch) {
@@ -378,14 +379,14 @@ public final class PatchManager {
         }
     }
 
-    private Queue<Runnable> mTasks = new LinkedList<>();
+    private Queue<Runnable> loadResultQueue = new LinkedList<>();
 
     /**
      * 补丁应用成功
      */
     public void onLoadSuccess() {
         if (context == null) {
-            mTasks.add(new Runnable() {
+            loadResultQueue.offer(new Runnable() {
                 @Override
                 public void run() {
                     onLoadSuccessInternal();
@@ -397,6 +398,9 @@ public final class PatchManager {
     }
 
     private void onLoadSuccessInternal() {
+        if (!PatchUtils.isMainProcess(context)) {
+            return;
+        }
         for (Listener listener : listeners) {
             try {
                 listener.onLoadSuccess();
@@ -423,7 +427,7 @@ public final class PatchManager {
      */
     public void onLoadFailure() {
         if (context == null) {
-            mTasks.add(new Runnable() {
+            loadResultQueue.offer(new Runnable() {
                 @Override
                 public void run() {
                     onLoadFailureInternal();
@@ -435,6 +439,9 @@ public final class PatchManager {
     }
 
     private void onLoadFailureInternal() {
+        if (!PatchUtils.isMainProcess(context)) {
+            return;
+        }
         for (Listener listener : listeners) {
             try {
                 listener.onLoadFailure();
@@ -477,13 +484,7 @@ public final class PatchManager {
                         result, new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
-                                int reportApplyFlag;
-                                if (result) {
-                                    reportApplyFlag = SUCCESS_REPORTED;
-                                } else {
-                                    reportApplyFlag = FAILURE_REPORTED;
-                                }
-                                SPUtils.put(context, patchName, reportApplyFlag);
+                                SPUtils.put(context, patchName, result ? SUCCESS_REPORTED : FAILURE_REPORTED);
                             }
 
                             @Override
