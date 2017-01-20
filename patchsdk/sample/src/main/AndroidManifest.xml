@@ -17,6 +17,15 @@
             </intent-filter>
         </activity>
 
+        <service
+            android:name=".tinker.SampleResultService"
+            android:exported="false"/>
+
+        <service
+            android:name=".tinker.SamplePatchService"
+            android:exported="false"
+            android:process=":patch"/>
+
     </application>
 
 </manifest>

@@ -30,41 +30,72 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
     private OriginalApplication originalApplication;
 
-    public MyApplicationLike(Application application, int tinkerFlags, boolean tinkerLoadVerifyFlag, long applicationStartElapsedTime, long applicationStartMillisTime, Intent tinkerResultIntent, Resources[] resources, ClassLoader[] classLoader, AssetManager[] assetManager) {
-        super(application, tinkerFlags, tinkerLoadVerifyFlag, applicationStartElapsedTime, applicationStartMillisTime, tinkerResultIntent, resources, classLoader, assetManager);
+    public MyApplicationLike(Application application, int tinkerFlags, boolean tinkerLoadVerifyFlag, long applicationStartElapsedTime, long applicationStartMillisTime, Intent tinkerResultIntent) {
+        super(application, tinkerFlags, tinkerLoadVerifyFlag, applicationStartElapsedTime, applicationStartMillisTime, tinkerResultIntent);
         originalApplication = new OriginalApplication();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/hotfix-apis/", "your appId", "your appSecret");
-        PatchManager.getInstance().setTag("your tag"); //可用于灰度发布
-        PatchManager.getInstance().setChannel("your channel");
-        PatchManager.getInstance().queryAndApplyPatch(new PatchListener() {
-        ...
+        @Override
+        public void onCreate() {
+            super.onCreate();
+            String appId = "20170112162040035-6936";
+            String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
+            PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret, new ActualPatchManager() {
+                @Override
+                public void cleanPatch(Context context) {
+                    TinkerInstaller.cleanPatch(context);
+                }
 
-        originalApplication.onCreate();
+                @Override
+                public void patch(Context context, String patchPath) {
+                    TinkerInstaller.onReceiveUpgradePatch(context, patchPath);
+                }
+            });
+            PatchManager.getInstance().register(new Listener() {
+                ...
+            });
+            PatchManager.getInstance().setTag("your tag");
+            PatchManager.getInstance().setChannel("");
+            PatchManager.getInstance().queryAndPatch();
+            originalApplication.onCreate();
+        }
+}
+
+````
+
+- 3. TinkerResultService 通知 PatchManager 补丁合成结果
+
+````
+@Override
+public void onPatchResult(final PatchResult result) {
+	...
+	if (result.isSuccess) {
+		PatchManager.getInstance().onPatchFailure(result.rawPatchFilePath);
+	} else {
+		PatchManager.getInstance().onPatchSuccess(result.rawPatchFilePath);
+	}
+	...
+}
+
+````
+
+- 4. LoadReporter 通知 PatchManager 补丁应用结果
+
+````
+@Override
+public void onLoadResult(File patchDirectory, int loadCode, long cost) {
+    ...
+    switch (loadCode) {
+        case ShareConstants.ERROR_LOAD_OK:
+            PatchManager.getInstance().onLoadSuccess();
+            ...
+            break;
+        default:
+            PatchManager.getInstance().onLoadFailure();
+            break;
     }
+    ...
 }
-
-````
-
-- 3. TinkerResultService 通知 PatchManager 补丁应用结果
-
-````
-if (result.isSuccess) {
-    PatchManager.getInstance().onApplySuccess(result.rawPatchFilePath);
-} else {
-    PatchManager.getInstance().onApplyFailure(result.rawPatchFilePath, "");
-}
-
-````
-
-- 4. LoadReporter 通知 PatchManager 补丁应用失败
-
-````
-PatchManager.getInstance().onApplyFailure(patchFile.getAbsolutePath(), "errorCode=" + errorCode);
 ````
 
 ###三、补丁调试工具(patchtool)
