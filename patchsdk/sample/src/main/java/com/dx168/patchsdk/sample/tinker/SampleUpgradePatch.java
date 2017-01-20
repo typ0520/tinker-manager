@@ -1,14 +1,11 @@
-package com.dx168.patchsdk.tinker;
+package com.dx168.patchsdk.sample.tinker;
 
 import android.content.Context;
 import android.os.Build;
 
-import com.dx168.patchsdk.tinker.internal.SampleBsDiffPatchInternal;
-import com.dx168.patchsdk.tinker.internal.SampleDexDiffPatchInternal;
-import com.dx168.patchsdk.tinker.internal.SampleResDiffPatchInternal;
-import com.tencent.tinker.lib.patch.BsDiffPatchInternal;
-import com.tencent.tinker.lib.patch.DexDiffPatchInternal;
-import com.tencent.tinker.lib.patch.ResDiffPatchInternal;
+import com.dx168.patchsdk.sample.tinker.internal.SampleBsDiffPatchInternal;
+import com.dx168.patchsdk.sample.tinker.internal.SampleDexDiffPatchInternal;
+import com.dx168.patchsdk.sample.tinker.internal.SampleResDiffPatchInternal;
 import com.tencent.tinker.lib.patch.UpgradePatch;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.tinker.Tinker;

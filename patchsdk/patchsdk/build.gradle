@@ -41,9 +41,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     provided 'com.android.support:support-v4:24.0.0'
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.tencent.tinker:tinker-android-anno:1.7.7'
-    compile 'com.tencent.tinker:tinker-android-lib:1.7.7'
 }
 
 def mavenDesc = 'Tinker patch manager'

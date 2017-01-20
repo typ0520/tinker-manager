@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dx168.patchsdk.tinker;
+package com.dx168.patchsdk.sample.tinker;
 
 import com.tencent.tinker.lib.listener.PatchListener;
 import com.tencent.tinker.lib.patch.AbstractPatch;

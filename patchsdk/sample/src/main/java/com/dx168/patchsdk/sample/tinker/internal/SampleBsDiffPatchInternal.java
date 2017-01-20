@@ -1,4 +1,4 @@
-package com.dx168.patchsdk.tinker.internal;
+package com.dx168.patchsdk.sample.tinker.internal;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

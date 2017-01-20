@@ -14,7 +14,6 @@ import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
 import com.dx168.patchsdk.utils.PatchUtils;
 import com.dx168.patchsdk.utils.SPUtils;
-import com.tencent.tinker.lib.tinker.TinkerInstaller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,6 +53,7 @@ public final class PatchManager {
     }
 
     private Context context;
+    private ActualPatchManager actualPatchManager;
     private List<Listener> listeners = new ArrayList<>();
     private String versionDirPath;
     private AppInfo appInfo;
@@ -63,11 +63,12 @@ public final class PatchManager {
      */
     private boolean isDebugPatch = false;
 
-    public void init(Context context, String baseUrl, String appId, String appSecret) {
+    public void init(Context context, String baseUrl, String appId, String appSecret, ActualPatchManager actualPatchManager) {
         this.context = context;
         if (!PatchUtils.isMainProcess(context)) {
             return;
         }
+        this.actualPatchManager = actualPatchManager;
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
         appInfo.setAppSecret(appSecret);
@@ -163,7 +164,7 @@ public final class PatchManager {
             isDebugPatch = true;
             Toast.makeText(context, "开始应用调试补丁", Toast.LENGTH_LONG).show();
             DebugUtils.sendNotification(context, "开始应用调试补丁");
-            TinkerInstaller.onReceiveUpgradePatch(context, debugPatch.getAbsolutePath());
+            actualPatchManager.patch(context, debugPatch.getAbsolutePath());
             for (Listener listener : listeners) {
                 listener.onQuerySuccess(debugPatch.getAbsolutePath());
             }
@@ -206,7 +207,7 @@ public final class PatchManager {
                                     if (versionDir.exists()) {
                                         versionDir.delete();
                                     }
-                                    TinkerInstaller.cleanPatch(context);
+                                    actualPatchManager.cleanPatch(context);
                                     return;
                                 }
                                 String newPatchPath = getPatchPath(patchInfo.getData());
@@ -225,7 +226,7 @@ public final class PatchManager {
                                                 }
                                                 return;
                                             }
-                                            TinkerInstaller.onReceiveUpgradePatch(context, patch.getAbsolutePath());
+                                            actualPatchManager.patch(context, patch.getAbsolutePath());
                                             return;
                                         }
                                     }
@@ -263,7 +264,7 @@ public final class PatchManager {
                             for (Listener listener : listeners) {
                                 listener.onDownloadSuccess(newPatchPath);
                             }
-                            TinkerInstaller.onReceiveUpgradePatch(context, newPatchPath);
+                            actualPatchManager.patch(context, newPatchPath);
                         } catch (IOException e) {
                             e.printStackTrace();
                             for (Listener listener : listeners) {
