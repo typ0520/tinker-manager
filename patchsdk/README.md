@@ -35,30 +35,30 @@ public class MyApplicationLike extends TinkerApplicationLike {
         originalApplication = new OriginalApplication();
     }
 
-        @Override
-        public void onCreate() {
-            super.onCreate();
-            String appId = "20170112162040035-6936";
-            String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
-            PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret, new ActualPatchManager() {
-                @Override
-                public void cleanPatch(Context context) {
-                    TinkerInstaller.cleanPatch(context);
-                }
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        String appId = "20170112162040035-6936";
+        String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret, new ActualPatchManager() {
+            @Override
+            public void cleanPatch(Context context) {
+                TinkerInstaller.cleanPatch(context);
+            }
 
-                @Override
-                public void patch(Context context, String patchPath) {
-                    TinkerInstaller.onReceiveUpgradePatch(context, patchPath);
-                }
-            });
-            PatchManager.getInstance().register(new Listener() {
-                ...
-            });
-            PatchManager.getInstance().setTag("your tag");
-            PatchManager.getInstance().setChannel("");
-            PatchManager.getInstance().queryAndPatch();
-            originalApplication.onCreate();
-        }
+            @Override
+            public void patch(Context context, String patchPath) {
+                TinkerInstaller.onReceiveUpgradePatch(context, patchPath);
+            }
+        });
+        PatchManager.getInstance().register(new Listener() {
+            ...
+        });
+        PatchManager.getInstance().setTag("your tag");
+        PatchManager.getInstance().setChannel("");
+        PatchManager.getInstance().queryAndPatch();
+        originalApplication.onCreate();
+    }
 }
 
 ````
