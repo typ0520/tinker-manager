@@ -59,7 +59,7 @@ public class SampleTinkerManager {
      */
     public static void sampleInstallTinker(ApplicationLike appLike) {
         if (isInstalled) {
-            TinkerLog.w(TAG, "install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker, but has installed, ignore");
+            TinkerLog.w(TAG, "install com.dx168.patchsdk.sample, but has installed, ignore");
             return;
         }
         TinkerInstaller.install(appLike);
@@ -69,13 +69,13 @@ public class SampleTinkerManager {
 
     /**
      * you can specify all class you want.
-     * sometimes, you can only install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker in some process you want!
+     * sometimes, you can only install com.dx168.patchsdk.sample in some process you want!
      *
      * @param appLike
      */
     public static void installTinker(ApplicationLike appLike) {
         if (isInstalled) {
-            TinkerLog.w(TAG, "install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker, but has installed, ignore");
+            TinkerLog.w(TAG, "install com.dx168.patchsdk.sample, but has installed, ignore");
             return;
         }
         //or you can just use DefaultLoadReporter

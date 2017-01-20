@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.support.multidex.MultiDex;
 
@@ -24,8 +26,8 @@ public class SampleApplicationLike extends DefaultApplicationLike {
     }
 
     /**
-     * install multiDex before install com.dx168.patchsdk.sample.tinker
-     * so we don't need to put the com.dx168.patchsdk.sample.tinker lib classes in the main dex
+     * install multiDex before install com.dx168.patchsdk.sample
+     * so we don't need to put the com.dx168.patchsdk.sample lib classes in the main dex
      *
      * @param base
      */
@@ -33,19 +35,19 @@ public class SampleApplicationLike extends DefaultApplicationLike {
     @Override
     public void onBaseContextAttached(Context base) {
         super.onBaseContextAttached(base);
-        //you must install multiDex whatever com.dx168.patchsdk.sample.tinker is installed!
+        //you must install multiDex whatever com.dx168.patchsdk.sample is installed!
         MultiDex.install(base);
 
         SampleTinkerManager.setTinkerApplicationLike(this);
         SampleTinkerManager.initFastCrashProtect();
-        //should set before com.dx168.patchsdk.sample.tinker is installed
+        //should set before com.dx168.patchsdk.sample is installed
         SampleTinkerManager.setUpgradeRetryEnable(true);
 
         //optional set logIml, or you can use default debug log
         TinkerInstaller.setLogIml(new SampleTinkerLog());
 
         //installTinker after load multiDex
-        //or you can put com.tencent.com.dx168.patchsdk.sample.tinker.** to main dex
+        //or you can put com.tencent.com.dx168.patchsdk.sample.** to main dex
         SampleTinkerManager.installTinker(this);
     }
 

@@ -24,7 +24,7 @@ import java.util.zip.ZipFile;
  * Created by jianjun.lin on 2017/1/13.
  */
 
-public class BsDiffPatchInternal extends com.tencent.tinker.lib.patch.BsDiffPatchInternal {
+public class SampleBsDiffPatchInternal extends com.tencent.tinker.lib.patch.BsDiffPatchInternal {
     private static final String TAG = "Tinker.BsDiffPatchInternal";
 
     public static boolean tryRecoverLibraryFiles(Tinker manager, ShareSecurityCheck checker, Context context,

@@ -3,9 +3,12 @@ package com.dx168.patchsdk.tinker;
 import android.content.Context;
 import android.os.Build;
 
-import com.dx168.patchsdk.tinker.internal.BsDiffPatchInternal;
-import com.dx168.patchsdk.tinker.internal.DexDiffPatchInternal;
-import com.dx168.patchsdk.tinker.internal.ResDiffPatchInternal;
+import com.dx168.patchsdk.tinker.internal.SampleBsDiffPatchInternal;
+import com.dx168.patchsdk.tinker.internal.SampleDexDiffPatchInternal;
+import com.dx168.patchsdk.tinker.internal.SampleResDiffPatchInternal;
+import com.tencent.tinker.lib.patch.BsDiffPatchInternal;
+import com.tencent.tinker.lib.patch.DexDiffPatchInternal;
+import com.tencent.tinker.lib.patch.ResDiffPatchInternal;
 import com.tencent.tinker.lib.patch.UpgradePatch;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -24,7 +27,7 @@ import java.io.IOException;
  */
 
 public class SampleUpgradePatch extends UpgradePatch {
-    private static final String TAG = "Tinker.SampleUpgradePatch";
+    private static final String TAG = "Tinker.UpgradePatch";
 
     @Override
     public boolean tryPatch(Context context, String tempPatchPath, PatchResult patchResult) {
@@ -37,7 +40,7 @@ public class SampleUpgradePatch extends UpgradePatch {
             return false;
         }
 
-        if (!patchFile.isFile() || !patchFile.exists()) {
+        if (!SharePatchFileUtil.isLegalFile(patchFile)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:patch file is not found, just return");
             return false;
         }
@@ -73,8 +76,8 @@ public class SampleUpgradePatch extends UpgradePatch {
                 return false;
             }
 
-            if (oldInfo.oldVersion.equals(patchMd5) || oldInfo.newVersion.equals(patchMd5)) {
-                TinkerLog.e(TAG, "UpgradePatch tryPatch:onPatchVersionCheckFail");
+            if (!SharePatchFileUtil.checkIfMd5Valid(patchMd5)) {
+                TinkerLog.e(TAG, "UpgradePatch tryPatch:onPatchVersionCheckFail md5 %s is valid", patchMd5);
                 manager.getPatchReporter().onPatchVersionCheckFail(patchFile, oldInfo, patchMd5);
                 return false;
             }
@@ -99,7 +102,6 @@ public class SampleUpgradePatch extends UpgradePatch {
 //        SharePatchFileUtil.deleteDir(patchVersionDirectory);
 
         //copy file
-        File destPatchFile = new File(patchVersionDirectory + "/" + SharePatchFileUtil.getPatchVersionFile(patchMd5));
         File[] dexFiles = new File(patchFile.getParentFile() + "/dex/").listFiles();
         try {
             if (dexFiles != null) {
@@ -108,9 +110,17 @@ public class SampleUpgradePatch extends UpgradePatch {
                     SharePatchFileUtil.copyFileUsingStream(dexFile, dest);
                 }
             }
-            SharePatchFileUtil.copyFileUsingStream(patchFile, destPatchFile);
-            TinkerLog.w(TAG, "UpgradePatch after %s size:%d, %s size:%d", patchFile.getAbsolutePath(), patchFile.length(),
-                    destPatchFile.getAbsolutePath(), destPatchFile.length());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File destPatchFile = new File(patchVersionDirectory + "/" + SharePatchFileUtil.getPatchVersionFile(patchMd5));
+        try {
+            // check md5 first
+            if (!patchMd5.equals(SharePatchFileUtil.getMD5(destPatchFile))) {
+                SharePatchFileUtil.copyFileUsingStream(patchFile, destPatchFile);
+                TinkerLog.w(TAG, "UpgradePatch copy patch file, src file: %s size: %d, dest file: %s size:%d", patchFile.getAbsolutePath(), patchFile.length(),
+                        destPatchFile.getAbsolutePath(), destPatchFile.length());
+            }
         } catch (IOException e) {
 //            e.printStackTrace();
             TinkerLog.e(TAG, "UpgradePatch tryPatch:copy patch file fail from %s to %s", patchFile.getPath(), destPatchFile.getPath());
@@ -119,19 +129,25 @@ public class SampleUpgradePatch extends UpgradePatch {
         }
 
         //we use destPatchFile instead of patchFile, because patchFile may be deleted during the patch process
-        if (!DexDiffPatchInternal.tryRecoverDexFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
+        if (!SampleDexDiffPatchInternal.tryRecoverDexFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, try patch dex failed");
             return false;
         }
 
-        if (!BsDiffPatchInternal.tryRecoverLibraryFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
+        if (!SampleBsDiffPatchInternal.tryRecoverLibraryFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, try patch library failed");
             return false;
         }
 
-        if (!ResDiffPatchInternal.tryRecoverResourceFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
+        if (!SampleResDiffPatchInternal.tryRecoverResourceFiles(manager, signatureCheck, context, patchVersionDirectory, destPatchFile)) {
             TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, try patch resource failed");
             return false;
+        }
+
+        // check dex opt file at last, some phone such as VIVO/OPPO like to change dex2oat to interpreted
+        // just warn
+        if (!SampleDexDiffPatchInternal.waitDexOptFile()) {
+            TinkerLog.e(TAG, "UpgradePatch tryPatch:new patch recover, check dex opt file failed");
         }
 
         final File patchInfoFile = manager.getPatchInfoFile();
@@ -142,8 +158,8 @@ public class SampleUpgradePatch extends UpgradePatch {
             return false;
         }
 
-
         TinkerLog.w(TAG, "UpgradePatch tryPatch: done, it is ok");
         return true;
     }
+
 }
