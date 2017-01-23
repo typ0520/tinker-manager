@@ -1,6 +1,7 @@
 package com.dx168.patchsdk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -34,9 +35,14 @@ import static com.dx168.patchsdk.utils.SPUtils.KEY_PATCHED_PATCH;
  */
 public final class PatchManager {
 
-    private static final String TAG = "PatchManager";
+    private static final String TAG = "patchsdk.PatchManager";
 
     public static final String FULL_PATCH_NAME = "patch.apk";
+
+    private static final String DEBUG_ACTION_PATCH_RESULT = "com.dx168.patchtool.PATCH_RESULT";
+    private static final String DEBUG_ACTION_LOAD_RESULT = "com.dx168.patchtool.LOAD_RESULT";
+    private static final String KEY_PACKAGE_NAME = "package_name";
+    private static final String KEY_RESULT = "result";
 
     private static PatchManager instance;
 
@@ -57,11 +63,6 @@ public final class PatchManager {
     private List<Listener> listeners = new ArrayList<>();
     private String versionDirPath;
     private AppInfo appInfo;
-
-    /**
-     * may be reset by gc
-     */
-    private boolean isDebugPatch = false;
 
     public void init(Context context, String baseUrl, String appId, String appSecret, ActualPatchManager actualPatchManager) {
         this.context = context;
@@ -157,13 +158,10 @@ public final class PatchManager {
         final String loadedPatchPath = SPUtils.get(context, KEY_LOADED_PATCH, "");
         File debugPatch = DebugUtils.findDebugPatch(appInfo);
         if (debugPatch != null && TextUtils.equals(loadedPatchPath, debugPatch.getAbsolutePath())) {
-            Toast.makeText(context, "已应用成功调试补丁 " + debugPatch.getName(), Toast.LENGTH_LONG).show();
+            Log.d(TAG, "patch is working " + debugPatch);
             return;
         }
         if (debugPatch != null) {
-            isDebugPatch = true;
-            Toast.makeText(context, "开始应用调试补丁", Toast.LENGTH_LONG).show();
-            DebugUtils.sendNotification(context, "开始应用调试补丁");
             actualPatchManager.patch(context, debugPatch.getAbsolutePath());
             for (Listener listener : listeners) {
                 listener.onQuerySuccess(debugPatch.getAbsolutePath());
@@ -349,10 +347,11 @@ public final class PatchManager {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
         SPUtils.put(context, KEY_PATCHED_PATCH, patchPath);
-        if (isDebugPatch) {
-            String msg = "调试补丁合成成功";
-            Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-            DebugUtils.sendNotification(context, msg);
+        if (PatchUtils.isDebugPatch(patchPath)) {
+            Intent intent = new Intent(DEBUG_ACTION_PATCH_RESULT);
+            intent.putExtra(KEY_PACKAGE_NAME, appInfo.getPackageName());
+            intent.putExtra(KEY_RESULT, true);
+            context.sendBroadcast(intent);
         }
         for (Listener listener : listeners) {
             listener.onPatchSuccess();
@@ -368,10 +367,11 @@ public final class PatchManager {
         if (patchPath.endsWith("/" + FULL_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
-        if (isDebugPatch) {
-            String msg = "调试补丁合成失败";
-            Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-            DebugUtils.sendNotification(context, msg);
+        if (PatchUtils.isDebugPatch(patchPath)) {
+            Intent intent = new Intent(DEBUG_ACTION_PATCH_RESULT);
+            intent.putExtra(KEY_PACKAGE_NAME, appInfo.getPackageName());
+            intent.putExtra(KEY_RESULT, false);
+            context.sendBroadcast(intent);
         } else {
             report(patchPath, false);
         }
@@ -383,7 +383,7 @@ public final class PatchManager {
     private Queue<Runnable> loadResultQueue = new LinkedList<>();
 
     /**
-     * 补丁应用成功
+     * 补丁加载成功
      */
     public void onLoadSuccess() {
         if (context == null) {
@@ -414,17 +414,18 @@ public final class PatchManager {
             return;
         }
         SPUtils.put(context, KEY_LOADED_PATCH, patchPath);
-        if (isDebugPatch) {
-            String msg = "调试补丁应用成功";
-            Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-            DebugUtils.sendNotification(context, msg);
+        if (PatchUtils.isDebugPatch(patchPath)) {
+            Intent intent = new Intent(DEBUG_ACTION_LOAD_RESULT);
+            intent.putExtra(KEY_PACKAGE_NAME, appInfo.getPackageName());
+            intent.putExtra(KEY_RESULT, true);
+            context.sendBroadcast(intent);
         } else {
             report(patchPath, true);
         }
     }
 
     /**
-     * 补丁应用失败
+     * 补丁加载失败
      */
     public void onLoadFailure() {
         if (context == null) {
@@ -454,10 +455,11 @@ public final class PatchManager {
         if (TextUtils.isEmpty(patchPath)) {
             return;
         }
-        if (isDebugPatch) {
-            String msg = "调试补丁应用失败";
-            Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-            DebugUtils.sendNotification(context, msg);
+        if (PatchUtils.isDebugPatch(patchPath)) {
+            Intent intent = new Intent(DEBUG_ACTION_LOAD_RESULT);
+            intent.putExtra(KEY_PACKAGE_NAME, appInfo.getPackageName());
+            intent.putExtra(KEY_RESULT, false);
+            context.sendBroadcast(intent);
         } else {
             report(patchPath, false);
         }

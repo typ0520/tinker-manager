@@ -17,8 +17,6 @@ public class SampleApplicationLike extends DefaultApplicationLike {
 
     public static Application application;
 
-    private static final String TAG = SampleApplicationLike.class.getSimpleName();
-
     public SampleApplicationLike(Application application, int tinkerFlags, boolean tinkerLoadVerifyFlag, long applicationStartElapsedTime, long applicationStartMillisTime, Intent tinkerResultIntent) {
         super(application, tinkerFlags, tinkerLoadVerifyFlag, applicationStartElapsedTime, applicationStartMillisTime, tinkerResultIntent);
     }
