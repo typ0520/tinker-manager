@@ -14,7 +14,7 @@ import java.io.OutputStream;
 
 public class FileUtils {
 
-    private static final String TAG = "FileUtils";
+    private static final String TAG = "patchtool.FileUtils";
 
     public static void writeToDisk(byte[] bytes, String targetPath) throws IOException {
         File tmpFile = new File(targetPath + ".tmp");

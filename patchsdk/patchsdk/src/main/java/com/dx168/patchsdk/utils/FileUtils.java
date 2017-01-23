@@ -15,7 +15,7 @@ import java.io.InputStream;
 
 public class FileUtils {
 
-    private static final String TAG = "FileUtils";
+    private static final String TAG = "patchsdk.FileUtils";
 
     public static void copyFile(File source, String dest) throws IOException {
         copyFile(new FileInputStream(source), dest);
