@@ -15,7 +15,7 @@
 
         <receiver android:name=".DebugReceiver">
             <intent-filter>
-                <action android:name="com.dx168.patchsdk.DebugReceiver.APPLY_PATCH"/>
+                <action android:name="com.dx168.patchsdk.DebugReceiver.PATCH"/>
                 <action android:name="com.dx168.patchsdk.DebugReceiver.RESTART"/>
             </intent-filter>
         </receiver>

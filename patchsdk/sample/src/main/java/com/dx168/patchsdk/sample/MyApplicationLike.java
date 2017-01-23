@@ -22,7 +22,7 @@ import com.tencent.tinker.loader.shareutil.ShareConstants;
         loadVerifyFlag = false)
 public class MyApplicationLike extends SampleApplicationLike {
 
-    private static final String TAG = "patchsdk";
+    private static final String TAG = "sample.MyApplicationLike";
 
     private OriginalApplication originalApplication;
 

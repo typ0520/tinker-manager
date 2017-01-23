@@ -33,8 +33,16 @@ import java.io.File;
 import okhttp3.Call;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, DebugReceiver.OnReceiveListener {
+
+    private static final String DEBUG_ACTION_PATCH_RESULT = "com.dx168.patchtool.PATCH_RESULT";
+    private static final String DEBUG_ACTION_LOAD_RESULT = "com.dx168.patchtool.LOAD_RESULT";
+    private static final String ACTION_PATCH = "com.dx168.patchsdk.DebugReceiver.PATCH";
+    private static final String ACTION_RESTART = "com.dx168.patchsdk.DebugReceiver.RESTART";
+    private static final String KEY_PACKAGE_NAME = "package_name";
+    private static final String KEY_RESULT = "result";
+
     private static final String PATCH_DIR_NAME = "com.dx168.patchtool";
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "patchtool.MainActivity";
 
     private TextView mTvContent;
     private View mBtnScan;
@@ -120,6 +128,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             File[] patches = patchDir.listFiles();
             if (patches != null) {
                 for (File patch : patches) {
+                    if (patch.isDirectory()) {
+                        continue;
+                    }
                     sb.append(patch.getName()).append("\n");
                 }
             }
@@ -197,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         new AlertDialog.Builder(MainActivity.this)
                                 .setCancelable(false)
-                                .setMessage("下载完成是否安装?")
+                                .setMessage("下载完成，是否安装?")
                                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface anInterface, int which) {
@@ -250,15 +261,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onSuccess(int code, byte[] bytes) {
                             if (code == 200) {
                                 try {
-                                    final String patchPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + PATCH_DIR_NAME
-                                            + File.separator + packageName + "_" + versionName + "_" + patchVersion + ".apk";
+                                    final String patchPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + PATCH_DIR_NAME
+                                            + "/" + packageName + "_" + versionName + "_" + patchVersion + ".apk";
                                     FileUtils.writeToDisk(bytes, patchPath);
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             new AlertDialog.Builder(MainActivity.this)
                                                     .setCancelable(false)
-                                                    .setMessage("下载补丁成功\n" + patchPath + "\n\n是否立即应用?")
+                                                    .setMessage("补丁下载成功\n" + patchPath + "\n\n是否立即修复?")
                                                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface anInterface, int which) {
@@ -267,9 +278,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface anInterface, int which) {
-                                                            Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.APPLY_PATCH");
-                                                            intent.putExtra("PACKAGE_NAME", packageName);
-                                                            intent.putExtra("WHAT", 1);
+                                                            Toast.makeText(MainActivity.this, "开始修复", Toast.LENGTH_LONG).show();
+                                                            Intent intent = new Intent(ACTION_PATCH);
+                                                            intent.putExtra(KEY_PACKAGE_NAME, packageName);
                                                             intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                                                             sendBroadcast(intent);
                                                         }
@@ -281,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            showDialog("下载补丁出错\n" + intentResult.getContents() + "\n" + e.toString());
+                                            showDialog("补丁下载出错\n" + intentResult.getContents() + "\n" + e.toString());
                                         }
                                     });
                                 }
@@ -340,39 +351,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (data == null) {
             return;
         }
-        boolean isApplySuccess = data.getBoolean("IS_APPLY_SUCCESS", false);
-        final String packageName = data.getString("PACKAGE_NAME");
-        if (isApplySuccess) {
-            new AlertDialog.Builder(this)
-                    .setCancelable(false)
-                    .setMessage("补丁应用成功，是否重启?")
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+        String action = intent.getAction();
+        if (DEBUG_ACTION_PATCH_RESULT.equals(action)) {
+            boolean result = data.getBoolean(KEY_RESULT, false);
+            final String packageName = data.getString(KEY_PACKAGE_NAME);
+            if (result) {
+                new AlertDialog.Builder(this)
+                        .setCancelable(false)
+                        .setMessage("修复成功，是否立即重启?")
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        }
-                    })
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface anInterface, int which) {
-                            Intent intent = new Intent("com.dx168.patchsdk.DebugReceiver.RESTART");
-                            intent.putExtra("WHAT", 2);
-                            intent.putExtra("PACKAGE_NAME", packageName);
-                            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                            sendBroadcast(intent);
-                        }
-                    }).show();
-        } else {
-            new AlertDialog.Builder(this)
-                    .setCancelable(false)
-                    .setMessage("补丁应用失败")
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface anInterface, int which) {
+                            }
+                        })
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface anInterface, int which) {
+                                Intent intent = new Intent(ACTION_RESTART);
+                                intent.putExtra(KEY_PACKAGE_NAME, packageName);
+                                intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                                sendBroadcast(intent);
+                            }
+                        }).show();
+            } else {
+                new AlertDialog.Builder(this)
+                        .setCancelable(false)
+                        .setMessage("修复失败")
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface anInterface, int which) {
 
-                        }
-                    }).show();
+                            }
+                        }).show();
+            }
+        } else if (DEBUG_ACTION_LOAD_RESULT.equals(action)) {
+            boolean result = data.getBoolean(KEY_RESULT, false);
+            if (result) {
+                new AlertDialog.Builder(this)
+                        .setCancelable(false)
+                        .setMessage("加载成功")
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface anInterface, int which) {
+                            }
+                        }).show();
+            } else {
+                new AlertDialog.Builder(this)
+                        .setCancelable(false)
+                        .setMessage("加载失败")
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface anInterface, int which) {
+
+                            }
+                        }).show();
+            }
+
         }
-
     }
+
 }

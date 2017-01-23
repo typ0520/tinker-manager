@@ -79,7 +79,7 @@ public void onPatchResult(final PatchResult result) {
 
 ````
 
-- 4. LoadReporter 通知 PatchManager 补丁应用结果
+- 4. LoadReporter 通知 PatchManager 补丁加载结果
 
 ````
 @Override
@@ -99,4 +99,4 @@ public void onLoadResult(File patchDirectory, int loadCode, long cost) {
 ````
 
 ###三、补丁调试工具(patchtool)
-扫描补丁管理后台的补丁二维码来下载补丁，可以立即应用补丁、重启应用，可以用来调试即将发布的补丁
+测试未发布的补丁，可以扫描补丁二维码，下载补丁、立即修复、重启应用
