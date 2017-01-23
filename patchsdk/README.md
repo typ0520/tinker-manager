@@ -1,13 +1,13 @@
 [ ![Download](https://api.bintray.com/packages/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/images/download.svg) ](https://bintray.com/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/_latestVersion)
 
 ###一、集成Tinker
-app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 tinker-sample
+app/build.gradle 配置，参考官方 sample，也可以参考SDK里的 sample
 
 ###二、集成SDK
 
 - 1. app/build.gradle
 
-````gradle
+````
 repositories {
     jcenter()
 }

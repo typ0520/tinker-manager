@@ -107,21 +107,15 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
     private static boolean patchDexExtractViaDexDiff(Context context, String patchVersionDirectory, String meta, final File patchFile) {
         String dir = patchVersionDirectory + "/" + DEX_PATH + "/";
 
-        File dexFiles = new File(dir);
-        File[] files = dexFiles.listFiles();
-
-        boolean isFullPatch = files != null && files.length > 0;
-
-        if (!isFullPatch) {
-            if (!extractDexDiffInternals(context, dir, meta, patchFile, TYPE_DEX)) {
-                TinkerLog.w(TAG, "patch recover, extractDiffInternals fail");
-                return false;
-            }
-            files = dexFiles.listFiles();
+        if (!extractDexDiffInternals(context, dir, meta, patchFile, TYPE_DEX)) {
+            TinkerLog.w(TAG, "patch recover, extractDiffInternals fail");
+            return false;
         }
 
         final Tinker manager = Tinker.with(context);
 
+        File dexFiles = new File(dir);
+        File[] files = dexFiles.listFiles();
         optFiles.clear();
 
         if (files != null) {
@@ -289,14 +283,15 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
 
                 //check file whether already exist
                 if (extractedFile.exists()) {
-                    if (SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
-                        //it is ok, just continue
-                        TinkerLog.w(TAG, "dex file %s is already exist, and md5 match, just continue", extractedFile.getPath());
-                        continue;
-                    } else {
-                        TinkerLog.w(TAG, "have a mismatch corrupted dex " + extractedFile.getPath());
-                        extractedFile.delete();
-                    }
+                    continue;
+//                    if (SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
+//                        //it is ok, just continue
+//                        TinkerLog.w(TAG, "dex file %s is already exist, and md5 match, just continue", extractedFile.getPath());
+//                        continue;
+//                    } else {
+//                        TinkerLog.w(TAG, "have a mismatch corrupted dex " + extractedFile.getPath());
+//                        extractedFile.delete();
+//                    }
                 } else {
                     extractedFile.getParentFile().mkdirs();
                 }
