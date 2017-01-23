@@ -4,8 +4,6 @@ import android.annotation.TargetApi;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.os.Build;
 import android.support.multidex.MultiDex;
 
@@ -18,8 +16,6 @@ import com.tencent.tinker.loader.app.DefaultApplicationLike;
 public class SampleApplicationLike extends DefaultApplicationLike {
 
     public static Application application;
-
-    private static final String TAG = SampleApplicationLike.class.getSimpleName();
 
     public SampleApplicationLike(Application application, int tinkerFlags, boolean tinkerLoadVerifyFlag, long applicationStartElapsedTime, long applicationStartMillisTime, Intent tinkerResultIntent) {
         super(application, tinkerFlags, tinkerLoadVerifyFlag, applicationStartElapsedTime, applicationStartMillisTime, tinkerResultIntent);

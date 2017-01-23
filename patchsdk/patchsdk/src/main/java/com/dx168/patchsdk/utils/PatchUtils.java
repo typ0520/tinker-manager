@@ -29,7 +29,7 @@ import static com.dx168.patchsdk.PatchManager.FULL_PATCH_NAME;
  */
 public class PatchUtils {
 
-    private static final String TAG = PatchUtils.class.getSimpleName();
+    private static final String TAG = "patchsdk.PatchUtils";
     private static String processName = null;
 
     public static String getDeviceId(Context context) {
@@ -215,6 +215,10 @@ public class PatchUtils {
             }
         }
         return false;
+    }
+
+    public static boolean isDebugPatch(String path) {
+        return path.contains("/com.dx168.patchtool/");
     }
 
 }
