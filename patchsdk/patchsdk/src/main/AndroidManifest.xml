@@ -9,16 +9,16 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application>
-        <service android:name=".ApplyResultService"/>
         <service
             android:name=".RestartService"
             android:process=":restart"/>
 
         <receiver android:name=".DebugReceiver">
             <intent-filter>
-                <action android:name="com.dx168.patchsdk.DebugReceiver.APPLY_PATCH"/>
+                <action android:name="com.dx168.patchsdk.DebugReceiver.PATCH"/>
                 <action android:name="com.dx168.patchsdk.DebugReceiver.RESTART"/>
             </intent-filter>
         </receiver>
+
     </application>
 </manifest>

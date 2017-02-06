@@ -34,9 +34,9 @@ import java.util.Properties;
 
 /**
  * optional
- * com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker :patch process may killed by some reason, we can retry it to increase upgrade success rate
+ * tinker :patch process may killed by some reason, we can retry it to increase upgrade success rate
  * if patch file is at sdcard, copy it to dataDir first. because some software may delete it.
- * <p>
+ *
  * Created by zhangshaowen on 16/7/3.
  */
 public class UpgradePatchRetry {
@@ -263,7 +263,7 @@ public class UpgradePatchRetry {
                 outputStream = new FileOutputStream(infoFile, false);
                 newProperties.store(outputStream, null);
             } catch (Exception e) {
-                //                e.printStackTrace();
+//                e.printStackTrace();
                 TinkerLog.printErrStackTrace(TAG, e, "retry write property fail");
             } finally {
                 SharePatchFileUtil.closeQuietly(outputStream);
