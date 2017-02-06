@@ -21,10 +21,11 @@ import com.tencent.tinker.loader.shareutil.ShareConstants;
 import com.tencent.tinker.loader.shareutil.ShareTinkerInternals;
 
 /**
- * a simple com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker data reporter
+ * a simple com.dx168.patchsdk.sample data reporter
  * Created by zhangshaowen on 16/9/17.
  */
 public class SampleTinkerReport {
+
     private static final String TAG = "Tinker.SampleTinkerReport";
 
     // KEY - PV
@@ -514,4 +515,5 @@ public class SampleTinkerReport {
         }
         reporter.onReport(KEY_APPLY_WITH_RETRY);
     }
+
 }

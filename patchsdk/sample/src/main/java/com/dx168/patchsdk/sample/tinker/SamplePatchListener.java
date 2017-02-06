@@ -20,6 +20,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.dx168.patchsdk.utils.PatchUtils;
 import com.tencent.tinker.lib.listener.DefaultPatchListener;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerLoadResult;
@@ -41,7 +42,6 @@ public class SamplePatchListener extends DefaultPatchListener {
     private static final String TAG = "Tinker.SamplePatchListener";
 
     protected static final long NEW_PATCH_RESTRICTION_SPACE_SIZE_MIN = 60 * 1024 * 1024;
-    protected static final long OLD_PATCH_RESTRICTION_SPACE_SIZE_MIN = 30 * 1024 * 1024;
 
     private final int maxMemory;
 
@@ -107,7 +107,7 @@ public class SamplePatchListener extends DefaultPatchListener {
                 String platform = properties.getProperty(SampleUtils.PLATFORM);
                 TinkerLog.i(TAG, "get platform:" + platform);
                 // check patch platform require
-                if (platform == null) {// || !platform.equals(BuildInfo.PLATFORM)
+                if (platform == null) { // || !platform.equals(BuildInfo.PLATFORM)
                     returnCode = SampleUtils.ERROR_PATCH_CONDITION_NOT_SATISFIED;
                 }
             }
@@ -116,4 +116,21 @@ public class SamplePatchListener extends DefaultPatchListener {
         SampleTinkerReport.onTryApply(returnCode == ShareConstants.ERROR_PATCH_OK);
         return returnCode;
     }
+
+    @Override
+    public int onPatchReceived(String path) {
+
+        path = PatchUtils.release(path);
+
+        int returnCode = patchCheck(path);
+
+        if (returnCode == ShareConstants.ERROR_PATCH_OK) {
+            SamplePatchService.runPatchService(context, path);
+        } else {
+            Tinker.with(context).getLoadReporter().onLoadPatchListenerReceiveFail(new File(path), returnCode);
+        }
+        return returnCode;
+
+    }
+
 }

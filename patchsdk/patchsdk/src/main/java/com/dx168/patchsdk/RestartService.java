@@ -17,7 +17,7 @@ import com.dx168.patchsdk.utils.PatchUtils;
 
 public class RestartService extends Service {
 
-    private static final String TAG = RestartService.class.getSimpleName();
+    private static final String TAG = "patchsdk.RestartService";
     public static final int WHAT = 0;
     public static final int DELAY = 200;
     public static final int RETRY_TIMES = 10;
