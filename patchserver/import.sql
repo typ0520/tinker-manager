@@ -7,6 +7,11 @@ alter table t_patch_info add `apply_size` int COMMENT '被应用次数'
 
 v1.0.5
 alter table t_app_info add `package_name` varchar(64) DEFAULT NULL COMMENT 'android的包名 iOS的bundle_id'
+
+v1.1.0
+alter table t_app_info add `patch_size_jiagu` long COMMENT '给加固apk用的补丁的补丁大小'
+alter table t_app_info add `file_hash_jiagu` varchar(64) DEFAULT NULL COMMENT '给加固apk用的补丁的文件的hash值'
+alter table t_app_info add `download_url_jiagu` varchar(256) DEFAULT NULL COMMENT '给加固apk用的补丁的下载地址'
 */
 
 /*用户表*/
@@ -72,11 +77,14 @@ CREATE TABLE `t_patch_info` (
   `status` int COMMENT '0 未发布 1 已发布',
   `publish_type` int COMMENT '0 灰度发布 1 正常发布',
   `patch_size` long COMMENT '补丁大小',
+  `patch_size_jiagu` long COMMENT '给加固apk用的补丁的补丁大小',
   `file_hash` varchar(64) NOT NULL COMMENT '文件的hash值',
+  `file_hash_jiagu` varchar(64) DEFAULT NULL COMMENT '给加固apk用的补丁的文件的hash值',
   `description` varchar(32) NOT NULL COMMENT '补丁描述',
   `tags` varchar(256) DEFAULT NULL COMMENT '灰度发布的tag用，分割',
   `storage_path` varchar(256) NOT NULL COMMENT '存储路径',
   `download_url` varchar(256) DEFAULT NULL COMMENT '下载地址',
+  `download_url_jiagu` varchar(256) DEFAULT NULL COMMENT '给加固apk用的补丁的下载地址',
   `apply_success_size` int COMMENT '被应用成功的次数',
   `apply_size` int COMMENT '被应用的次数',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',

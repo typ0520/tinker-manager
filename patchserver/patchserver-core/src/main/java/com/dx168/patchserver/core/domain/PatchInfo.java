@@ -40,9 +40,12 @@ public class PatchInfo {
     private String tags;//灰度发布的tag用，分割
     private String storagePath;//存储路径
     private long patchSize;
+    private long patchSizeJiagu;
     private String fileHash;
+    private String fileHashJiagu;
     private String description;
     private String downloadUrl;
+    private String downloadUrlJiagu;
     private int applySuccessSize;
     private int applySize;
 
@@ -185,6 +188,14 @@ public class PatchInfo {
         this.downloadUrl = downloadUrl;
     }
 
+    public String getDownloadUrlJiagu() {
+        return downloadUrlJiagu;
+    }
+
+    public void setDownloadUrlJiagu(String downloadUrlJiagu) {
+        this.downloadUrlJiagu = downloadUrlJiagu;
+    }
+
     public int getApplySuccessSize() {
         return applySuccessSize;
     }
@@ -199,6 +210,22 @@ public class PatchInfo {
 
     public void setApplySize(int applySize) {
         this.applySize = applySize;
+    }
+
+    public long getPatchSizeJiagu() {
+        return patchSizeJiagu;
+    }
+
+    public void setPatchSizeJiagu(long patchSizeJiagu) {
+        this.patchSizeJiagu = patchSizeJiagu;
+    }
+
+    public String getFileHashJiagu() {
+        return fileHashJiagu;
+    }
+
+    public void setFileHashJiagu(String fileHashJiagu) {
+        this.fileHashJiagu = fileHashJiagu;
     }
 
     public String getFormatPatchSize() {
