@@ -1,13 +1,16 @@
 package com.dx168.patchsdk.sample;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.dx168.patchsdk.IPatchManager;
 import com.dx168.patchsdk.Listener;
 import com.dx168.patchsdk.PatchManager;
-import com.dx168.patchsdk.tinker.SampleApplicationLike;
+import com.dx168.patchsdk.sample.tinker.SampleApplicationLike;
 import com.tencent.tinker.anno.DefaultLifeCycle;
+import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 
 /**
@@ -33,7 +36,17 @@ public class MyApplicationLike extends SampleApplicationLike {
         super.onCreate();
         String appId = "20170112162040035-6936";
         String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
-        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/hotfix-apis/", appId, appSecret, true);
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/hotfix-apis/", appId, appSecret, true, new IPatchManager() {
+            @Override
+            public void patch(Context context, String path) {
+                TinkerInstaller.onReceiveUpgradePatch(context, path);
+            }
+
+            @Override
+            public void cleanPatch(Context context) {
+                TinkerInstaller.cleanPatch(context);
+            }
+        });
         PatchManager.getInstance().register(new Listener() {
             @Override
             public void onQuerySuccess(String response) {

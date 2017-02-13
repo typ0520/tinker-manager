@@ -7,7 +7,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
@@ -15,7 +14,6 @@ import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
 import com.dx168.patchsdk.utils.PatchUtils;
 import com.dx168.patchsdk.utils.SPUtils;
-import com.tencent.tinker.lib.tinker.TinkerInstaller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,6 +28,7 @@ import java.util.Set;
 
 import static com.dx168.patchsdk.utils.SPUtils.KEY_LOADED_PATCH;
 import static com.dx168.patchsdk.utils.SPUtils.KEY_PATCHED_PATCH;
+import static com.dx168.patchsdk.utils.SPUtils.KEY_STAGE;
 
 /**
  * Created by jianjun.lin on 2016/10/26.
@@ -44,6 +43,11 @@ public final class PatchManager {
     private static final String DEBUG_ACTION_LOAD_RESULT = "com.dx168.patchtool.LOAD_RESULT";
     private static final String KEY_PACKAGE_NAME = "package_name";
     private static final String KEY_RESULT = "result";
+
+    private static final int STAGE_IDLE = 0; //没有动作
+    private static final int STAGE_QUERY = 1; //正在查询, 等待服务器返回
+    private static final int STAGE_DOWNLOAD = 2; //正在下载
+    private static final int STAGE_PATCH = 3; //正在修复
 
     private static PatchManager instance;
 
@@ -64,8 +68,9 @@ public final class PatchManager {
     private String versionDirPath;
     private AppInfo appInfo;
     private boolean isJiagu;
+    private IPatchManager actualManager;
 
-    public void init(Context context, String baseUrl, String appId, String appSecret, boolean isJiagu) {
+    public void init(Context context, String baseUrl, String appId, String appSecret, boolean isJiagu, IPatchManager actualManager) {
         this.context = context;
         if (!PatchUtils.isMainProcess(context)) {
             return;
@@ -112,6 +117,7 @@ public final class PatchManager {
             editor.commit();
         }
         this.isJiagu = isJiagu;
+        this.actualManager = actualManager;
     }
 
     public void register(Listener listener) {
@@ -156,20 +162,27 @@ public final class PatchManager {
         if (!PatchUtils.isMainProcess(context)) {
             return;
         }
+        int stage = SPUtils.get(context, KEY_STAGE, 0);
+        if (stage > 0) {
+            Log.e(TAG, "already started, stage is " + stage);
+            return;
+        }
+        SPUtils.put(context, KEY_STAGE, STAGE_QUERY);
         final String loadedPatchPath = SPUtils.get(context, KEY_LOADED_PATCH, "");
         File debugPatch = DebugUtils.findDebugPatch(appInfo);
         if (debugPatch != null && TextUtils.equals(loadedPatchPath, debugPatch.getAbsolutePath())) {
             Log.d(TAG, "patch is working " + debugPatch);
+            SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
             return;
         }
         if (debugPatch != null) {
-            TinkerInstaller.onReceiveUpgradePatch(context, debugPatch.getAbsolutePath());
+            SPUtils.put(context, KEY_STAGE, STAGE_PATCH);
+            actualManager.patch(context, debugPatch.getAbsolutePath());
             for (Listener listener : listeners) {
                 listener.onQuerySuccess(debugPatch.getAbsolutePath());
             }
             return;
         }
-
         PatchServer.get()
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
@@ -178,6 +191,7 @@ public final class PatchManager {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 if (bytes == null) {
+                                    SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                                     for (Listener listener : listeners) {
                                         listener.onQueryFailure(new Exception("response is null, code=" + code));
                                     }
@@ -186,6 +200,7 @@ public final class PatchManager {
                                 String response = new String(bytes);
                                 PatchInfo patchInfo = PatchUtils.toPatchInfo(response);
                                 if (patchInfo == null) {
+                                    SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                                     for (Listener listener : listeners) {
                                         listener.onQueryFailure(new Exception("can not parse response to object: " + response + ", code=" + code));
                                     }
@@ -193,6 +208,7 @@ public final class PatchManager {
                                 }
                                 int resCode = patchInfo.getCode();
                                 if (resCode != 200) {
+                                    SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                                     for (Listener listener : listeners) {
                                         listener.onQueryFailure(new Exception("code=" + resCode));
                                     }
@@ -206,11 +222,13 @@ public final class PatchManager {
                                     if (versionDir.exists()) {
                                         versionDir.delete();
                                     }
-                                    TinkerInstaller.cleanPatch(context);
+                                    SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
+                                    actualManager.cleanPatch(context);
                                     return;
                                 }
                                 String newPatchPath = getPatchPath(patchInfo.getData());
                                 if (TextUtils.equals(loadedPatchPath, newPatchPath)) {
+                                    SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                                     return;
                                 }
                                 File versionDir = new File(versionDirPath);
@@ -220,13 +238,15 @@ public final class PatchManager {
                                         if (TextUtils.equals(patch.getName(), patchName)) {
                                             String downloadPatchHash = isJiagu ? patchInfo.getData().getHashJiagu() : patchInfo.getData().getHash();
                                             if (!checkPatch(patch, downloadPatchHash)) {
+                                                SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                                                 Log.e(TAG, "cache patch's hash is wrong");
                                                 for (Listener listener : listeners) {
                                                     listener.onDownloadFailure(new Exception("cache patch's hash is wrong"));
                                                 }
                                                 return;
                                             }
-                                            TinkerInstaller.onReceiveUpgradePatch(context, patch.getAbsolutePath());
+                                            SPUtils.put(context, KEY_STAGE, STAGE_PATCH);
+                                            actualManager.patch(context, patch.getAbsolutePath());
                                             return;
                                         }
                                     }
@@ -239,6 +259,7 @@ public final class PatchManager {
                                 if (e != null) {
                                     e.printStackTrace();
                                 }
+                                SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                                 for (Listener listener : listeners) {
                                     listener.onQueryFailure(e);
                                 }
@@ -247,6 +268,7 @@ public final class PatchManager {
     }
 
     private void downloadAndPatch(final String newPatchPath, final PatchInfo patchInfo) {
+        SPUtils.put(context, KEY_STAGE, STAGE_DOWNLOAD);
         String downloadUrl = isJiagu ? patchInfo.getData().getDownloadUrlJiagu() : patchInfo.getData().getDownloadUrl();
         PatchServer.get()
                 .downloadPatch(downloadUrl, new PatchServer.PatchServerCallback() {
@@ -255,7 +277,7 @@ public final class PatchManager {
                         String downloadPatchHash = isJiagu ? patchInfo.getData().getHashJiagu() : patchInfo.getData().getHash();
                         if (!checkPatch(bytes, downloadPatchHash)) {
                             Log.e(TAG, "downloaded patch's hash is wrong: " + new String(bytes));
-
+                            SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                             for (Listener listener : listeners) {
                                 listener.onDownloadFailure(new Exception("download patch's hash is wrong"));
                             }
@@ -266,9 +288,11 @@ public final class PatchManager {
                             for (Listener listener : listeners) {
                                 listener.onDownloadSuccess(newPatchPath);
                             }
-                            TinkerInstaller.onReceiveUpgradePatch(context, newPatchPath);
+                            SPUtils.put(context, KEY_STAGE, STAGE_PATCH);
+                            actualManager.patch(context, newPatchPath);
                         } catch (IOException e) {
                             e.printStackTrace();
+                            SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                             for (Listener listener : listeners) {
                                 listener.onDownloadFailure(e);
                             }
@@ -278,6 +302,7 @@ public final class PatchManager {
                     @Override
                     public void onFailure(Exception e) {
                         e.printStackTrace();
+                        SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                         for (Listener listener : listeners) {
                             listener.onDownloadFailure(e);
                         }
@@ -347,6 +372,7 @@ public final class PatchManager {
      * @param patchPath
      */
     public void onPatchSuccess(String patchPath) {
+        SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         if (patchPath.endsWith("/" + FULL_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
@@ -368,6 +394,7 @@ public final class PatchManager {
      * @param patchPath
      */
     public void onPatchFailure(String patchPath) {
+        SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         if (patchPath.endsWith("/" + FULL_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
