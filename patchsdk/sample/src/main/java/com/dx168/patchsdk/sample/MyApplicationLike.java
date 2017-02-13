@@ -33,7 +33,7 @@ public class MyApplicationLike extends SampleApplicationLike {
         super.onCreate();
         String appId = "20170112162040035-6936";
         String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
-        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret);
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.com/hotfix-apis/", appId, appSecret, true);
         PatchManager.getInstance().register(new Listener() {
             @Override
             public void onQuerySuccess(String response) {
