@@ -16,6 +16,7 @@ public class SPUtils {
     public static final String NAME = "patchsdk";
     public static final String KEY_PATCHED_PATCH = "patched_patch"; //最后一次合成成功的补丁
     public static final String KEY_LOADED_PATCH = "loaded_patch"; //最后一次加载成功的补丁
+    public static final String KEY_STAGE = "stage";
 
     public static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(NAME, Context.MODE_PRIVATE);
