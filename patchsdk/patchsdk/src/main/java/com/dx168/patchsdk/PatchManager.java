@@ -63,8 +63,9 @@ public final class PatchManager {
     private List<Listener> listeners = new ArrayList<>();
     private String versionDirPath;
     private AppInfo appInfo;
+    private boolean isJiagu;
 
-    public void init(Context context, String baseUrl, String appId, String appSecret) {
+    public void init(Context context, String baseUrl, String appId, String appSecret, boolean isJiagu) {
         this.context = context;
         if (!PatchUtils.isMainProcess(context)) {
             return;
@@ -110,6 +111,7 @@ public final class PatchManager {
             }
             editor.commit();
         }
+        this.isJiagu = isJiagu;
     }
 
     public void register(Listener listener) {
@@ -216,7 +218,8 @@ public final class PatchManager {
                                     for (File patch : versionDir.listFiles()) {
                                         String patchName = getPatchName(patchInfo.getData());
                                         if (TextUtils.equals(patch.getName(), patchName)) {
-                                            if (!checkPatch(patch, patchInfo.getData().getHash())) {
+                                            String downloadPatchHash = isJiagu ? patchInfo.getData().getHashJiagu() : patchInfo.getData().getHash();
+                                            if (!checkPatch(patch, downloadPatchHash)) {
                                                 Log.e(TAG, "cache patch's hash is wrong");
                                                 for (Listener listener : listeners) {
                                                     listener.onDownloadFailure(new Exception("cache patch's hash is wrong"));
@@ -244,11 +247,13 @@ public final class PatchManager {
     }
 
     private void downloadAndPatch(final String newPatchPath, final PatchInfo patchInfo) {
+        String downloadUrl = isJiagu ? patchInfo.getData().getDownloadUrlJiagu() : patchInfo.getData().getDownloadUrl();
         PatchServer.get()
-                .downloadPatch(patchInfo.getData().getDownloadUrl(), new PatchServer.PatchServerCallback() {
+                .downloadPatch(downloadUrl, new PatchServer.PatchServerCallback() {
                     @Override
                     public void onSuccess(int code, byte[] bytes) {
-                        if (!checkPatch(bytes, patchInfo.getData().getHash())) {
+                        String downloadPatchHash = isJiagu ? patchInfo.getData().getHashJiagu() : patchInfo.getData().getHash();
+                        if (!checkPatch(bytes, downloadPatchHash)) {
                             Log.e(TAG, "downloaded patch's hash is wrong: " + new String(bytes));
 
                             for (Listener listener : listeners) {

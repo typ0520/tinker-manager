@@ -197,6 +197,8 @@ public class PatchUtils {
                 data.setDownloadUrl(dataJSONObject.optString("downloadUrl"));
                 data.setPatchSize(dataJSONObject.optLong("patchSize"));
                 data.setHash(dataJSONObject.optString("hash"));
+                data.setHashJiagu(dataJSONObject.optString("hashJiagu"));
+                data.setDownloadUrlJiagu(dataJSONObject.optString("downloadUrlJiagu"));
                 patchInfo.setData(data);
             }
             return patchInfo;
