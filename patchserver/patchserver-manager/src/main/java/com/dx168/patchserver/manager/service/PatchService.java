@@ -137,7 +137,7 @@ public class PatchService {
             patchInfo.setStoragePath(patchFile.getAbsolutePath());
             patchInfo.setDownloadUrl(getDownloadUrl(patchStaticUrl,childPath + patchFile.getName()));
             if (patchFileJiagu != null) {
-                patchInfo.setFileHash(fileHashJiagu);
+                patchInfo.setFileHashJiagu(fileHashJiagu);
                 patchInfo.setPatchSizeJiagu(patchFileJiagu.length());
                 patchInfo.setDownloadUrlJiagu(getDownloadUrl(patchStaticUrl,childPath + patchFileJiagu.getName()));
             }
