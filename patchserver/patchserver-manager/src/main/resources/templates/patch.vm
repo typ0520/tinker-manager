@@ -114,9 +114,19 @@
         <div class="container-fluid">
             <table class="table table-bordered">
                 <tr>
-                    <td>应用名称: $!restR.data.appInfo.appname
-                        #if($restR.data.appInfo.packageName)
-                            ($restR.data.appInfo.packageName)
+                    <td>
+                        #if($restR.data.patchInfo.downloadUrlJiagu)
+                                <font color="red">
+                                    应用名称: $!restR.data.appInfo.appname
+                                    #if($restR.data.appInfo.packageName)
+                                        ($restR.data.appInfo.packageName)
+                                    #end
+                                </font>
+                            #else
+                                应用名称: $!restR.data.appInfo.appname
+                                #if($restR.data.appInfo.packageName)
+                                    ($restR.data.appInfo.packageName)
+                                #end
                         #end
                     </td>
                     <td>应用版本: $!restR.data.versionInfo.versionName</td>

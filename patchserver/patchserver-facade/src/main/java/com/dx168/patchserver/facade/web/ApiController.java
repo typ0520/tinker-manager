@@ -119,6 +119,9 @@ public class ApiController {
                 PatchInfoDto patchInfoDto = new PatchInfoDto();
                 BeanUtils.copyProperties(resultInfo,patchInfoDto);
                 patchInfoDto.setHash(DigestUtils.md5DigestAsHex((appUid + "_" + appInfo.getSecret() + "_" + resultInfo.getFileHash()).getBytes()));
+                if (!StringUtils.isEmpty(patchInfoDto.getDownloadUrlJiagu())) {
+                    patchInfoDto.setHashJiagu(DigestUtils.md5DigestAsHex((appUid + "_" + appInfo.getSecret() + "_" + resultInfo.getFileHashJiagu()).getBytes()));
+                }
                 patchInfoDto.setCreatedTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(resultInfo.getCreatedAt()));
                 restR.setData(patchInfoDto);
             }
