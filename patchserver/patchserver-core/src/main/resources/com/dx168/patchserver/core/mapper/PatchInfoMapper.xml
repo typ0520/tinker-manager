@@ -31,8 +31,11 @@
         <result column="publish_type" property="publishType" />
         <result column="storage_path" property="storagePath" />
         <result column="patch_size" property="patchSize" />
+        <result column="patch_size_jiagu" property="patchSizeJiagu" />
         <result column="file_hash" property="fileHash" />
+        <result column="file_hash_jiagu" property="fileHashJiagu" />
         <result column="download_url" property="downloadUrl" />
+        <result column="download_url_jiagu" property="downloadUrlJiagu" />
         <result column="apply_success_size" property="applySuccessSize" />
         <result column="apply_size" property="applySize" />
         <result column="created_at" property="createdAt" />
@@ -44,7 +47,7 @@
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
         insert into t_patch_info (
-         user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
+         user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,patch_size_jiagu,file_hash,file_hash_jiagu,description,download_url,download_url_jiagu,apply_success_size,apply_size, created_at, updated_at
         )
         values (
         #{userId,jdbcType=INTEGER},
@@ -58,9 +61,12 @@
         #{tags,jdbcType=VARCHAR},
         #{storagePath,jdbcType=VARCHAR},
         #{patchSize,jdbcType=BIGINT},
+        #{patchSizeJiagu,jdbcType=BIGINT},
         #{fileHash,jdbcType=VARCHAR},
+        #{fileHashJiagu,jdbcType=VARCHAR},
         #{description,jdbcType=VARCHAR},
         #{downloadUrl,jdbcType=VARCHAR},
+        #{downloadUrlJiagu,jdbcType=VARCHAR},
         #{applySuccessSize,jdbcType=INTEGER},
         #{applySize,jdbcType=INTEGER},
         #{createdAt,jdbcType=TIMESTAMP},
@@ -69,25 +75,25 @@
     </insert>
 
     <select id="findByUidAndVersionName" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,patch_size_jiagu,file_hash,file_hash_jiagu,description,download_url,download_url_jiagu,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where app_uid = #{appUid} and version_name = #{versionName}
     </select>
 
     <select id="findById" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,patch_size_jiagu,file_hash,file_hash_jiagu,description,download_url,download_url_jiagu,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where id = #{id}
     </select>
 
     <select id="findByUid" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,patch_size_jiagu,file_hash,file_hash_jiagu,description,download_url,download_url_jiagu,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where uid = #{uid}
     </select>
 
     <select id="findByIdAndAppUid" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,patch_size_jiagu,file_hash,file_hash_jiagu,description,download_url,download_url_jiagu,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where id = #{id} and app_uid = #{appUid}
     </select>
