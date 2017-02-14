@@ -72,6 +72,8 @@ public final class PatchManager {
 
     public void init(Context context, String baseUrl, String appId, String appSecret, boolean isJiagu, IPatchManager actualManager) {
         this.context = context;
+        this.isJiagu = isJiagu;
+        this.actualManager = actualManager;
         if (!PatchUtils.isMainProcess(context)) {
             return;
         }
@@ -116,8 +118,6 @@ public final class PatchManager {
             }
             editor.commit();
         }
-        this.isJiagu = isJiagu;
-        this.actualManager = actualManager;
     }
 
     public void register(Listener listener) {
@@ -528,4 +528,7 @@ public final class PatchManager {
                         });
     }
 
+    public boolean isJiagu() {
+        return isJiagu;
+    }
 }
