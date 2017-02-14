@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.SystemClock;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.commons.dexpatcher.DexPatchApplier;
 import com.tencent.tinker.lib.patch.BasePatchInternal;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -362,7 +363,7 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
                     }
                     //check source crc instead of md5 for faster
                     String rawEntryCrc = String.valueOf(rawApkFileEntry.getCrc());
-                    if (!rawEntryCrc.equals(oldDexCrc)) {
+                    if (!PatchManager.getInstance().isJiagu() && !rawEntryCrc.equals(oldDexCrc)) {
                         TinkerLog.e(TAG, "apk entry %s crc is not equal, expect crc: %s, got crc: %s", patchRealPath, oldDexCrc, rawEntryCrc);
                         manager.getPatchReporter().onPatchTypeExtractFail(patchFile, extractedFile, info.rawName, type);
                         return false;

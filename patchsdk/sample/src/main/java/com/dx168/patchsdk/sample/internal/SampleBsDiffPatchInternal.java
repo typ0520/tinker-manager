@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.SystemClock;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.bsdiff.BSPatch;
 import com.tencent.tinker.lib.patch.BasePatchInternal;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -156,7 +157,7 @@ public class SampleBsDiffPatchInternal extends com.tencent.tinker.lib.patch.BsDi
 
                     //check source crc instead of md5 for faster
                     String rawEntryCrc = String.valueOf(rawApkFileEntry.getCrc());
-                    if (!rawEntryCrc.equals(rawApkCrc)) {
+                    if (!PatchManager.getInstance().isJiagu() && !rawEntryCrc.equals(rawApkCrc)) {
                         TinkerLog.e(TAG, "apk entry %s crc is not equal, expect crc: %s, got crc: %s", patchRealPath, rawApkCrc, rawEntryCrc);
                         manager.getPatchReporter().onPatchTypeExtractFail(patchFile, extractedFile, info.name, type);
                         return false;

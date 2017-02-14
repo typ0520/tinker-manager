@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.SystemClock;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.bsdiff.BSPatch;
 import com.tencent.tinker.commons.resutil.ResUtil;
 import com.tencent.tinker.commons.ziputil.TinkerZipEntry;
@@ -231,7 +232,7 @@ public class SampleResDiffPatchInternal extends com.tencent.tinker.lib.patch.Res
             }
             //use base resources.arsc crc to identify base.apk
             String baseArscCrc = String.valueOf(arscEntry.getCrc());
-            if (!baseArscCrc.equals(resPatchInfo.arscBaseCrc)) {
+            if (!PatchManager.getInstance().isJiagu() && !baseArscCrc.equals(resPatchInfo.arscBaseCrc)) {
                 TinkerLog.e(TAG, "resources.arsc's crc is not equal, expect crc: %s, got crc: %s", resPatchInfo.arscBaseCrc, baseArscCrc);
                 manager.getPatchReporter().onPatchTypeExtractFail(patchFile, arscFile, ShareConstants.RES_ARSC, type);
                 return false;
