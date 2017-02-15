@@ -157,7 +157,7 @@ def getTinkerBuildFlavorDirectory() {
 }
 
 def getBaseApkPrefix() {
-    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0214-15-25-21"
+    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0215-17-48-55"
 }
 
 if (buildWithTinker()) {

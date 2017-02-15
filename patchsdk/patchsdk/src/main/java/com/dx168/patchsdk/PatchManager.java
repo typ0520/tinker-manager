@@ -37,7 +37,7 @@ public final class PatchManager {
 
     private static final String TAG = "patchsdk.PatchManager";
 
-    public static final String FULL_PATCH_NAME = "patch.apk";
+    public static final String JIAGU_PATCH_NAME = "patch.apk";
 
     private static final String DEBUG_ACTION_PATCH_RESULT = "com.dx168.patchtool.PATCH_RESULT";
     private static final String DEBUG_ACTION_LOAD_RESULT = "com.dx168.patchtool.LOAD_RESULT";
@@ -373,7 +373,7 @@ public final class PatchManager {
      */
     public void onPatchSuccess(String patchPath) {
         SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
-        if (patchPath.endsWith("/" + FULL_PATCH_NAME)) {
+        if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
         SPUtils.put(context, KEY_PATCHED_PATCH, patchPath);
@@ -395,7 +395,7 @@ public final class PatchManager {
      */
     public void onPatchFailure(String patchPath) {
         SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
-        if (patchPath.endsWith("/" + FULL_PATCH_NAME)) {
+        if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
         if (PatchUtils.isDebugPatch(patchPath)) {
