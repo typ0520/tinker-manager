@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static com.dx168.patchsdk.PatchManager.FULL_PATCH_NAME;
+import static com.dx168.patchsdk.PatchManager.JIAGU_PATCH_NAME;
 
 /**
  * Created by jianjun.lin on 2016/10/27.
@@ -83,7 +83,7 @@ public class PatchUtils {
                 return patchPath;
             }
             String dir = patchPath.substring(0, patchPath.length() - 4);
-            patchPath = dir + "/" + FULL_PATCH_NAME;
+            patchPath = dir + "/" + JIAGU_PATCH_NAME;
             if (new File(dir).exists()) {
                 return patchPath;
             }
@@ -95,7 +95,7 @@ public class PatchUtils {
                     FileUtils.copyFile(zipFile.getInputStream(zipEntry), dir + "/dex/" + name);
                 }
             }
-            FileUtils.copyFile(zipFile.getInputStream(zipFile.getEntry(FULL_PATCH_NAME)), patchPath);
+            FileUtils.copyFile(zipFile.getInputStream(zipFile.getEntry(JIAGU_PATCH_NAME)), patchPath);
             return patchPath;
         } catch (IOException e) {
             e.printStackTrace();

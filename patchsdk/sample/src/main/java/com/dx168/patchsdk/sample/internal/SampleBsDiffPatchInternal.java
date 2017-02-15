@@ -157,7 +157,7 @@ public class SampleBsDiffPatchInternal extends com.tencent.tinker.lib.patch.BsDi
 
                     //check source crc instead of md5 for faster
                     String rawEntryCrc = String.valueOf(rawApkFileEntry.getCrc());
-                    if (!PatchManager.getInstance().isJiagu() && !rawEntryCrc.equals(rawApkCrc)) {
+                    if (!rawEntryCrc.equals(rawApkCrc)) {
                         TinkerLog.e(TAG, "apk entry %s crc is not equal, expect crc: %s, got crc: %s", patchRealPath, rawApkCrc, rawEntryCrc);
                         manager.getPatchReporter().onPatchTypeExtractFail(patchFile, extractedFile, info.name, type);
                         return false;

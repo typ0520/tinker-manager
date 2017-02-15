@@ -284,15 +284,14 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
 
                 //check file whether already exist
                 if (extractedFile.exists()) {
-                    continue;
-//                    if (SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
-//                        //it is ok, just continue
-//                        TinkerLog.w(TAG, "dex file %s is already exist, and md5 match, just continue", extractedFile.getPath());
-//                        continue;
-//                    } else {
-//                        TinkerLog.w(TAG, "have a mismatch corrupted dex " + extractedFile.getPath());
-//                        extractedFile.delete();
-//                    }
+                    if (PatchManager.getInstance().isJiagu() || SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
+                        //it is ok, just continue
+                        TinkerLog.w(TAG, "dex file %s is already exist, and md5 match, just continue", extractedFile.getPath());
+                        continue;
+                    } else {
+                        TinkerLog.w(TAG, "have a mismatch corrupted dex " + extractedFile.getPath());
+                        extractedFile.delete();
+                    }
                 } else {
                     extractedFile.getParentFile().mkdirs();
                 }
@@ -363,7 +362,7 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
                     }
                     //check source crc instead of md5 for faster
                     String rawEntryCrc = String.valueOf(rawApkFileEntry.getCrc());
-                    if (!PatchManager.getInstance().isJiagu() && !rawEntryCrc.equals(oldDexCrc)) {
+                    if (!rawEntryCrc.equals(oldDexCrc)) {
                         TinkerLog.e(TAG, "apk entry %s crc is not equal, expect crc: %s, got crc: %s", patchRealPath, oldDexCrc, rawEntryCrc);
                         manager.getPatchReporter().onPatchTypeExtractFail(patchFile, extractedFile, info.rawName, type);
                         return false;
