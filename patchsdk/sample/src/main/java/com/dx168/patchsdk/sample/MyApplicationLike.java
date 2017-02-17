@@ -36,7 +36,7 @@ public class MyApplicationLike extends SampleApplicationLike {
         super.onCreate();
         String appId = "20170112162040035-6936";
         String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
-        PatchManager.getInstance().init(getApplication(), "http://hotfix.dx168.com/hotfix-apis/", appId, appSecret, true, new IPatchManager() {
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret, new IPatchManager() {
             @Override
             public void patch(Context context, String path) {
                 TinkerInstaller.onReceiveUpgradePatch(context, path);
