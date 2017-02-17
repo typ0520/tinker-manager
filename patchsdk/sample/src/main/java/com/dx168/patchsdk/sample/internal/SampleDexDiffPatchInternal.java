@@ -284,7 +284,7 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
 
                 //check file whether already exist
                 if (extractedFile.exists()) {
-                    if (PatchManager.getInstance().isJiagu() || SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
+                    if (SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
                         //it is ok, just continue
                         TinkerLog.w(TAG, "dex file %s is already exist, and md5 match, just continue", extractedFile.getPath());
                         continue;
