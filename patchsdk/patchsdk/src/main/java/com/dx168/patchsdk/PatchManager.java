@@ -75,6 +75,7 @@ public final class PatchManager {
         if (!PatchUtils.isMainProcess(context)) {
             return;
         }
+        SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         appInfo = new AppInfo();
         appInfo.setAppId(appId);
         appInfo.setAppSecret(appSecret);
