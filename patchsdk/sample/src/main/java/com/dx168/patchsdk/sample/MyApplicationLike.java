@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.dx168.patchsdk.ActualPatchManager;
+import com.dx168.patchsdk.IPatchManager;
 import com.dx168.patchsdk.Listener;
 import com.dx168.patchsdk.PatchManager;
 import com.dx168.patchsdk.sample.tinker.SampleApplicationLike;
@@ -36,15 +36,15 @@ public class MyApplicationLike extends SampleApplicationLike {
         super.onCreate();
         String appId = "20170112162040035-6936";
         String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
-        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret, new ActualPatchManager() {
+        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret, new IPatchManager() {
             @Override
-            public void cleanPatch(Context context) {
-                TinkerInstaller.cleanPatch(context);
+            public void patch(Context context, String path) {
+                TinkerInstaller.onReceiveUpgradePatch(context, path);
             }
 
             @Override
-            public void patch(Context context, String patchPath) {
-                TinkerInstaller.onReceiveUpgradePatch(context, patchPath);
+            public void cleanPatch(Context context) {
+                TinkerInstaller.cleanPatch(context);
             }
         });
         PatchManager.getInstance().register(new Listener() {
