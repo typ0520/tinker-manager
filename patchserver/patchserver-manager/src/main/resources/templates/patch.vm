@@ -114,19 +114,37 @@
         <div class="container-fluid">
             <table class="table table-bordered">
                 <tr>
-                    <td>应用名称: $!restR.data.appInfo.appname
+                    <td>
+                        应用名称: $!restR.data.appInfo.appname
                         #if($restR.data.appInfo.packageName)
                             ($restR.data.appInfo.packageName)
                         #end
                     </td>
-                    <td>应用版本: $!restR.data.versionInfo.versionName</td>
-                    <td>补丁版本: $!restR.data.patchInfo.patchVersion</td>
+                    <td>应用版本: $!restR.data.versionInfo.versionName
+                        #if($restR.data.patchInfo.downloadUrlJiagu)
+                            &nbsp;&nbsp;  补丁版本: $!restR.data.patchInfo.patchVersion
+                        #end
+                    </td>
+                    <td>
+
+                        #if($restR.data.patchInfo.downloadUrlJiagu)
+                            补丁文件: $!restR.data.patchInfo.formatPatchSize &nbsp;&nbsp; <a href="$!restR.data.patchInfo.downloadUrl">$!restR.data.patchInfo.fileHash</a>
+                        #else
+                            补丁版本: $!restR.data.patchInfo.patchVersion
+                        #end
+                    </td>
                 </tr>
 
                 <tr>
                     <td>补丁描述: $!restR.data.patchInfo.description</td>
                     <td>上传时间: $!date.format('yyyy-MM-dd HH:mm:ss',$!restR.data.patchInfo.createdAt)</td>
-                    <td>补丁文件: $!restR.data.patchInfo.formatPatchSize &nbsp;&nbsp; $!restR.data.patchInfo.fileHash</td>
+                    <td>
+                        #if($restR.data.patchInfo.downloadUrlJiagu)
+                            加固补丁: $!restR.data.patchInfo.formatPatchSizeJiagu &nbsp;&nbsp; <a href="$!restR.data.patchInfo.downloadUrlJiagu">$!restR.data.patchInfo.fileHashJiagu</a>
+                        #else
+                            补丁文件: $!restR.data.patchInfo.formatPatchSize &nbsp;&nbsp; <a href="$!restR.data.patchInfo.downloadUrl">$!restR.data.patchInfo.fileHash</a>
+                        #end
+                    </td>
                 </tr>
             </table>
 
