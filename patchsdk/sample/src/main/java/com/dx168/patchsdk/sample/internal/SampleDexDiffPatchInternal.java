@@ -1,9 +1,10 @@
-package com.dx168.patchsdk.sample.tinker.internal;
+package com.dx168.patchsdk.sample.internal;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.SystemClock;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.commons.dexpatcher.DexPatchApplier;
 import com.tencent.tinker.lib.patch.BasePatchInternal;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -283,15 +284,14 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
 
                 //check file whether already exist
                 if (extractedFile.exists()) {
-                    continue;
-//                    if (SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
-//                        //it is ok, just continue
-//                        TinkerLog.w(TAG, "dex file %s is already exist, and md5 match, just continue", extractedFile.getPath());
-//                        continue;
-//                    } else {
-//                        TinkerLog.w(TAG, "have a mismatch corrupted dex " + extractedFile.getPath());
-//                        extractedFile.delete();
-//                    }
+                    if (SharePatchFileUtil.verifyDexFileMd5(extractedFile, extractedFileMd5)) {
+                        //it is ok, just continue
+                        TinkerLog.w(TAG, "dex file %s is already exist, and md5 match, just continue", extractedFile.getPath());
+                        continue;
+                    } else {
+                        TinkerLog.w(TAG, "have a mismatch corrupted dex " + extractedFile.getPath());
+                        extractedFile.delete();
+                    }
                 } else {
                     extractedFile.getParentFile().mkdirs();
                 }

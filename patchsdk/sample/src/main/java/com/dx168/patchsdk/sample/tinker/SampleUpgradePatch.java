@@ -3,9 +3,9 @@ package com.dx168.patchsdk.sample.tinker;
 import android.content.Context;
 import android.os.Build;
 
-import com.dx168.patchsdk.sample.tinker.internal.SampleBsDiffPatchInternal;
-import com.dx168.patchsdk.sample.tinker.internal.SampleDexDiffPatchInternal;
-import com.dx168.patchsdk.sample.tinker.internal.SampleResDiffPatchInternal;
+import com.dx168.patchsdk.sample.internal.SampleBsDiffPatchInternal;
+import com.dx168.patchsdk.sample.internal.SampleDexDiffPatchInternal;
+import com.dx168.patchsdk.sample.internal.SampleResDiffPatchInternal;
 import com.tencent.tinker.lib.patch.UpgradePatch;
 import com.tencent.tinker.lib.service.PatchResult;
 import com.tencent.tinker.lib.tinker.Tinker;
@@ -16,8 +16,15 @@ import com.tencent.tinker.loader.shareutil.SharePatchInfo;
 import com.tencent.tinker.loader.shareutil.ShareSecurityCheck;
 import com.tencent.tinker.loader.shareutil.ShareTinkerInternals;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Created by jianjun.lin on 2017/1/13.
@@ -105,6 +112,7 @@ public class SampleUpgradePatch extends UpgradePatch {
                 for (File dexFile : dexFiles) {
                     File dest = new File(patchVersionDirectory + "/" + ShareConstants.DEX_PATH + "/" + dexFile.getName());
                     SharePatchFileUtil.copyFileUsingStream(dexFile, dest);
+                    extractDexToJar(dest);
                 }
             }
         } catch (IOException e) {
@@ -157,6 +165,33 @@ public class SampleUpgradePatch extends UpgradePatch {
 
         TinkerLog.w(TAG, "UpgradePatch tryPatch: done, it is ok");
         return true;
+    }
+
+    private static void extractDexToJar(File dex) throws IOException {
+        FileOutputStream fos = new FileOutputStream(dex + ".jar");
+        InputStream in = new FileInputStream(dex);
+
+        ZipOutputStream zos = null;
+        BufferedInputStream bis = null;
+
+        try {
+            zos = new ZipOutputStream(new
+                    BufferedOutputStream(fos));
+            bis = new BufferedInputStream(in);
+
+            byte[] buffer = new byte[ShareConstants.BUFFER_SIZE];
+            ZipEntry entry = new ZipEntry(ShareConstants.DEX_IN_JAR);
+            zos.putNextEntry(entry);
+            int length = bis.read(buffer);
+            while (length != -1) {
+                zos.write(buffer, 0, length);
+                length = bis.read(buffer);
+            }
+            zos.closeEntry();
+        } finally {
+            SharePatchFileUtil.closeQuietly(bis);
+            SharePatchFileUtil.closeQuietly(zos);
+        }
     }
 
 }

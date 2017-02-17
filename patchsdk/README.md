@@ -63,40 +63,5 @@ public class MyApplicationLike extends TinkerApplicationLike {
 
 ````
 
-- 3. TinkerResultService 通知 PatchManager 补丁合成结果
-
-````
-@Override
-public void onPatchResult(final PatchResult result) {
-	...
-	if (result.isSuccess) {
-		PatchManager.getInstance().onPatchFailure(result.rawPatchFilePath);
-	} else {
-		PatchManager.getInstance().onPatchSuccess(result.rawPatchFilePath);
-	}
-	...
-}
-
-````
-
-- 4. LoadReporter 通知 PatchManager 补丁加载结果
-
-````
-@Override
-public void onLoadResult(File patchDirectory, int loadCode, long cost) {
-    ...
-    switch (loadCode) {
-        case ShareConstants.ERROR_LOAD_OK:
-            PatchManager.getInstance().onLoadSuccess();
-            ...
-            break;
-        default:
-            PatchManager.getInstance().onLoadFailure();
-            break;
-    }
-    ...
-}
-````
-
 ###三、补丁调试工具(patchtool)
 测试未发布的补丁，可以扫描补丁二维码，下载补丁、立即修复、重启应用

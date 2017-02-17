@@ -12,10 +12,10 @@ buildscript {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.tencent.tinker:tinker-android-anno:1.7.7'
     compile 'com.tencent.tinker:tinker-android-lib:1.7.7'
+    compile 'com.android.support:multidex:1.0.1'
     compile project(':patchsdk')
 }
 
@@ -156,7 +156,7 @@ def getTinkerBuildFlavorDirectory() {
 }
 
 def getBaseApkPrefix() {
-    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0120-15-14-27"
+    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0215-17-48-55"
 }
 
 if (buildWithTinker()) {

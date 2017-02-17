@@ -1,9 +1,10 @@
-package com.dx168.patchsdk.sample.tinker.internal;
+package com.dx168.patchsdk.sample.internal;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.SystemClock;
 
+import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.bsdiff.BSPatch;
 import com.tencent.tinker.lib.patch.BasePatchInternal;
 import com.tencent.tinker.lib.tinker.Tinker;
