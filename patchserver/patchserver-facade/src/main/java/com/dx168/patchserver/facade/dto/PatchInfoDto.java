@@ -11,11 +11,9 @@ public class PatchInfoDto {
     private long patchSize;
     private String uid;
     private String hash;
-    private String hashJiagu;
     private String description;
     private String createdTime;
     private String downloadUrl;
-    private String downloadUrlJiagu;
 
     public String getAppUid() {
         return appUid;
@@ -95,21 +93,5 @@ public class PatchInfoDto {
 
     public void setUid(String uid) {
         this.uid = uid;
-    }
-
-    public String getHashJiagu() {
-        return hashJiagu;
-    }
-
-    public void setHashJiagu(String hashJiagu) {
-        this.hashJiagu = hashJiagu;
-    }
-
-    public String getDownloadUrlJiagu() {
-        return downloadUrlJiagu;
-    }
-
-    public void setDownloadUrlJiagu(String downloadUrlJiagu) {
-        this.downloadUrlJiagu = downloadUrlJiagu;
     }
 }

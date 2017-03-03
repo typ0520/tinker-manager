@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.dx168.tinker.jiagu'
 
 buildscript {
     repositories {
