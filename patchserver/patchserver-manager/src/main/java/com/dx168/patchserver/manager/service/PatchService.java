@@ -272,13 +272,14 @@ public class PatchService {
 
     public void deletePatch(PatchInfo patchInfo) {
         patchInfoMapper.deleteById(patchInfo.getId());
-//        File file = new File(patchInfo.getStoragePath());
-//        try {
-//            file.delete();
-//        } catch (Exception e) {
-//
-//        }
-
+        File file = new File(patchInfo.getStoragePath());
+        if (file.exists()) {
+            try {
+                file.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         facadeService.clearCache();
     }
 }
