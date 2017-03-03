@@ -20,7 +20,6 @@ dependencies {
 
 - 2. ApplicationLike
 
-继承 TinkerApplicationLike
 ````
 @SuppressWarnings("unused")
 @DefaultLifeCycle(application = "com.dx168.patchsdk.sample.MyApplication",
@@ -60,7 +59,39 @@ public class MyApplicationLike extends TinkerApplicationLike {
         originalApplication.onCreate();
     }
 }
+````
+- 3. 通知结果
 
+LoadReporter
+````
+@Override
+public void onLoadResult(File patchDirectory, int loadCode, long cost) {
+    super.onLoadResult(patchDirectory, loadCode, cost);
+    switch (loadCode) {
+        case ShareConstants.ERROR_LOAD_OK:
+            PatchManager.getInstance().onLoadSuccess();
+            ...
+            break;
+        default:
+            PatchManager.getInstance().onLoadFailure();
+            break;
+    }
+    ...
+}
+
+````
+TinkerResultService
+````
+@Override
+public void onPatchResult(final PatchResult result) {
+    ...
+    if (result.isSuccess) {
+        PatchManager.getInstance().onPatchSuccess(result.rawPatchFilePath);
+    } else {
+        PatchManager.getInstance().onPatchFailure(result.rawPatchFilePath);
+    }
+    ...
+}
 ````
 
 ###三、补丁调试工具(patchtool)
