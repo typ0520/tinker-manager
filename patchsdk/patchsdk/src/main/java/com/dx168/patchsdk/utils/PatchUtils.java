@@ -3,6 +3,7 @@ package com.dx168.patchsdk.utils;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,8 +34,13 @@ public class PatchUtils {
     private static String processName = null;
 
     public static String getDeviceId(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String deviceId = telephonyManager.getDeviceId();
+        String deviceId;
+        try {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            deviceId = telephonyManager.getDeviceId();
+        } catch (SecurityException e) {
+            deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        }
         return TextUtils.isEmpty(deviceId) ? "" : deviceId;
     }
 
