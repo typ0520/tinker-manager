@@ -4,8 +4,6 @@
 
 [ ![Download](https://api.bintray.com/packages/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/images/download.svg) ](https://bintray.com/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/_latestVersion)
 
-QQ群: 338491549
-
 关于Tinker请移步: https://github.com/Tencent/tinker
 
 [服务器端部署文档](https://github.com/baidao/tinker-manager/tree/master/patchserver).
@@ -20,6 +18,7 @@ server
 v1.0.5 增加对debug工具的支持，在发布前可以先使用提供的debug工具调试，然后在全量发布
 v1.0.6 补全包名时不在检查重复;解决ajax提交表单登录超时报系统异常的问题
 v1.0.7 修复windows部署时路径的问题
+v1.0.8 修复若干bug，如果使用老版本最好更新
 ```
 
 patchsdk
