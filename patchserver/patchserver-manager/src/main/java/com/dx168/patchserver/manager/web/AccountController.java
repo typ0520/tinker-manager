@@ -96,7 +96,7 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/regist",method = RequestMethod.POST)
-    public ModelAndView regist(HttpServletRequest req,String redirect,String username, String password) {
+    public ModelAndView regist(HttpServletRequest req,HttpServletResponse res,String redirect,String username, String password) {
         try {
             if (!openRegist) {
                 throw new BizException("暂不接受注册");
@@ -111,7 +111,11 @@ public class AccountController {
             basicUser.setUsername(username);
             basicUser.setPassword(password);
             accountService.save(basicUser);
-            req.getSession().setAttribute(Constants.SESSION_LOGIN_USER,basicUser);
+
+            req.getSession().removeAttribute(Constants.SESSION_LOGIN_USER);
+            CookieUtil.addCookie(res, Constants.COOKIE_LOGINNAME, null, 0); // 清除Cookie
+            CookieUtil.addCookie(res, Constants.COOKIE_LOGINPWD, null, 0); // 清除Cookie
+            //req.getSession().setAttribute(Constants.SESSION_LOGIN_USER,basicUser);
             return new ModelAndView("redirect:/");
         } catch (BizException e) {
             return new ModelAndView("redirect:/regist?redirect=" + redirect + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));

@@ -1,7 +1,6 @@
 package com.dx168.patchserver.manager.service;
 
 import com.dx168.patchserver.core.domain.Tester;
-import com.dx168.patchserver.core.utils.StreamUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Created by tong on 16/10/25.
@@ -74,58 +71,13 @@ public class PatchService {
         try {
             String fileHash = DigestUtils.md5DigestAsHex(multipartFile.getBytes());
             File path = new File(new File(fileStoragePath), childPath);
-            File tmpPatchFile = new File(path,fileHash + "_patch.tmp.zip");
-            File patchFile = null;
-
-            String fileHashJiagu = fileHash;
-            File patchFileJiagu = null;
+            File patchFile = new File(path,fileHash + "_patch.zip");
 
             if (!path.exists() && !path.mkdirs()) {
                 throw new BizException("文件目录创建失败");
             }
-            multipartFile.transferTo(tmpPatchFile);
-            ZipFile zipFile = new ZipFile(tmpPatchFile);
-            //判断是否是支持加固的包
-            ZipEntry entry = zipFile.getEntry("FULL_PATCH");
-            if (entry == null) {
-                patchFile = new File(path,fileHash + "_patch.zip");
-                if (!tmpPatchFile.renameTo(patchFile)) {
-                    if (tmpPatchFile.exists()) {
-                        tmpPatchFile.delete();
-                    }
-                    throw new BizException("补丁文件保存失败");
-                }
-            }
-            else {
-                //提取patch.zip
-                entry = zipFile.getEntry("patch.apk");
-                if (entry == null) {
-                    throw new BizException("无效的补丁");
-                }
-                InputStream inputStream = null;
-                try {
-                    inputStream = zipFile.getInputStream(entry);
-                    byte[] bytes = StreamUtil.readStream(inputStream);
-                    fileHash = DigestUtils.md5DigestAsHex(bytes);
-                    patchFile = new File(path,fileHash + "_patch.zip");
-                    StreamUtil.writeTo(bytes,patchFile);
+            multipartFile.transferTo(patchFile);
 
-                    patchFileJiagu = new File(path,fileHashJiagu + "_patch_jiagu.zip");
-
-                    if (!tmpPatchFile.renameTo(patchFileJiagu)) {
-                        if (tmpPatchFile.exists()) {
-                            tmpPatchFile.delete();
-                        }
-                        throw new BizException("补丁文件保存失败");
-                    }
-                } finally {
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                }
-            }
-
-            zipFile.close();
             patchInfo.setUserId(appInfo.getUserId());
             patchInfo.setAppUid(appInfo.getUid());
             patchInfo.setUid(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -136,11 +88,6 @@ public class PatchService {
             patchInfo.setDescription(description);
             patchInfo.setStoragePath(patchFile.getAbsolutePath());
             patchInfo.setDownloadUrl(getDownloadUrl(patchStaticUrl,childPath + patchFile.getName()));
-            if (patchFileJiagu != null) {
-                patchInfo.setFileHashJiagu(fileHashJiagu);
-                patchInfo.setPatchSizeJiagu(patchFileJiagu.length());
-                patchInfo.setDownloadUrlJiagu(getDownloadUrl(patchStaticUrl,childPath + patchFileJiagu.getName()));
-            }
             patchInfo.setCreatedAt(new Date());
             patchInfo.setUpdatedAt(new Date());
 
@@ -272,13 +219,14 @@ public class PatchService {
 
     public void deletePatch(PatchInfo patchInfo) {
         patchInfoMapper.deleteById(patchInfo.getId());
-//        File file = new File(patchInfo.getStoragePath());
-//        try {
-//            file.delete();
-//        } catch (Exception e) {
-//
-//        }
-
+        File file = new File(patchInfo.getStoragePath());
+        if (file.exists()) {
+            try {
+                file.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         facadeService.clearCache();
     }
 }
