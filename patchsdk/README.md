@@ -94,5 +94,13 @@ public void onPatchResult(final PatchResult result) {
 }
 ````
 
+- 4. 记得注册TinkerResultService
+````
+<service
+    android:name=".tinker.SampleResultService"
+    android:exported="false"/>
+
+````
+
 ###三、补丁调试工具(patchtool)
 测试未发布的补丁，可以扫描补丁二维码，下载补丁、立即修复、重启应用
