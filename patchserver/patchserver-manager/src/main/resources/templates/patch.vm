@@ -121,17 +121,13 @@
                         #end
                     </td>
                     <td>应用版本: $!restR.data.versionInfo.versionName
-                        #if($restR.data.patchInfo.downloadUrlJiagu)
-                            &nbsp;&nbsp;  补丁版本: $!restR.data.patchInfo.patchVersion
-                        #end
                     </td>
                     <td>
+                        补丁版本: $!restR.data.patchInfo.patchVersion
+                    </td>
 
-                        #if($restR.data.patchInfo.downloadUrlJiagu)
-                            补丁文件: $!restR.data.patchInfo.formatPatchSize &nbsp;&nbsp; <a href="$!restR.data.patchInfo.downloadUrl">$!restR.data.patchInfo.fileHash</a>
-                        #else
-                            补丁版本: $!restR.data.patchInfo.patchVersion
-                        #end
+                    <td>
+                        补丁UID: $!restR.data.patchInfo.uid
                     </td>
                 </tr>
 
@@ -139,11 +135,11 @@
                     <td>补丁描述: $!restR.data.patchInfo.description</td>
                     <td>上传时间: $!date.format('yyyy-MM-dd HH:mm:ss',$!restR.data.patchInfo.createdAt)</td>
                     <td>
-                        #if($restR.data.patchInfo.downloadUrlJiagu)
-                            加固补丁: $!restR.data.patchInfo.formatPatchSizeJiagu &nbsp;&nbsp; <a href="$!restR.data.patchInfo.downloadUrlJiagu">$!restR.data.patchInfo.fileHashJiagu</a>
-                        #else
-                            补丁文件: $!restR.data.patchInfo.formatPatchSize &nbsp;&nbsp; <a href="$!restR.data.patchInfo.downloadUrl">$!restR.data.patchInfo.fileHash</a>
-                        #end
+                        补丁文件: $!restR.data.patchInfo.formatPatchSize
+                    </td>
+
+                    <td>
+                        补丁MD5: <a href="$!restR.data.patchInfo.downloadUrl">$!restR.data.patchInfo.fileHash</a>
                     </td>
                 </tr>
             </table>
