@@ -41,6 +41,8 @@ v1.0.1 优化流程，增加自动更新的功能
 [sdk下载](https://bintray.com/typ0520/maven/com.dx168.patchsdk%3Apatchsdk/_latestVersion).
 [debug工具下载](http://fir.im/tpks).
 
+QQ群: 338491549
+
 ## 后台效果
 ![补丁详情](http://img1.ph.126.net/pofzmHW665Kku85cT_nsTA==/6631721975120842573.png "Title")
 ![上传补丁](http://img1.ph.126.net/GJmvB7Oc4xQFTIOhXdBq8Q==/6631515266934546508.png "Title")
