@@ -136,9 +136,14 @@ querydsl/
 ..gradletasknamecache
 fmall-web
 
+
 war/1.0.4/hotfix-console.war
 war/1.0.4/hotfix-apis.war
+war/1.0.3/hotfix-apis.war
 war/1.0.1/hotfix-console.war
+war/1.0.1/hotfix-apis.war
+war/1.0.0/tm-facade.war
+
 
 
 
