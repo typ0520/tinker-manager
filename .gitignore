@@ -135,6 +135,7 @@ querydsl/
 .svn
 ..gradletasknamecache
 fmall-web
+
 war/1.0.4/hotfix-console.war
 war/1.0.4/hotfix-apis.war
 war/1.0.1/hotfix-console.war
