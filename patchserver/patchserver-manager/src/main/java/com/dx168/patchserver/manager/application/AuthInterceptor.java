@@ -16,7 +16,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) throws Exception {
         String uri = req.getRequestURI().replaceFirst(req.getContextPath(), "");
-        boolean isNeedFilter = HttpRequestUtils.isInclude(uri,"/app/**","/patch/**","/version/**","/tester/**","/modelblacklist/**","/channel/**");
+        boolean isNeedFilter = HttpRequestUtils.isInclude(uri,"/app/**","/patch/**","/version/**","/tester/**","/modelblacklist/**","/channel/**","/full_update/**");
 
         if (!isNeedFilter) {
             return true;

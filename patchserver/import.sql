@@ -7,6 +7,9 @@ alter table t_patch_info add `apply_size` int COMMENT '被应用次数'
 
 v1.0.5
 alter table t_app_info add `package_name` varchar(64) DEFAULT NULL COMMENT 'android的包名 iOS的bundle_id'
+
+v1.0.0
+增加t_update_info表
 */
 
 /*用户表*/
@@ -124,4 +127,24 @@ CREATE TABLE `t_channel` (
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
   FOREIGN KEY(user_id) REFERENCES t_user(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*全量更新信息*/
+CREATE TABLE `t_full_update_info` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `app_uid` varchar(64) NOT NULL COMMENT '应用id',
+  `latest_version` varchar(32) NOT NULL COMMENT '最新版本的versionName',
+  `title` varchar(32) DEFAULT NULL COMMENT '弹出更新提示的标题',
+  `description` varchar(32) NOT NULL COMMENT '更新说明',
+  `lowest_support_version` varchar(32) DEFAULT NULL COMMENT '低于这个版本的都强制更新',
+  `default_url` varchar(256) NOT NULL COMMENT '默认的下载地址(没有传渠道号)',
+  `channel_url` varchar(256) NOT NULL COMMENT '渠道下载地址',
+  `file_size` varchar(32) DEFAULT NULL COMMENT '文件大小',
+  `network_type` varchar(32) DEFAULT NULL COMMENT '2G|3G|4G|WIFI',
+  `status` int COMMENT '当前状态  0暂停 1已开启',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY(app_uid) REFERENCES t_app_info(uid),
+  UNIQUE KEY `APP_UID` (`app_uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

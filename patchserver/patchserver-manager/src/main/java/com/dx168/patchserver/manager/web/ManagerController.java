@@ -44,6 +44,9 @@ public class ManagerController {
     @Autowired
     private ChannelService channelService;
 
+    @Autowired
+    private FullUpdateService fullUpdateService;
+
     @Value("${spring.http.multipart.max-file-size}")
     private String maxPatchSize;
 
@@ -532,5 +535,59 @@ public class ManagerController {
             restR.setMessage(e.getMessage());
         }
         return restR;
+    }
+
+    @RequestMapping(value = "/full_update",method = RequestMethod.GET)
+    public ModelAndView full_update(HttpServletRequest req,String msg,String appUid,String optSuccess) {
+        RestResponse restR = new RestResponse();
+        BizAssert.notEpmty(appUid,"应用编号不能为空");
+
+        AppInfo appInfo = appService.findByUid(appUid);
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        FullUpdateInfo fullUpdateInfo = fullUpdateService.findByAppUid(appUid);
+
+        if (!StringUtils.isBlank(msg)) {
+            restR.setMessage(HttpRequestUtils.urlDecode(msg));
+        }
+        restR.getData().put("appInfo",appInfo);
+        restR.getData().put("user",basicUser);
+        restR.getData().put("fullUpdateInfo",fullUpdateInfo);
+
+        if (!StringUtils.isBlank(optSuccess)) {
+            restR.getData().put("optSuccess",optSuccess);
+        }
+        return new ModelAndView("full_update","restR",restR);
+    }
+
+    @RequestMapping(value = "/full_update",method = RequestMethod.POST)
+    public ModelAndView full_update(FullUpdateInfo fullUpdateInfo) {
+        try {
+            BizAssert.notEpmty(fullUpdateInfo.getAppUid(),"应用编号不能为空");
+            BizAssert.notEpmty(fullUpdateInfo.getLatestVersion(),"最新版本不能为空");
+            BizAssert.notEpmty(fullUpdateInfo.getDescription(),"更新说明不能为空");
+            BizAssert.notEpmty(fullUpdateInfo.getDefaultUrl(),"默认下载地址不能为空");
+            BizAssert.notEpmty(fullUpdateInfo.getLatestVersion(),"渠道包下载地址不能为空");
+
+            if (fullUpdateInfo.getStatus() != 0 && fullUpdateInfo.getStatus() != 1) {
+                throw new BizException("status == 0|1");
+            }
+
+            if (!fullUpdateInfo.getDefaultUrl().startsWith("http")) {
+                throw new BizException("下载地址必须以http开头");
+            }
+            if (!fullUpdateInfo.getChannelUrl().startsWith("http")) {
+                throw new BizException("下载地址必须以http开头");
+            }
+
+//            if (!StringUtils.isBlank(fullUpdateInfo.getLowestSupportVersion())) {
+//                if (fullUpdateInfo.getLowestSupportVersion().compareTo(fullUpdateInfo.getLatestVersion() > 0)) {
+//                    throw new BizException("最低支持版本不能比最新版本号还高");
+//                }
+//            }
+            fullUpdateService.saveOrUpdate(fullUpdateInfo);
+            return new ModelAndView("redirect:/full_update?appUid=" + fullUpdateInfo.getAppUid() + "&optSuccess=true");
+        } catch (BizException e) {
+            return new ModelAndView("redirect:/full_update?appUid=" + fullUpdateInfo.getAppUid() + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
+        }
     }
 }
