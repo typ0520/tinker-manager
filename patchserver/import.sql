@@ -91,7 +91,7 @@ CREATE TABLE `t_patch_info` (
 CREATE TABLE `t_tester` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `user_id` int COMMENT '用户id',
-  `app_uid` varchar(64) NOT NULL COMMENT '应用id',
+  `app_uid` varchar(32) NOT NULL COMMENT '应用id',
   `tag` varchar(32) DEFAULT NULL COMMENT '标记值',
   `email` varchar(32) DEFAULT NULL COMMENT '邮箱',
   `description` varchar(32) NOT NULL COMMENT '描述',
@@ -124,4 +124,18 @@ CREATE TABLE `t_channel` (
   `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`),
   FOREIGN KEY(user_id) REFERENCES t_user(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*子账号和应用关联表*/
+CREATE TABLE `t_childuser_app` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `user_id` int COMMENT '用户id',
+  `app_uid` varchar(32) NOT NULL COMMENT 'app的uid',
+  `appname` varchar(32) NOT NULL COMMENT '应用名字(冗余字段)',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY(user_id) REFERENCES t_user(id),
+  FOREIGN KEY(app_uid) REFERENCES t_app_info(uid),
+  UNIQUE KEY `APP_UID` (`app_uid`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

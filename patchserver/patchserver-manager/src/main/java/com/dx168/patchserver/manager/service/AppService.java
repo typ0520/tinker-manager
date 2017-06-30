@@ -1,5 +1,7 @@
 package com.dx168.patchserver.manager.service;
 
+import com.dx168.patchserver.core.domain.ChildUserApp;
+import com.dx168.patchserver.core.mapper.ChildUserAppMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,9 +12,7 @@ import com.dx168.patchserver.core.mapper.AppMapper;
 import com.dx168.patchserver.core.mapper.VersionInfoMapper;
 import com.dx168.patchserver.core.utils.BizException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by tong on 16/10/26.
@@ -27,6 +27,9 @@ public class AppService {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private ChildUserAppMapper childUserAppMapper;
 
     public AppInfo addApp(BasicUser basicUser,String appname,String description,String packageName,String platform) {
         Integer rootUserId = accountService.getRootUserId(basicUser);
@@ -94,5 +97,70 @@ public class AppService {
 //        }
         appInfo.setPackageName(packageName);
         appMapper.updatePackageName(appInfo);
+    }
+
+    public List<ChildUserApp> findAllChildUserAppByUserId(Integer userId) {
+        return childUserAppMapper.findAllByUserId(userId);
+    }
+
+    public List<String> findAllChildUserAppUidsByUserId(Integer userId) {
+        List<ChildUserApp> childUserAppList = childUserAppMapper.findAllByUserId(userId);
+        List<String> appUids = new ArrayList<>();
+        for (ChildUserApp childUserApp : childUserAppList) {
+            appUids.add(childUserApp.getAppUid());
+        }
+        return appUids;
+    }
+
+    public void createChildUserAppMapping(BasicUser rootUser,Integer childUserId,ArrayList<String> appUids) {
+        if (appUids != null) {
+            appUids.remove("");
+        }
+        for (String appUid : appUids) {
+            if (!StringUtils.isBlank(appUid)) {
+                AppInfo appInfo = findByUid(appUid);
+                if (appInfo == null) {
+                    throw new BizException(appUid + " 对应的app信息不存在");
+                }
+                if (appInfo.getUserId() != rootUser.getId()) {
+                    throw new BizException("这个app不属于你: " + appUid);
+                }
+            }
+        }
+
+        List<ChildUserApp> childUserAppList = childUserAppMapper.findAllByUserId(childUserId);
+        //获取删除项
+        final Set<String> deletedNodes = new HashSet<>();
+        for (ChildUserApp childUserApp : childUserAppList) {
+            deletedNodes.add(childUserApp.getAppUid());
+        }
+        deletedNodes.removeAll(appUids);
+
+        //新增项
+        final Set<String> increasedNodes = new HashSet<>();
+        increasedNodes.addAll(appUids);
+        for (ChildUserApp childUserApp : childUserAppList) {
+            increasedNodes.remove(childUserApp.getAppUid());
+        }
+
+        if (!deletedNodes.isEmpty()) {
+            for (String appUid : deletedNodes) {
+                childUserAppMapper.deleteByAppUid(appUid);
+            }
+        }
+
+        if (!increasedNodes.isEmpty()) {
+            for (String appUid : increasedNodes) {
+                AppInfo appInfo = findByUid(appUid);
+
+                ChildUserApp childUserApp = new ChildUserApp();
+                childUserApp.setUserId(childUserId);
+                childUserApp.setAppUid(appUid);
+                childUserApp.setAppname(appInfo.getAppname());
+                childUserApp.setCreatedAt(new Date());
+                childUserApp.setUpdatedAt(childUserApp.getCreatedAt());
+                childUserAppMapper.insert(childUserApp);
+            }
+        }
     }
 }

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -129,6 +128,12 @@
                 <li>
                     <a href="#springUrl('/channel/list')"><i class="fa fa-fw fa-file"></i> 渠道黑名单</a>
                 </li>
+
+                #if($!restR.data.user.childAccount == false)
+                    <li>
+                        <a href="#springUrl('/child_user/list')"><i class="fa fa-fw fa-file"></i>子账号管理</a>
+                    </li>
+                #end
 
                 <div class="bt_l">
                     <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
