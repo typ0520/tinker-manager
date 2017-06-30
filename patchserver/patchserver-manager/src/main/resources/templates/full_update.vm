@@ -214,8 +214,8 @@
             <div class="form-group">
                 <label for="memo" class="col-sm-2 control-label"></label>
                 <div class="col-sm-10">
-                    <p class="form-control-static">渠道包下载url中可以使用channel占位符代表客户端传过来的渠道号</p>
-                    <p class="form-control-static">渠道包下载url中可以使用latestVersion占位符代表配置的最新版本</p>
+                    <p class="form-control-static">下载url中可以使用@{channel}占位符代表客户端传过来的渠道号</p>
+                    <p class="form-control-static">下载url中可以使用@{latestVersion}占位符代表配置的最新版本</p>
                 </div>
             </div>
 

@@ -1,5 +1,6 @@
 package com.dx168.patchserver.core.domain;
 
+import org.springframework.util.StringUtils;
 import java.util.Date;
 
 /**
@@ -7,6 +8,12 @@ import java.util.Date;
  * Created by tong on 17/6/29.
  */
 public class FullUpdateInfo {
+    public static final int STATUS_START = 1;
+    public static final int STATUS_STOP = 0;
+
+    public static final String ENV_VAR_LATEST_VERSION = "@\\{latestVersion\\}";
+    public static final String ENV_VAR_CHANNEL = "@\\{channel\\}";
+
     private Integer id;
     private String appUid;
 
@@ -150,5 +157,16 @@ public class FullUpdateInfo {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public static String formatDownloadUrl(String downloadUrl,String channel,String latestVersion) {
+        if (StringUtils.isEmpty(downloadUrl)) {
+            return downloadUrl;
+        }
+
+        downloadUrl = downloadUrl.replaceAll(FullUpdateInfo.ENV_VAR_CHANNEL,channel);
+        downloadUrl = downloadUrl.replaceAll(FullUpdateInfo.ENV_VAR_LATEST_VERSION,latestVersion);
+
+        return downloadUrl;
     }
 }
