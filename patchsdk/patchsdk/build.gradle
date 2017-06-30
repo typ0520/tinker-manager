@@ -36,11 +36,14 @@ android {
             buildConfigField "String", "SDK_VERSION", "\"${version}\""
         }
     }
+    buildToolsVersion '25.0.0'
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.liulishuo.filedownloader:library:1.5.8'
+    compile 'com.daimajia.numberprogressbar:library:1.4@aar'
 }
 
 def mavenDesc = 'Tinker patch manager'

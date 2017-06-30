@@ -207,6 +207,9 @@ public class PatchUtils {
                 data.setDownloadUrlJiagu(dataJSONObject.optString("downloadUrlJiagu"));
                 patchInfo.setData(data);
             }
+
+            JSONObject extraObj = jsonObject.optJSONObject("extra");
+            patchInfo.setFullUpdateInfo(extraObj);
             return patchInfo;
         } catch (JSONException e) {
             e.printStackTrace();

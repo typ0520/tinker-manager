@@ -20,5 +20,12 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".component.FullUpdateActivity"
+            android:screenOrientation="portrait"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
     </application>
 </manifest>

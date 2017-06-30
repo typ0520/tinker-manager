@@ -1,5 +1,7 @@
 package com.dx168.patchsdk.bean;
 
+import org.json.JSONObject;
+
 /**
  * Created by jianjun.lin on 2016/10/26.
  */
@@ -8,6 +10,7 @@ public class PatchInfo {
     private int code;
     private String message;
     private Data data;
+    private JSONObject fullUpdateInfo;
 
     public int getCode() {
         return code;
@@ -31,6 +34,14 @@ public class PatchInfo {
 
     public void setData(Data data) {
         this.data = data;
+    }
+
+    public JSONObject getFullUpdateInfo() {
+        return fullUpdateInfo;
+    }
+
+    public void setFullUpdateInfo(JSONObject fullUpdateInfo) {
+        this.fullUpdateInfo = fullUpdateInfo;
     }
 
     public static class Data {

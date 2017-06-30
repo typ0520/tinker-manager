@@ -39,6 +39,9 @@ public final class PatchManager {
 
     public static final String JIAGU_PATCH_NAME = "patch.apk";
 
+    private static final int SUCCESS_REPORTED = 1;
+    private static final int FAILURE_REPORTED = 2;
+
     private static final String DEBUG_ACTION_PATCH_RESULT = "com.dx168.patchtool.PATCH_RESULT";
     private static final String DEBUG_ACTION_LOAD_RESULT = "com.dx168.patchtool.LOAD_RESULT";
     private static final String KEY_PACKAGE_NAME = "package_name";
@@ -68,6 +71,7 @@ public final class PatchManager {
     private String versionDirPath;
     private AppInfo appInfo;
     private IPatchManager actualManager;
+    private FullUpdateHandler fullUpdateHandler = new FullUpdateHandler();
 
     public void init(Context context, String baseUrl, String appId, String appSecret, IPatchManager actualManager) {
         this.context = context;
@@ -117,6 +121,10 @@ public final class PatchManager {
             }
             editor.commit();
         }
+    }
+
+    public void setFullUpdateHandler(FullUpdateHandler fullUpdateHandler) {
+        this.fullUpdateHandler = fullUpdateHandler;
     }
 
     public void register(Listener listener) {
@@ -215,6 +223,9 @@ public final class PatchManager {
                                 }
                                 for (Listener listener : listeners) {
                                     listener.onQuerySuccess(patchInfo.toString());
+                                }
+                                if (fullUpdateHandler != null && patchInfo.getFullUpdateInfo() != null) {
+                                    fullUpdateHandler.handlerFullUpdate(patchInfo.getFullUpdateInfo());
                                 }
                                 if (patchInfo.getData() == null) {
                                     File versionDir = new File(versionDirPath);
@@ -494,9 +505,6 @@ public final class PatchManager {
             report(patchPath, false);
         }
     }
-
-    private static final int SUCCESS_REPORTED = 1;
-    private static final int FAILURE_REPORTED = 2;
 
     private void report(String patchPath, final boolean result) {
         final String patchName = appInfo.getVersionName() + "_" + patchPath;

@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.2'
+        classpath 'com.android.tools.build:gradle:2.3.2'
         classpath('com.tencent.tinker:tinker-patch-gradle-plugin:1.7.7')
     }
 }
@@ -35,7 +35,7 @@ def javaVersion = JavaVersion.VERSION_1_7
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion '25.0.0'
 
     compileOptions {
         sourceCompatibility javaVersion
