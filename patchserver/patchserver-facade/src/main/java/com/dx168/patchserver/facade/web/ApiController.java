@@ -79,9 +79,8 @@ public class ApiController {
             if (withFullUpdateInfo) {
                 //查询全量补丁信息
                 FullUpdateInfo fullUpdateInfo = apiService.findFullUpdateInfoByAppUid(appUid);
-                if (fullUpdateInfo != null) {
+                if (fullUpdateInfo != null && fullUpdateInfo.getStatus() == FullUpdateInfo.STATUS_START) {
                     Map<String,Object> extra = new HashMap<>();
-                    extra.put("fullUpdateInfo",fullUpdateInfo);
                     extra.put("needUpdate",versionName.compareTo(fullUpdateInfo.getLatestVersion()) < 0);
                     extra.put("forceUpdate",versionName.compareTo(fullUpdateInfo.getLowestSupportVersion()) < 0);
 
@@ -92,6 +91,11 @@ public class ApiController {
                         extra.put("downloadUrl",FullUpdateInfo.formatDownloadUrl(fullUpdateInfo.getChannelUrl(),channel,fullUpdateInfo.getLatestVersion()));
                     }
 
+                    extra.put("latestVersion",fullUpdateInfo.getLatestVersion());
+                    extra.put("title",fullUpdateInfo.getTitle());
+                    extra.put("description",fullUpdateInfo.getDescription());
+                    extra.put("lowestSupportVersion",fullUpdateInfo.getLowestSupportVersion());
+                    extra.put("updatedAt",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(fullUpdateInfo.getUpdatedAt()));
                     restR.setExtra(extra);
                 }
             }
