@@ -1,6 +1,6 @@
 package com.dx168.patchserver.facade.web;
 
-import com.dx168.patchserver.core.domain.Channel;
+import com.dx168.patchserver.core.domain.*;
 import com.dx168.patchserver.facade.service.RequestStatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +12,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.dx168.patchserver.core.domain.AppInfo;
-import com.dx168.patchserver.core.domain.PatchInfo;
-import com.dx168.patchserver.core.domain.VersionInfo;
 import com.dx168.patchserver.facade.dto.PatchInfoDto;
 import com.dx168.patchserver.core.utils.BizAssert;
 import com.dx168.patchserver.core.utils.BizException;
@@ -22,7 +19,9 @@ import com.dx168.patchserver.facade.common.RestResponse;
 import com.dx168.patchserver.facade.service.ApiService;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -40,21 +39,22 @@ public class ApiController {
 
     /**
      * 获取最新的补丁包信息
-     * @param appUid        app唯一标示
-     * @param token         app的秘钥
-     * @param versionName   应用版本号
-     * @param tag           标记(用于灰度发布)
-     * @param platform      平台(Android|iOS)
-     * @param osVersion     系统的版本号
-     * @param model         手机型号
-     * @param channel       渠道号
-     * @param sdkVersion    sdk版本号
-     * @param deviceId      设备id
+     * @param appUid                app唯一标示
+     * @param token                 app的秘钥
+     * @param versionName           应用版本号
+     * @param tag                   标记(用于灰度发布)
+     * @param platform              平台(Android|iOS)
+     * @param osVersion             系统的版本号
+     * @param model                 手机型号
+     * @param channel               渠道号
+     * @param sdkVersion            sdk版本号
+     * @param deviceId              设备id
+     * @param withFullUpdateInfo    是否带回全量更新信息(patchsdk 1.2.0才支持这个字段)
      * @return
      */
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag,
-                                                 String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId) {
+                                                 String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId,boolean withFullUpdateInfo) {
         requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
@@ -75,6 +75,27 @@ public class ApiController {
             if (versionInfo == null) {
                 throw new BizException("版本信息不正确");
             }
+
+            if (withFullUpdateInfo) {
+                //查询全量补丁信息
+                FullUpdateInfo fullUpdateInfo = apiService.findFullUpdateInfoByAppUid(appUid);
+                if (fullUpdateInfo != null) {
+                    Map<String,Object> extra = new HashMap<>();
+                    extra.put("fullUpdateInfo",fullUpdateInfo);
+                    extra.put("needUpdate",versionName.compareTo(fullUpdateInfo.getLatestVersion()) < 0);
+                    extra.put("forceUpdate",versionName.compareTo(fullUpdateInfo.getLowestSupportVersion()) < 0);
+
+                    if (StringUtils.isEmpty(channel)) {
+                        extra.put("downloadUrl",FullUpdateInfo.formatDownloadUrl(fullUpdateInfo.getDefaultUrl(),channel,fullUpdateInfo.getLatestVersion()));
+                    }
+                    else {
+                        extra.put("downloadUrl",FullUpdateInfo.formatDownloadUrl(fullUpdateInfo.getChannelUrl(),channel,fullUpdateInfo.getLatestVersion()));
+                    }
+
+                    restR.setExtra(extra);
+                }
+            }
+
             if (!StringUtils.isEmpty(model)) {
                 List<Pattern> patterns = apiService.getAllModelBlackListPattern(appInfo.getUserId());
                 if (patterns != null && patterns.size() > 0) {
@@ -120,6 +141,7 @@ public class ApiController {
                 BeanUtils.copyProperties(resultInfo,patchInfoDto);
                 patchInfoDto.setHash(DigestUtils.md5DigestAsHex((appUid + "_" + appInfo.getSecret() + "_" + resultInfo.getFileHash()).getBytes()));
                 patchInfoDto.setCreatedTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(resultInfo.getCreatedAt()));
+
                 restR.setData(patchInfoDto);
             }
             else {

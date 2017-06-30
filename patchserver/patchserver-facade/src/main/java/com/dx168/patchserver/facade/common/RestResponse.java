@@ -1,6 +1,7 @@
 package com.dx168.patchserver.facade.common;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Created by tong on 8/11/15.
@@ -9,6 +10,7 @@ public class RestResponse<T> implements Serializable {
     protected int                 code = 200;
     protected String              message;
     protected T data;
+    protected Map<String,Object> extra;
 
     public int getCode() {
         return code;
@@ -32,5 +34,13 @@ public class RestResponse<T> implements Serializable {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public Map<String, Object> getExtra() {
+        return extra;
+    }
+
+    public void setExtra(Map<String, Object> extra) {
+        this.extra = extra;
     }
 }

@@ -1,5 +1,7 @@
 package com.dx168.patchserver.facade.dto;
 
+import com.dx168.patchserver.core.domain.FullUpdateInfo;
+
 /**
  * Created by tong on 16/10/27.
  */

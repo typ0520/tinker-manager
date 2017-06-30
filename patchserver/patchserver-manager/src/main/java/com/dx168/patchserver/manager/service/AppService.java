@@ -64,7 +64,20 @@ public class AppService {
     }
 
     public List<AppInfo> findAllAppInfoByUser(BasicUser basicUser) {
-        return appMapper.findAllByUserId(accountService.getRootUserId(basicUser));
+        List<AppInfo> appInfoList = appMapper.findAllByUserId(accountService.getRootUserId(basicUser));
+
+        if (!basicUser.isChildAccount()) {
+            return appInfoList;
+        }
+        List<AppInfo> resultList = new ArrayList<>();
+
+        List<String> appUids = findAllChildUserAppUidsByUserId(basicUser.getId());
+        for (AppInfo appInfo : appInfoList) {
+            if (appUids.contains(appInfo.getUid())) {
+                resultList.add(appInfo);
+            }
+        }
+        return resultList;
     }
 
     public AppInfo findByUid(String uid) {

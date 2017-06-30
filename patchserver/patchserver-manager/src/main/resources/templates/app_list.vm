@@ -159,10 +159,11 @@
 
 ##                    <p><a href="#springUrl('/app/create')">创建应用</a></p>
 
-                    <p>
-                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">创建应用</button>
-                    </p>
-
+                    #if($!restR.data.user.childAccount == false)
+                        <p>
+                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">创建应用</button>
+                        </p>
+                    #end
                 </div>
             </div>
         </div>
@@ -188,7 +189,13 @@
             </table>
 
             #if($restR.data.appInfoList.isEmpty())
-                <div class="text-center">请添加应用!</div>
+
+                #if($!restR.data.user.childAccount == true)
+                    <div class="text-center">请添加应用!</div>
+
+                #else
+                    <div class="text-center">请联系管理员用户添加应用!</div>
+                #end
             #end
         </div>
     </div>

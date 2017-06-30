@@ -219,13 +219,15 @@
     }
 
     //测试程序
-    var sCompareStr = "abcdefg123.apk";//比较字符串
-    var sBeCompareStr = ".apk";//被比较字符串
-    if(sCompareStr.endsWith(sBeCompareStr)){//这里可以替换为startsWith
-        console.log(sCompareStr+" 是以:"+sBeCompareStr+" 结束");
-    }else{
-        console.log(sCompareStr+" 不是以:"+sBeCompareStr+" 结束");
-    }
+//    var sCompareStr = "abcdefg123.apk";//比较字符串
+//    var sBeCompareStr = ".apk";//被比较字符串
+//    if(sCompareStr.endsWith(sBeCompareStr)){//这里可以替换为startsWith
+//        console.log(sCompareStr+" 是以:"+sBeCompareStr+" 结束");
+//    }else{
+//        console.log(sCompareStr+" 不是以:"+sBeCompareStr+" 结束");
+//    }
+
+
     $(document).ready(function(){
         $("#create_patch").click(function () {
             if ($("#description").val().length == 0) {

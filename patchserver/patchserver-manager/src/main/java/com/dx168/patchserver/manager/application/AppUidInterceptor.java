@@ -11,6 +11,7 @@ import com.dx168.patchserver.core.utils.BizException;
 import com.dx168.patchserver.manager.service.AppService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Created by tong on 16/10/25.
@@ -38,6 +39,13 @@ public class AppUidInterceptor extends HandlerInterceptorAdapter {
                 if (appInfo != null && appInfo.getUserId() != userId) {
                     //检测appUid对应的应用是否属于当前登录用户的应用
                     throw new BizException("应用不存在");
+                }
+
+                if (basicUser.isChildAccount()) {
+                    List<String> appUids = appService.findAllChildUserAppUidsByUserId(basicUser.getId());
+                    if (!appUids.contains(appUid)) {
+                        throw new BizException("没有此应用的权限");
+                    }
                 }
             }
         }

@@ -40,12 +40,16 @@ public class ApiService {
     @Autowired
     private ChannelMapper channelMapper;
 
+    @Autowired
+    private FullUpdateInfoMapper fullUpdateInfoMapper;
+
     private final Map<String,CacheEntry<AppInfo>> appInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<VersionInfo>> versionInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
     private final Map<String,CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
     private final Map<Integer,CacheEntry<List<Pattern>>> modelBlackListPatternCache = new ConcurrentHashMap<>();
     private final Map<Integer,CacheEntry<List<Channel>>> channelListCache = new ConcurrentHashMap<>();
+    private final Map<String,CacheEntry<FullUpdateInfo>> fullUpdateInfoCache = new ConcurrentHashMap<>();
     private final Map<Integer,PatchCounter> patchCounterCache = new ConcurrentHashMap<>();
 
     public AppInfo findAppInfo(String uid) {
@@ -190,13 +194,31 @@ public class ApiService {
         return channelList;
     }
 
+    public FullUpdateInfo findFullUpdateInfoByAppUid(String appUid) {
+        CacheEntry<FullUpdateInfo> cacheEntry = fullUpdateInfoCache.get(appUid);
+        FullUpdateInfo fullUpdateInfo = null;
+        if (cacheEntry != null) {
+            fullUpdateInfo = cacheEntry.getEntry();
+        }
+        if (fullUpdateInfo == null) {
+            fullUpdateInfo = fullUpdateInfoMapper.findByAppUid(appUid);
+            if (fullUpdateInfo != null) {
+                LOG.info("new app cache: " + fullUpdateInfo.toString());
+                fullUpdateInfoCache.put(appUid,new CacheEntry<>(fullUpdateInfo, TimeUnit.MINUTES,10));
+            }
+        }
+        return fullUpdateInfo;
+    }
+
     public void clearCache() {
-//        appInfoCache.clear();
-//        versionInfoCache.clear();
+        appInfoCache.clear();
+        versionInfoCache.clear();
+        //fileCache.clear();
+
         patchInfoCache.clear();
         patchInfoListCache.clear();
-        //fileCache.clear();
         modelBlackListPatternCache.clear();
+        fullUpdateInfoCache.clear();
     }
 
     public void report(PatchInfo patchInfo, boolean applyResult) {

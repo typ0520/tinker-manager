@@ -11,7 +11,6 @@ import com.dx168.patchserver.core.utils.BizException;
 import com.dx168.patchserver.core.utils.HttpRequestUtils;
 import com.dx168.patchserver.manager.service.AppService;
 import com.dx168.patchserver.manager.utils.CookieUtil;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -192,6 +191,9 @@ public class AccountController {
         RestResponse restR = new RestResponse();
         try {
             BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            if (basicUser.isChildAccount()) {
+                throw new BizException("子账号没有权限");
+            }
             String[] appUidArray = appUids.split(",");
             ArrayList<String> appUidList = new ArrayList<>();
             if (appUidArray != null) {
