@@ -49,15 +49,15 @@ v1.0.1 优化流程，增加自动更新的功能
 QQ群: 338491549
 
 ## 后台效果
-![补丁详情](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/1.png "Title")
-![上传补丁](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/2.png "Title")
-![发布补丁](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/3.png "Title")
-![应用列表](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/4.png "Title")
-![应用管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/5.png "Title")
-![测试人员管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/6.png "Title")
-![机型黑名单管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/7.png "Title")
-![App全量更新管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/8.png "Title")
-![子账号管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/9.png "Title")
+![补丁详情](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/1.jpg "Title")
+![上传补丁](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/2.jpg "Title")
+![发布补丁](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/3.jpg "Title")
+![应用列表](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/4.jpg "Title")
+![应用管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/5.jpg "Title")
+![测试人员管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/6.jpg "Title")
+![机型黑名单管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/7.jpg "Title")
+![App全量更新管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/8.jpg "Title")
+![子账号管理](https://raw.githubusercontent.com/baidao/tinker-manager/master/assets/9.jpg "Title")
 
 
 
