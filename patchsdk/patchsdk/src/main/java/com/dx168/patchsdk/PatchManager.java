@@ -74,7 +74,7 @@ public final class PatchManager {
     private FullUpdateHandler fullUpdateHandler = new FullUpdateHandler();
 
     public void init(Context context, String baseUrl, String appId, String appSecret, IPatchManager actualManager) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.actualManager = actualManager;
         if (!PatchUtils.isMainProcess(context)) {
             return;
@@ -194,7 +194,7 @@ public final class PatchManager {
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
-                        appInfo.getSdkVersion(), appInfo.getDeviceId(), new PatchServer.PatchServerCallback() {
+                        appInfo.getSdkVersion(), appInfo.getDeviceId(),true, new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 if (bytes == null) {
@@ -225,7 +225,7 @@ public final class PatchManager {
                                     listener.onQuerySuccess(patchInfo.toString());
                                 }
                                 if (fullUpdateHandler != null && patchInfo.getFullUpdateInfo() != null) {
-                                    fullUpdateHandler.handlerFullUpdate(patchInfo.getFullUpdateInfo());
+                                    fullUpdateHandler.handlerFullUpdate(context,patchInfo.getFullUpdateInfo());
                                 }
                                 if (patchInfo.getData() == null) {
                                     File versionDir = new File(versionDirPath);

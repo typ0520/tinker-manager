@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-
 import com.dx168.patchsdk.IPatchManager;
 import com.dx168.patchsdk.Listener;
 import com.dx168.patchsdk.PatchManager;
@@ -34,9 +33,9 @@ public class MyApplicationLike extends SampleApplicationLike {
     @Override
     public void onCreate() {
         super.onCreate();
-        String appId = "20170112162040035-6936";
-        String appSecret = "d978d00c0c1344959afa9d0a39d7dab3";
-        PatchManager.getInstance().init(getApplication(), "http://xxx.xxx.xxx/hotfix-apis/", appId, appSecret, new IPatchManager() {
+        String appId = "20170215100259038-9119";
+        String appSecret = "a57539a5d1a544d4b6ff7ec7ffa2bb4d";
+        PatchManager.getInstance().init(getApplication(), "http://192.168.2.1:9011/", appId, appSecret, new IPatchManager() {
             @Override
             public void patch(Context context, String path) {
                 TinkerInstaller.onReceiveUpgradePatch(context, path);
@@ -89,7 +88,6 @@ public class MyApplicationLike extends SampleApplicationLike {
             }
         });
         PatchManager.getInstance().setTag("your tag");
-        PatchManager.getInstance().setChannel("");
         PatchManager.getInstance().queryAndPatch();
         originalApplication.onCreate();
     }

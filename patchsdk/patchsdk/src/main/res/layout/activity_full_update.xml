@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#88000000"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
@@ -36,14 +37,18 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+            <ProgressBar
+                android:id="@+id/patchsdk_pb"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_margin="10dp"
+                android:layout_gravity="center_horizontal"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/patchsdk_pb_color"
+                />
 
-            <com.daimajia.numberprogressbar.NumberProgressBar
-                android:id="@+id/numberbar"
-                android:layout_width="wrap_content"
-                android:padding="20dp"
-                custom:progress_current="0"
-                style="@style/NumberProgressBar_Default"
-                android:layout_height="wrap_content" />
 
             <LinearLayout
                 android:id="@+id/patchsdk_install"

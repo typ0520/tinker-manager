@@ -6,32 +6,31 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.dx168.patchsdk.R;
-import com.liulishuo.filedownloader.BaseDownloadTask;
-import com.liulishuo.filedownloader.FileDownloadListener;
-import com.liulishuo.filedownloader.FileDownloader;
-import com.liulishuo.filedownloader.util.FileDownloadUtils;
-
+import com.dx168.patchsdk.utils.DownloadUtil;
 import java.io.File;
 
 /**
  * Created by tong on 17/6/30.
  */
 public class FullUpdateActivity extends Activity {
+    private static final String TAG = FullUpdateActivity.class.getSimpleName();
+
     private boolean forceUpdate;
     private View patchsdk_download;
     private View patchsdk_content;
     private View patchsdk_install;
-    private NumberProgressBar numberbar;
+    private TextView patchsdk_tv_title;
+    private ProgressBar pb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +41,9 @@ public class FullUpdateActivity extends Activity {
         patchsdk_download = findViewById(R.id.patchsdk_download);
         patchsdk_content = findViewById(R.id.patchsdk_content);
         patchsdk_install = findViewById(R.id.patchsdk_install);
-        numberbar = (NumberProgressBar) findViewById(R.id.numberbar);
+        pb = (ProgressBar) findViewById(R.id.patchsdk_pb);
 
-        TextView patchsdk_tv_title = (TextView) findViewById(R.id.patchsdk_tv_title);
+        patchsdk_tv_title = (TextView) findViewById(R.id.patchsdk_tv_title);
         TextView patchsdk_tv_latest_version = (TextView) findViewById(R.id.patchsdk_tv_latest_version);
         TextView patchsdk_tv_update_time = (TextView) findViewById(R.id.patchsdk_tv_update_time);
         TextView patchsdk_tv_desc = (TextView) findViewById(R.id.patchsdk_tv_desc);
@@ -125,65 +124,85 @@ public class FullUpdateActivity extends Activity {
         }
     }
 
-    private void downloadApk(String downloadUrl,String latestVersion) {
+    private void cancel() {
+        DownloadUtil.cancel();
+    }
+
+    @Override
+    protected void onDestroy() {
+        cancel();
+        super.onDestroy();
+    }
+
+    private void downloadApk(String downloadUrl, String latestVersion) {
+        cancel();
+        final boolean localForceUpdate = forceUpdate;
+
         patchsdk_content.setVisibility(View.GONE);
         patchsdk_download.setVisibility(View.VISIBLE);
 
-        final String apkPath = new File(Environment.getExternalStorageDirectory(),getPackageName() + "-full_update.apk").getAbsolutePath();
-        FileDownloader.setup(this);
-        FileDownloader.getImpl().create(downloadUrl)
-                .setPath(apkPath)
-                .setForceReDownload(true)
-                .setListener(new FileDownloadListener() {
-                    @Override
-                    protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                    }
+        pb.setMax(100);
+        pb.setProgress(0);
 
-                    @Override
-                    protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
-
-                    }
-
-                    @Override
-                    protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                        numberbar.setMax(totalBytes);
-                        numberbar.setProgress(soFarBytes);
-                    }
-
-                    @Override
-                    protected void blockComplete(BaseDownloadTask task) {
-                    }
-
-                    @Override
-                    protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
-                    }
-
-                    @Override
-                    protected void completed(BaseDownloadTask task) {
-                        numberbar.setMax(100);
-                        numberbar.setProgress(100);
-
-                        patchsdk_install.setVisibility(View.VISIBLE);
-
-                        patchsdk_install.setTag(apkPath);
-                        installApk(apkPath);
-                    }
-
-                    @Override
-                    protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                    }
-
-                    @Override
-                    protected void error(BaseDownloadTask task, Throwable e) {
-                        Toast.makeText(FullUpdateActivity.this,"下载失败",Toast.LENGTH_LONG).show();
-
+        forceUpdate = true;
+        patchsdk_tv_title.setText("正在下载");
+        DownloadUtil.download(downloadUrl, new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case DownloadUtil.DOWNLOAD_ERROR://失败
+                        Log.e("DL", "onError :" + msg.obj);
+                    {
+                        forceUpdate = localForceUpdate;
                         patchsdk_content.setVisibility(View.VISIBLE);
                         patchsdk_download.setVisibility(View.GONE);
-                    }
 
-                    @Override
-                    protected void warn(BaseDownloadTask task) {
+                        Toast.makeText(FullUpdateActivity.this, "下载失败", Toast.LENGTH_LONG).show();
+
+                        String title = getIntent().getStringExtra("title");
+                        if (TextUtils.isEmpty(title)) {
+                            patchsdk_tv_title.setText(getApplicationName());
+                        }
+                        else {
+                            patchsdk_tv_title.setText(title);
+                        }
                     }
-                }).start();
+                    break;
+                    case DownloadUtil.DOWNLOAD_CANCEL://取消
+                    {
+                        Log.e("DL", "cancel thread id:" + msg.obj);
+                    }
+                    break;
+                    case DownloadUtil.DOWNLOAD_FINISH:
+                    {
+                        //完成
+                        Log.e("DL", "finish filepath:" + msg.obj);
+                        pb.setMax(100);
+                        pb.setProgress(100);
+
+                        patchsdk_install.setVisibility(View.VISIBLE);
+                        patchsdk_install.setTag((String) msg.obj);
+
+                        String title = getIntent().getStringExtra("title");
+                        if (TextUtils.isEmpty(title)) {
+                            patchsdk_tv_title.setText(getApplicationName());
+                        }
+                        else {
+                            patchsdk_tv_title.setText(title);
+                        }
+                        installApk((String) msg.obj);
+
+                    }
+                    break;
+                    case DownloadUtil.DOWNLOADING: {
+                        //下载中
+                        Log.e("DL", "downloading:" + msg.obj + "%");
+                        pb.setProgress((Integer) msg.obj);
+                    }
+                    break;
+                }
+            }
+        });
     }
 }

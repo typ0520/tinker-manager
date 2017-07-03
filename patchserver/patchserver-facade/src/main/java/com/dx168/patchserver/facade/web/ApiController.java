@@ -84,7 +84,7 @@ public class ApiController {
                     extra.put("needUpdate",versionName.compareTo(fullUpdateInfo.getLatestVersion()) < 0);
                     extra.put("forceUpdate",versionName.compareTo(fullUpdateInfo.getLowestSupportVersion()) < 0);
 
-                    if (StringUtils.isEmpty(channel)) {
+                    if (StringUtils.isEmpty(channel) || "null".equals(channel)) {
                         extra.put("downloadUrl",FullUpdateInfo.formatDownloadUrl(fullUpdateInfo.getDefaultUrl(),channel,fullUpdateInfo.getLatestVersion()));
                     }
                     else {

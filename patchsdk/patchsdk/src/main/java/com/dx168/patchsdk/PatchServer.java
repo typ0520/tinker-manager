@@ -1,5 +1,7 @@
 package com.dx168.patchsdk;
 
+import com.dx168.patchsdk.utils.IgnoreNullHashMap;
+
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,7 +53,7 @@ class PatchServer {
     public void queryPatch(String appId, String token, String tag,
                            String versionName, int versionCode, String platform,
                            String osVersion, String model, String channel,
-                           String sdkVersion, String deviceId,
+                           String sdkVersion, String deviceId,boolean withFullUpdateInfo,
                            PatchServerCallback callback) {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("appUid", appId);
@@ -65,6 +67,7 @@ class PatchServer {
         paramMap.put("channel", channel);
         paramMap.put("sdkVersion", sdkVersion);
         paramMap.put("deviceId", deviceId);
+        paramMap.put("withFullUpdateInfo", withFullUpdateInfo);
         request(baseUrl + "api/patch", paramMap, callback);
     }
 
@@ -74,7 +77,7 @@ class PatchServer {
                        String sdkVersion, String deviceId, String patchUid,
                        boolean applyResult,
                        PatchServerCallback callback) {
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new IgnoreNullHashMap<>();
         paramMap.put("appUid", appId);
         paramMap.put("token", token);
         paramMap.put("tag", tag);
