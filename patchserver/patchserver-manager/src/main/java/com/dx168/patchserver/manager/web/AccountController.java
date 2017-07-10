@@ -110,7 +110,7 @@ public class AccountController {
                 throw new BizException("暂不接受注册");
             }
             BizAssert.isVaildUsername(username,"用户名格式不正确(以字母开头，长度在5~18之间，只能包含字符、数字和下划线)");
-            BizAssert.isVaildUsername(password,"密码格式不正确(以字母开头，长度在5~18之间，只能包含字符、数字和下划线)");
+            BizAssert.isVaildPassword(password,"密码格式不正确(以字母开头，长度在5~18之间，只能包含字符、数字和下划线)");
             BasicUser basicUser = accountService.findByUsername(username);
             if (basicUser != null) {
                 throw new BizException(username + " 已被占用");
