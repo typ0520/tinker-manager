@@ -14,21 +14,11 @@ public class FullUpdateService {
     @Autowired
     private FullUpdateInfoMapper fullUpdateInfoMapper;
 
-    public void save(FullUpdateInfo fullUpdateInfo) {
-        fullUpdateInfo.setCreatedAt(new Date());
-        fullUpdateInfo.setUpdatedAt(fullUpdateInfo.getCreatedAt());
-
-        Integer id = fullUpdateInfoMapper.insert(fullUpdateInfo);
-        fullUpdateInfo.setId(id);
-    }
+    @Autowired
+    private FacadeService facadeService;
 
     public FullUpdateInfo findByAppUid(String appUid) {
         return fullUpdateInfoMapper.findByAppUid(appUid);
-    }
-
-    public void update(FullUpdateInfo fullUpdateInfo) {
-        fullUpdateInfo.setUpdatedAt(new Date());
-        fullUpdateInfoMapper.update(fullUpdateInfo);
     }
 
     public void saveOrUpdate(FullUpdateInfo fullUpdateInfo) {
@@ -40,5 +30,20 @@ public class FullUpdateService {
             fullUpdateInfo.setId(dbFullUpdateInfo.getId());
             update(fullUpdateInfo);
         }
+
+        facadeService.clearCache();
+    }
+
+    private void save(FullUpdateInfo fullUpdateInfo) {
+        fullUpdateInfo.setCreatedAt(new Date());
+        fullUpdateInfo.setUpdatedAt(fullUpdateInfo.getCreatedAt());
+
+        Integer id = fullUpdateInfoMapper.insert(fullUpdateInfo);
+        fullUpdateInfo.setId(id);
+    }
+
+    private void update(FullUpdateInfo fullUpdateInfo) {
+        fullUpdateInfo.setUpdatedAt(new Date());
+        fullUpdateInfoMapper.update(fullUpdateInfo);
     }
 }

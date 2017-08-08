@@ -382,6 +382,10 @@ public final class PatchManager {
      * @param patchPath
      */
     public void onPatchSuccess(String patchPath) {
+        onPatchSuccess(context, patchPath);
+    }
+
+    public void onPatchSuccess(Context context, String patchPath) {
         SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
@@ -398,12 +402,7 @@ public final class PatchManager {
         }
     }
 
-    /**
-     * 补丁合成失败
-     *
-     * @param patchPath
-     */
-    public void onPatchFailure(String patchPath) {
+    public void onPatchFailure(Context context, String patchPath) {
         SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
@@ -419,6 +418,15 @@ public final class PatchManager {
         for (Listener listener : listeners) {
             listener.onPatchFailure();
         }
+    }
+
+    /**
+     * 补丁合成失败
+     *
+     * @param patchPath
+     */
+    public void onPatchFailure(String patchPath) {
+        onPatchFailure(context, patchPath);
     }
 
     private Queue<Runnable> loadResultQueue = new LinkedList<>();
