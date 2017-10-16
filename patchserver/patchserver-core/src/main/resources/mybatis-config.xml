@@ -25,5 +25,6 @@
         <mapper resource="com/dx168/patchserver/core/mapper/AppMapper.xml"/>
         <mapper resource="com/dx168/patchserver/core/mapper/VersionInfoMapper.xml"/>
         <mapper resource="com/dx168/patchserver/core/mapper/PatchInfoMapper.xml"/>
+        <mapper resource="com/dx168/patchserver/core/mapper/PatchLogMapper.xml"/>
     </mappers>
 </configuration>
