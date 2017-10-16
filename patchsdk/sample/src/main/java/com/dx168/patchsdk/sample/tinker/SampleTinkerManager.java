@@ -18,10 +18,12 @@ package com.dx168.patchsdk.sample.tinker;
 
 import com.tencent.tinker.lib.listener.PatchListener;
 import com.tencent.tinker.lib.patch.AbstractPatch;
+import com.tencent.tinker.lib.patch.UpgradePatch;
 import com.tencent.tinker.lib.reporter.LoadReporter;
 import com.tencent.tinker.lib.reporter.PatchReporter;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.lib.util.TinkerLog;
+import com.tencent.tinker.lib.util.UpgradePatchRetry;
 import com.tencent.tinker.loader.app.ApplicationLike;
 
 /**
@@ -85,7 +87,8 @@ public class SampleTinkerManager {
         //or you can just use DefaultPatchListener
         PatchListener patchListener = new SamplePatchListener(appLike.getApplication());
         //you can set your own upgrade patch if you need
-        AbstractPatch upgradePatchProcessor = new SampleUpgradePatch();
+//        AbstractPatch upgradePatchProcessor = new SampleUpgradePatch();
+        AbstractPatch upgradePatchProcessor = new UpgradePatch();
 
         TinkerInstaller.install(appLike, loadReporter, patchReporter, patchListener, SampleResultService.class,
                 upgradePatchProcessor);

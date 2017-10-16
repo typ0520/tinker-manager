@@ -21,7 +21,7 @@ import com.tencent.tinker.loader.shareutil.ShareConstants;
         loadVerifyFlag = false)
 public class MyApplicationLike extends SampleApplicationLike {
 
-    private static final String TAG = "sample.MyApplicationLike";
+    private static final String TAG = "MyApplicationLike";
 
     private OriginalApplication originalApplication;
 
@@ -49,42 +49,42 @@ public class MyApplicationLike extends SampleApplicationLike {
         PatchManager.getInstance().register(new Listener() {
             @Override
             public void onQuerySuccess(String response) {
-                Log.d(TAG, "onQuerySuccess response=" + response);
+                Log.i(TAG, "onQuerySuccess response=" + response);
             }
 
             @Override
             public void onQueryFailure(Throwable e) {
-                Log.d(TAG, "onQueryFailure e=" + e);
+                Log.e(TAG, "onQueryFailure e=" + e);
             }
 
             @Override
             public void onDownloadSuccess(String path) {
-                Log.d(TAG, "onDownloadSuccess path=" + path);
+                Log.i(TAG, "onDownloadSuccess path=" + path);
             }
 
             @Override
             public void onDownloadFailure(Throwable e) {
-                Log.d(TAG, "onDownloadFailure e=" + e);
+                Log.e(TAG, "onDownloadFailure e=" + e);
             }
 
             @Override
             public void onPatchSuccess() {
-                Log.d(TAG, "onPatchSuccess");
+                Log.i(TAG, "onPatchSuccess");
             }
 
             @Override
-            public void onPatchFailure() {
-                Log.d(TAG, "onPatchFailure");
+            public void onPatchFailure(String error) {
+                Log.e(TAG, "onPatchFailure=" + error);
             }
 
             @Override
             public void onLoadSuccess() {
-                Log.d(TAG, "onLoadSuccess");
+                Log.i(TAG, "onLoadSuccess");
             }
 
             @Override
-            public void onLoadFailure() {
-                Log.d(TAG, "onLoadFailure");
+            public void onLoadFailure(String error) {
+                Log.e(TAG, "onLoadFailure="+ error);
             }
         });
         PatchManager.getInstance().setTag("your tag");

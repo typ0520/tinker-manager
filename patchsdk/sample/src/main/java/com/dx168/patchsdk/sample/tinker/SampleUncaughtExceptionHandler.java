@@ -62,38 +62,46 @@ public class SampleUncaughtExceptionHandler implements Thread.UncaughtExceptionH
      * If it use Xposed, we can just clean patch or mention user to uninstall it.
      */
     private void tinkerPreVerifiedCrashHandler(Throwable ex) {
-        if (SampleUtils.isXposedExists(ex)) {
-            //method 1
-            ApplicationLike applicationLike = SampleTinkerManager.getTinkerApplicationLike();
-            if (applicationLike == null || applicationLike.getApplication() == null) {
-                return;
+        ApplicationLike applicationLike = SampleTinkerManager.getTinkerApplicationLike();
+        if (applicationLike == null || applicationLike.getApplication() == null) {
+            TinkerLog.w(TAG, "applicationlike is null");
+            return;
+        }
+
+        if (!TinkerApplicationHelper.isTinkerLoadSuccess(applicationLike)) {
+            TinkerLog.w(TAG, "tinker is not loaded");
+            return;
+        }
+
+        Throwable throwable = ex;
+        boolean isXposed = false;
+        while (throwable != null) {
+            if (!isXposed) {
+                isXposed = SampleUtils.isXposedExists(throwable);
             }
 
-            if (!TinkerApplicationHelper.isTinkerLoadSuccess(applicationLike)) {
-                return;
-            }
-            boolean isCausedByXposed = false;
-            //for art, we can't know the actually crash type
-            //art's xposed has not much people
-            if (ShareTinkerInternals.isVmArt()) {
-                isCausedByXposed = true;
-            } else if (ex instanceof IllegalAccessError && ex.getMessage().contains(DALVIK_XPOSED_CRASH)) {
-                //for dalvik, we know the actual crash type
-                isCausedByXposed = true;
-            }
+            // xposed?
+            if (isXposed) {
+                boolean isCausedByXposed = false;
+                //for art, we can't know the actually crash type
+                //just ignore art
+                if (throwable instanceof IllegalAccessError && throwable.getMessage().contains(DALVIK_XPOSED_CRASH)) {
+                    //for dalvik, we know the actual crash type
+                    isCausedByXposed = true;
+                }
 
-            if (isCausedByXposed) {
-                SampleTinkerReport.onXposedCrash();
-                TinkerLog.e(TAG, "have xposed: just clean com.dx168.patchsdk.sample");
-                //kill all other process to ensure that all process's code is the same.
-                ShareTinkerInternals.killAllOtherProcess(applicationLike.getApplication());
+                if (isCausedByXposed) {
+                    SampleTinkerReport.onXposedCrash();
+                    TinkerLog.e(TAG, "have xposed: just clean tinker");
+                    //kill all other process to ensure that all process's code is the same.
+                    ShareTinkerInternals.killAllOtherProcess(applicationLike.getApplication());
 
-                TinkerApplicationHelper.cleanPatch(applicationLike);
-                ShareTinkerInternals.setTinkerDisableWithSharedPreferences(applicationLike.getApplication());
-                //method 2
-                //or you can mention user to uninstall Xposed!
-                Toast.makeText(applicationLike.getApplication(), "please uninstall Xposed, illegal modify the app", Toast.LENGTH_LONG).show();
+                    TinkerApplicationHelper.cleanPatch(applicationLike);
+                    ShareTinkerInternals.setTinkerDisableWithSharedPreferences(applicationLike.getApplication());
+                    return;
+                }
             }
+            throwable = throwable.getCause();
         }
     }
 

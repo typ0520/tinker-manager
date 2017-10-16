@@ -15,10 +15,10 @@ public interface Listener {
 
     void onPatchSuccess();
 
-    void onPatchFailure();
+    void onPatchFailure(String error);
 
     void onLoadSuccess();
 
-    void onLoadFailure();
+    void onLoadFailure(String error);
 
 }
