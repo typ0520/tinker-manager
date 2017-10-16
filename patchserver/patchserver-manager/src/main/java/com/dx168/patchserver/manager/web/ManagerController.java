@@ -18,7 +18,9 @@ import com.dx168.patchserver.core.utils.BizException;
 import com.dx168.patchserver.core.utils.HttpRequestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -46,6 +48,9 @@ public class ManagerController {
 
     @Autowired
     private FullUpdateService fullUpdateService;
+
+    @Autowired
+    private PatchLogService patchLogService;
 
     @Value("${spring.http.multipart.max-file-size}")
     private String maxPatchSize;
@@ -593,4 +598,71 @@ public class ManagerController {
             return new ModelAndView("redirect:/full_update?appUid=" + fullUpdateInfo.getAppUid() + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
         }
     }
+
+
+    /**
+     * 查询Log日志信息
+     *
+     * @param req
+     * @return
+     */
+    @RequestMapping(value = "/patch/log", method = RequestMethod.GET)
+    public ModelAndView patch_log(HttpServletRequest req) {
+        String appUid = req.getParameter("appUid");
+        String appVersion = req.getParameter("appVersion");
+        String patchVersion = req.getParameter("patchVersion");
+        String errorCode = req.getParameter("errorCode");
+        String model = req.getParameter("model");
+        String startDate = req.getParameter("startDate");
+        String endDate = req.getParameter("endDate");
+        RestResponse restR = new RestResponse();
+        BizAssert.notEpmty(appUid, "appUid is null");
+        AppInfo appInfo = appService.findByUid(appUid);
+        Map param = new HashMap();
+        param.put("appUid", appUid);
+        if (StringUtils.isNotEmpty(patchVersion)) {
+            param.put("patchVersion", patchVersion);
+        }
+        if (StringUtils.isNotEmpty(appVersion)) {
+            param.put("appVersion", appVersion);
+        }
+        if (StringUtils.isNotEmpty(errorCode)) {
+            param.put("errorCode", errorCode);
+        }
+        if (StringUtils.isNotEmpty(model)) {
+            param.put("model", model);
+        }
+        if (StringUtils.isNotEmpty(startDate)) {
+            param.put("startTime", startDate);
+        }
+        if (StringUtils.isNotEmpty(endDate)) {
+            param.put("endTime", endDate);
+        }
+        //加载所有patch Log信息
+        List<PatchLog> patchLogList = patchLogService.findList(param);
+        //加载所有patch信息
+        List<PatchInfo> patchInfoList = patchService.findByUidAndVersionName(appUid, appVersion);
+        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo, appVersion);
+        if (versionInfo == null) {
+            throw new BizException("该版本未找到: " + appVersion);
+        }
+
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+        restR.getData().put("user", basicUser);
+        restR.getData().put("appInfo", appInfo);
+        restR.getData().put("patchInfoList", patchInfoList);
+        restR.getData().put("patchLogList", patchLogList);
+        restR.getData().put("appInfoList", appInfoList);
+        restR.getData().put("versionInfo", versionInfo);
+        restR.getData().put("versionList", appService.findAllVersion(appInfo));
+        restR.getData().put("patchVersion", patchVersion != null ? patchVersion : "");
+        restR.getData().put("errorCode", errorCode);
+        restR.getData().put("model", model);
+        restR.getData().put("startDate", startDate);
+        restR.getData().put("endDate", endDate);
+        restR.getData().put("maxPatchSize", maxPatchSize);
+        return new ModelAndView("patch_log", "restR", restR);
+    }
+
 }

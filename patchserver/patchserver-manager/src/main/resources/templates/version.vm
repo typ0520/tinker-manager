@@ -166,6 +166,8 @@
                 </ul>
             </div>
 
+            <a href="#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$!restR.data.versionInfo.versionName">日志详情</a>
+
 
             <table class="table table-bordered" style="margin-top: 15px;">
                 <tr>

@@ -85,9 +85,12 @@ public class SampleUpgradePatch extends UpgradePatch {
                 manager.getPatchReporter().onPatchVersionCheckFail(patchFile, oldInfo, patchMd5);
                 return false;
             }
-            newInfo = new SharePatchInfo(oldInfo.oldVersion, patchMd5, Build.FINGERPRINT);
+            // if it is interpret now, use changing flag to wait main process
+            final String finalOatDir = oldInfo.oatDir.equals(ShareConstants.INTERPRET_DEX_OPTIMIZE_PATH)
+                    ? ShareConstants.CHANING_DEX_OPTIMIZE_PATH : oldInfo.oatDir;
+            newInfo = new SharePatchInfo(oldInfo.oldVersion, patchMd5, Build.FINGERPRINT,finalOatDir);
         } else {
-            newInfo = new SharePatchInfo("", patchMd5, Build.FINGERPRINT);
+            newInfo = new SharePatchInfo("", patchMd5, Build.FINGERPRINT, ShareConstants.DEFAULT_DEX_OPTIMIZE_PATH);
         }
 
         //check ok, we can real recover a new patch

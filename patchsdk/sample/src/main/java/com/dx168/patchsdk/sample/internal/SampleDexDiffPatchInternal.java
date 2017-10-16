@@ -4,12 +4,11 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.SystemClock;
 
-import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.commons.dexpatcher.DexPatchApplier;
 import com.tencent.tinker.lib.patch.BasePatchInternal;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.util.TinkerLog;
-import com.tencent.tinker.loader.TinkerParallelDexOptimizer;
+import com.tencent.tinker.loader.TinkerDexOptimizer;
 import com.tencent.tinker.loader.TinkerRuntimeException;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 import com.tencent.tinker.loader.shareutil.ShareDexDiffPatchInfo;
@@ -24,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -139,9 +139,9 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
             if (ShareTinkerInternals.isVmArt()) {
                 failOptDexFile.clear();
                 // try parallel dex optimizer
-                TinkerParallelDexOptimizer.optimizeAll(
-                        files, optimizeDexDirectoryFile,
-                        new TinkerParallelDexOptimizer.ResultCallback() {
+                TinkerDexOptimizer.optimizeAll(
+                        Arrays.asList(files), optimizeDexDirectoryFile,
+                        new TinkerDexOptimizer.ResultCallback() {
                             long startTime;
 
                             @Override
@@ -165,14 +165,15 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
                             }
                         }
                 );
+
+
                 // try again
                 for (File retryDexFile : failOptDexFile) {
                     try {
                         String outputPathName = SharePatchFileUtil.optimizedPathFor(retryDexFile, optimizeDexDirectoryFile);
 
                         if (!SharePatchFileUtil.isLegalFile(retryDexFile)) {
-                            manager.getPatchReporter().onPatchDexOptFail(patchFile, retryDexFile,
-                                    optimizeDexDirectory, retryDexFile.getName(), new TinkerRuntimeException("retry dex optimize file is not exist, name: " + retryDexFile.getName()));
+                            manager.getPatchReporter().onPatchDexOptFail(patchFile, (List<File>) retryDexFile, new TinkerRuntimeException("retry dex optimize file is not exist, name: " + retryDexFile.getName()));
                             return false;
                         }
                         TinkerLog.i(TAG, "try to retry dex optimize file, path: %s, size: %d", retryDexFile.getPath(), retryDexFile.length());
@@ -183,7 +184,7 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
                                 retryDexFile.getPath(), new File(outputPathName).length(), (System.currentTimeMillis() - start));
                     } catch (Throwable e) {
                         TinkerLog.e(TAG, "retry dex optimize or load failed, path:" + retryDexFile.getPath());
-                        manager.getPatchReporter().onPatchDexOptFail(patchFile, retryDexFile, optimizeDexDirectory, retryDexFile.getName(), e);
+                        manager.getPatchReporter().onPatchDexOptFail(patchFile, (List<File>) retryDexFile, e);
                         return false;
                     }
                 }
@@ -198,7 +199,7 @@ public class SampleDexDiffPatchInternal extends com.tencent.tinker.lib.patch.Dex
                                 (System.currentTimeMillis() - start));
                     } catch (Throwable e) {
                         TinkerLog.e(TAG, "single dex optimize or load failed, path:" + file.getPath());
-                        manager.getPatchReporter().onPatchDexOptFail(patchFile, file, optimizeDexDirectory, file.getName(), e);
+                        manager.getPatchReporter().onPatchDexOptFail(patchFile, Arrays.asList(files), e);
                         return false;
                     }
                 }
