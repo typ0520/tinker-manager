@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
@@ -38,9 +37,6 @@ public class ApiController {
     @Autowired
     private RequestStatService requestStatService;
 
-    @Value("${datasource.url}")
-    private String datasourceUrl;
-
     /**
      * 获取最新的补丁包信息
      * @param appUid                app唯一标示
@@ -59,7 +55,6 @@ public class ApiController {
     @RequestMapping(value = "/api/patch",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse patch_info(HttpServletRequest req, String appUid, String token, String versionName, String tag,
                                                  String platform, String osVersion, String model,String channel, String sdkVersion, boolean debugMode,String deviceId,boolean withFullUpdateInfo) {
-        LOG.info("datasourceUrl: " + datasourceUrl);
         requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
