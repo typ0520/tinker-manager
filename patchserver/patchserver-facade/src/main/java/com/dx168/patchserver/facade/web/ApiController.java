@@ -63,6 +63,8 @@ public class ApiController {
             BizAssert.notEpmty(versionName,"应用版本号不能为空");
 
             AppInfo appInfo = apiService.findAppInfo(appUid);
+
+            LOG.info("appInfo: " + appInfo);
             if (appInfo == null) {
                 throw new BizException("应用不存在");
             }
@@ -72,9 +74,7 @@ public class ApiController {
             }
 
             VersionInfo versionInfo = apiService.findVersionInfo(appUid,versionName);
-            if (versionInfo == null) {
-                throw new BizException("版本信息不正确");
-            }
+            LOG.info("versionInfo: " + versionInfo);
 
             if (withFullUpdateInfo) {
                 //查询全量补丁信息
@@ -99,6 +99,11 @@ public class ApiController {
                     restR.setExtra(extra);
                 }
             }
+
+            if (versionInfo == null) {
+                throw new BizException("版本信息不正确");
+            }
+            LOG.info("model: " + model);
 
             if (!StringUtils.isEmpty(model)) {
                 List<Pattern> patterns = apiService.getAllModelBlackListPattern(appInfo.getUserId());
@@ -125,20 +130,29 @@ public class ApiController {
                     }
                 }
             }
+            LOG.info("model: " + model);
 
             List<PatchInfo> patchInfoList = apiService.findPatchInfos(appUid,versionName);
+
+            LOG.info("patchInfoList: " + patchInfoList);
+
             //查询最新的正常发布的补丁信息
             PatchInfo normalPatchInfo = apiService.getLatestNormalPatchInfo(patchInfoList);
+            LOG.info("normalPatchInfo: " + normalPatchInfo);
+
             PatchInfo grayPatchInfo = null;
             if (tag != null && tag.trim().length() > 0) {
                 //查询最新的灰度发布信息
                 grayPatchInfo = apiService.getLatestGrayPatchInfo(patchInfoList,tag);
             }
+            LOG.info("grayPatchInfo: " + grayPatchInfo);
 
             PatchInfo resultInfo = normalPatchInfo;
             if (grayPatchInfo != null) {
                 resultInfo = grayPatchInfo;
             }
+
+            LOG.info("resultInfo: " + resultInfo);
 
             if (resultInfo != null) {
                 PatchInfoDto patchInfoDto = new PatchInfoDto();
@@ -151,6 +165,61 @@ public class ApiController {
             else {
                 restR.setData(null);
             }
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+        }
+        return restR;
+    }
+
+    /**
+     * 获取最新的补丁包信息
+     * @param appUid                app唯一标示
+     * @param token                 app的秘钥
+     * @param versionName           应用版本号
+     * @param channel               渠道号
+     * @return
+     */
+    @RequestMapping(value = "/api/full_update",method = {RequestMethod.GET,RequestMethod.POST})
+    public @ResponseBody RestResponse full_update_info(HttpServletRequest req, String appUid, String token, String versionName,String channel, boolean debugMode) {
+        requestStatService.increment();
+        RestResponse restR = new RestResponse();
+        try {
+            BizAssert.notNull(appUid,"应用唯一id不能为空");
+            BizAssert.notEpmty(token,"令牌不能为空");
+            BizAssert.notEpmty(versionName,"应用版本号不能为空");
+
+            AppInfo appInfo = apiService.findAppInfo(appUid);
+            if (appInfo == null) {
+                throw new BizException("应用不存在");
+            }
+
+            if (!debugMode && !token.equals(DigestUtils.md5DigestAsHex((appUid + "_" + appInfo.getSecret()).getBytes()))) {
+                throw new BizException("校验失败");
+            }
+
+            //查询全量补丁信息
+            FullUpdateInfo fullUpdateInfo = apiService.findFullUpdateInfoByAppUid(appUid);
+            if (fullUpdateInfo != null && fullUpdateInfo.getStatus() == FullUpdateInfo.STATUS_START) {
+                Map<String,Object> extra = new HashMap<>();
+                extra.put("needUpdate",versionName.compareTo(fullUpdateInfo.getLatestVersion()) < 0);
+                extra.put("forceUpdate",versionName.compareTo(fullUpdateInfo.getLowestSupportVersion()) < 0);
+
+                if (StringUtils.isEmpty(channel) || "null".equals(channel)) {
+                    extra.put("downloadUrl",FullUpdateInfo.formatDownloadUrl(fullUpdateInfo.getDefaultUrl(),channel,fullUpdateInfo.getLatestVersion()));
+                }
+                else {
+                    extra.put("downloadUrl",FullUpdateInfo.formatDownloadUrl(fullUpdateInfo.getChannelUrl(),channel,fullUpdateInfo.getLatestVersion()));
+                }
+
+                extra.put("latestVersion",fullUpdateInfo.getLatestVersion());
+                extra.put("title",fullUpdateInfo.getTitle());
+                extra.put("description",fullUpdateInfo.getDescription());
+                extra.put("lowestSupportVersion",fullUpdateInfo.getLowestSupportVersion());
+                extra.put("updatedAt",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(fullUpdateInfo.getUpdatedAt()));
+                restR.setData(extra);
+            }
+
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());
