@@ -132,6 +132,44 @@ public class ApiService {
         return result;
     }
 
+    public static PatchInfo getLatestNormalPatchInfo2(List<PatchInfo> patchInfoList) {
+        if (patchInfoList == null || patchInfoList.isEmpty()) {
+            return null;
+        }
+        PatchInfo result = null;
+        for (PatchInfo patchInfo : patchInfoList) {
+            if (patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED
+                    && patchInfo.getPublishType() == PatchInfo.PUBLISH_TYPE_NORMAL) {
+                if ((result == null || patchInfo.getPatchVersion() > result.getPatchVersion())) {
+                    result = patchInfo;
+                }
+            }
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+        List<PatchInfo> patchInfoList = new ArrayList<>();
+        PatchInfo patchInfo = new PatchInfo();
+        patchInfo.setId(4);
+        patchInfo.setUserId(1);
+        patchInfo.setAppUid("20170710151225154-2410");
+        patchInfo.setUid("b7a7d04667654b509c6938a571291b0c");
+        patchInfo.setVersionName("2.0.0");
+        patchInfo.setPatchVersion(1);
+        patchInfo.setPatchVersion(0);
+        patchInfo.setStatus(1);
+        patchInfo.setPublishType(1);
+        patchInfo.setStoragePath("/alidata/hotfix/patch/20170710151225154-2410/2.0.0/1/e181fc343acb1df3f5dd00cde44be09c_patch.zip");
+        patchInfo.setPatchSize(165);
+        patchInfo.setFileHash("e181fc343acb1df3f5dd00cde44be09c");
+
+        patchInfoList.add(patchInfo);
+
+        PatchInfo result = getLatestNormalPatchInfo2(patchInfoList);
+        System.out.println(result);
+    }
+
     public PatchInfo getLatestGrayPatchInfo(List<PatchInfo> patchInfoList, String tag) {
         if (patchInfoList == null || patchInfoList.isEmpty()) {
             return null;
