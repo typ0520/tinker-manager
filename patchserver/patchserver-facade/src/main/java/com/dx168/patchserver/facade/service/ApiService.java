@@ -203,7 +203,7 @@ public class ApiService {
         if (fullUpdateInfo == null) {
             fullUpdateInfo = fullUpdateInfoMapper.findByAppUid(appUid);
             if (fullUpdateInfo != null) {
-                LOG.info("new app cache: " + fullUpdateInfo.toString());
+                LOG.info("new full update info cache: " + fullUpdateInfo.toString());
                 fullUpdateInfoCache.put(appUid,new CacheEntry<>(fullUpdateInfo, TimeUnit.MINUTES,10));
             }
         }
