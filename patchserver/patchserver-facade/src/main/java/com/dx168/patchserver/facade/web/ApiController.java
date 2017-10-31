@@ -160,23 +160,26 @@ public class ApiController {
 
     /**
      * 报告补丁加载结果
-     * @param appUid        app唯一标示
-     * @param token         app的秘钥
-     * @param versionName   应用版本号
-     * @param tag           标记(用于灰度发布)
-     * @param platform      平台(Android|iOS)
-     * @param osVersion     系统的版本号
-     * @param model         手机型号
-     * @param channel       渠道号
-     * @param sdkVersion    sdk版本号
-     * @param deviceId      设备id
-     * @param patchUid      补丁唯一标示
-     * @param applyResult   是否加载成功
+     *
+     * @param appUid      app唯一标示
+     * @param token       app的秘钥
+     * @param versionName 应用版本号
+     * @param tag         标记(用于灰度发布)
+     * @param platform    平台(Android|iOS)
+     * @param osVersion   系统的版本号
+     * @param model       手机型号
+     * @param channel     渠道号
+     * @param sdkVersion  sdk版本号
+     * @param deviceId    设备id
+     * @param patchUid    补丁唯一标示
+     * @param applyResult 是否加载成功
+     * @param code        错误码
+     * @param msg         错误对照信息
      * @return
      */
     @RequestMapping(value = "/api/report",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse report(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion,
-                                             String model,String channel, String sdkVersion, boolean debugMode,String deviceId,String patchUid,boolean applyResult) throws Exception {
+                                             String model,String channel, String sdkVersion, boolean debugMode,String deviceId,String patchUid,boolean applyResult,String code, String msg) throws Exception {
         requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
@@ -211,94 +214,25 @@ public class ApiController {
             }
 
             apiService.report(patchInfo,applyResult);
-        } catch (BizException e) {
-            restR.setCode(-1);
-            restR.setMessage(e.getMessage());
-        }
-        return restR;
-    }
 
-    /**
-     * 报告补丁加载结果-new
-     * @param appUid        app唯一标示
-     * @param token         app的秘钥
-     * @param versionName   应用版本号
-     * @param tag           标记(用于灰度发布)
-     * @param platform      平台(Android|iOS)
-     * @param osVersion     系统的版本号
-     * @param model         手机型号
-     * @param channel       渠道号
-     * @param sdkVersion    sdk版本号
-     * @param deviceId      设备id
-     * @param patchUid      补丁唯一标示
-     * @param applyResult   是否加载成功
-     * @return
-     */
-    @RequestMapping(value = "/api/patch/log", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody
-    RestResponse patchLog(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion,
-                          String model, String channel, String sdkVersion, boolean debugMode, String deviceId, String patchUid, boolean applyResult, String code, String msg) throws Exception {
-        requestStatService.increment();
-        RestResponse restR = new RestResponse();
-        try {
-            BizAssert.notNull(appUid, "应用唯一id不能为空");
-            BizAssert.notEpmty(token, "令牌不能为空");
-            BizAssert.notEpmty(versionName, "应用版本号不能为空");
-            BizAssert.notEpmty(patchUid, "patchUid不能为空");
-
-            PatchLog patchLog = new PatchLog();
-            patchLog.setAppUid(appUid);
-            patchLog.setToken(token);
-            patchLog.setVersionName(versionName);
-            patchLog.setPatchUid(patchUid);
-            patchLog.setPlatform(platform);
-            patchLog.setOsVersion(osVersion);
-            patchLog.setModel(model);
-            patchLog.setChannel(channel);
-            patchLog.setSdkVersion(sdkVersion);
-            patchLog.setDeviceId(deviceId);
-            patchLog.setTags(tag);
-            patchLog.setErrorCode(code);
-
-            AppInfo appInfo = apiService.findAppInfo(appUid);
-            if (appInfo == null) {
-                patchLog.setErrorMsg("应用不存在");
+            if (!applyResult) {
+                PatchLog patchLog = new PatchLog();
+                patchLog.setAppUid(appUid);
+                patchLog.setToken(token);
+                patchLog.setVersionName(versionName);
+                patchLog.setPatchUid(patchUid);
+                patchLog.setPlatform(platform);
+                patchLog.setOsVersion(osVersion);
+                patchLog.setModel(model);
+                patchLog.setChannel(channel);
+                patchLog.setSdkVersion(sdkVersion);
+                patchLog.setDeviceId(deviceId);
+                patchLog.setTags(tag);
+                patchLog.setErrorCode(code);
+                patchLog.setErrorMsg(msg);
                 apiService.patchLog(patchLog);
-                throw new BizException("应用不存在");
-            }
-            if (!debugMode && !token.equals(DigestUtils.md5DigestAsHex((appUid + "_" + appInfo.getSecret()).getBytes()))) {
-                patchLog.setErrorMsg("校验失败");
-                apiService.patchLog(patchLog);
-                throw new BizException("校验失败");
-            }
-            VersionInfo versionInfo = apiService.findVersionInfo(appUid, versionName);
-            if (versionInfo == null) {
-                patchLog.setErrorMsg("app版本信息不正确");
-                apiService.patchLog(patchLog);
-                throw new BizException("app版本信息不正确");
             }
 
-            PatchInfo patchInfo = apiService.findPatchInfo(patchUid);
-            if (patchInfo == null) {
-                patchLog.setErrorMsg("补丁信息不存在");
-                apiService.patchLog(patchLog);
-                throw new BizException("补丁信息不存在");
-            }
-            patchLog.setPatchVersion(patchInfo.getPatchVersion());
-
-            if (!versionName.equals(patchInfo.getVersionName())) {
-                patchLog.setErrorMsg("补丁版本信息不正确");
-                apiService.patchLog(patchLog);
-                throw new BizException("补丁版本信息不正确");
-            }
-            if (!appUid.equals(patchInfo.getAppUid())) {
-                patchLog.setErrorMsg("补丁AppUid不正确");
-                apiService.patchLog(patchLog);
-                throw new BizException("补丁AppUid不正确");
-            }
-            patchLog.setErrorMsg(msg);
-            apiService.patchLog(patchLog);
-            apiService.report(patchInfo, applyResult);
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());
