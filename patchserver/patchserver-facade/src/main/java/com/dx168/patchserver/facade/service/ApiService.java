@@ -10,7 +10,6 @@ import com.dx168.patchserver.core.utils.CacheEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,7 +127,7 @@ public class ApiService {
         for (PatchInfo patchInfo : patchInfoList) {
             if (patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED
                     && patchInfo.getPublishType() == PatchInfo.PUBLISH_TYPE_NORMAL) {
-                if ((result == null || patchInfo.getPatchVersion() > result.getPatchVersion()) && new File(patchInfo.getStoragePath()).exists()) {
+                if ((result == null || patchInfo.getPatchVersion() > result.getPatchVersion())) {
                     result = patchInfo;
                 }
             }
@@ -144,7 +143,7 @@ public class ApiService {
         for (PatchInfo patchInfo : patchInfoList) {
             if (patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED
                     && patchInfo.getPublishType() == PatchInfo.PUBLISH_TYPE_GRAY) {
-                if (((result == null || patchInfo.getPatchVersion() > result.getPatchVersion()) && patchInfo.getTags().contains(tag)) && new File(patchInfo.getStoragePath()).exists()) {
+                if (((result == null || patchInfo.getPatchVersion() > result.getPatchVersion()) && patchInfo.getTags().contains(tag))) {
                     result = patchInfo;
                 }
             }
@@ -206,7 +205,7 @@ public class ApiService {
         if (fullUpdateInfo == null) {
             fullUpdateInfo = fullUpdateInfoMapper.findByAppUid(appUid);
             if (fullUpdateInfo != null) {
-                LOG.info("new app cache: " + fullUpdateInfo.toString());
+                LOG.info("new full update info cache: " + fullUpdateInfo.toString());
                 fullUpdateInfoCache.put(appUid,new CacheEntry<>(fullUpdateInfo, TimeUnit.MINUTES,10));
             }
         }
