@@ -66,7 +66,7 @@
         )
     </insert>
 
-    <select id="findList" resultMap="BaseResultMap" parameterType="java.util.Map">
+    <select id="findByPage" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT t1.*,t2.`name` error_name from t_patch_log t1 LEFT JOIN t_error_code t2 on t1.error_code=t2.`code`
         where t1.app_uid = #{appUid}
         <if test="versionName != null">
@@ -93,7 +93,7 @@
         <if test="endTime != null">
             and t1.created_at &lt;= #{endTime}
         </if>
-        order by t1.created_at desc ;
+        order by t1.created_at desc
     </select>
 
 </mapper>

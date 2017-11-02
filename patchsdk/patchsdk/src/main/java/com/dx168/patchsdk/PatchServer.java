@@ -71,29 +71,6 @@ class PatchServer {
         request(baseUrl + "api/patch", paramMap, callback);
     }
 
-    public void report(String appId, String token, String tag,
-                       String versionName, int versionCode, String platform,
-                       String osVersion, String model, String channel,
-                       String sdkVersion, String deviceId, String patchUid,
-                       boolean applyResult,
-                       PatchServerCallback callback) {
-        Map<String, Object> paramMap = new IgnoreNullHashMap<>();
-        paramMap.put("appUid", appId);
-        paramMap.put("token", token);
-        paramMap.put("tag", tag);
-        paramMap.put("versionName", versionName);
-        paramMap.put("versionCode", versionCode);
-        paramMap.put("platform", platform);
-        paramMap.put("osVersion", osVersion);
-        paramMap.put("model", model);
-        paramMap.put("channel", channel);
-        paramMap.put("sdkVersion", sdkVersion);
-        paramMap.put("deviceId", deviceId);
-        paramMap.put("patchUid", patchUid);
-        paramMap.put("applyResult", applyResult);
-        request(baseUrl + "api/report", paramMap, callback);
-    }
-
     /**
      * 带有错误码的上报
      * @param appId
@@ -134,7 +111,7 @@ class PatchServer {
         paramMap.put("patchUid", patchUid);
         paramMap.put("applyResult", applyResult);
         paramMap.put("code", code);
-        request(baseUrl + "api/patch/log", paramMap, callback);
+        request(baseUrl + "api/report", paramMap, callback);
     }
 
     public void downloadPatch(String url, PatchServerCallback callback) {

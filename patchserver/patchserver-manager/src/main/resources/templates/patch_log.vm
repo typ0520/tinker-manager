@@ -148,13 +148,16 @@
                 <ul class="dropdown-menu" role="menu">
                     <li><a href="javascript:setText('patchVersion','全部')">全部</a></li>
                     #foreach($patchInfo in $restR.data.patchInfoList)
-                        <li><a href="javascript:setText('patchVersion',$!patchInfo.patchVersion)">$!patchInfo.patchVersion</a></li>
+                        <li>
+                            <a href="javascript:setText('patchVersion',$!patchInfo.patchVersion)">$!patchInfo.patchVersion</a>
+                        </li>
                     #end
                 </ul>
             </div>
             &nbsp;&nbsp;&nbsp;返回码:
             <div class="btn-group">
-                <input type="text" id="errorCode" class="form-control" value="$!restR.data.errorCode"style="width:60px">
+                <input type="text" id="errorCode" class="form-control" value="$!restR.data.errorCode"
+                       style="width:60px">
             </div>
             &nbsp;&nbsp;&nbsp;&nbsp;手机:
             <div class="btn-group">
@@ -180,7 +183,7 @@
             </div>
             &nbsp;&nbsp;&nbsp;
             <div class="btn-group">
-                <button id="btnSearch" type="button" class="btn btn-info btn-sm" >查询</button>
+                <button id="btnSearch" type="button" class="btn btn-info btn-sm">查询</button>
             </div>
 
             <table class="table table-bordered" style="margin-top: 15px;">
@@ -195,7 +198,7 @@
                     <th>创建时间</th>
                 </tr>
 
-                #foreach($patchLog in $restR.data.patchLogList)
+                #foreach($patchLog in $restR.data.pageInfo.list)
                     <tr>
                         <th>$!patchLog.patchVersion</th>
                         <th>$!patchLog.errorCode</th>
@@ -209,9 +212,35 @@
                 #end
             </table>
 
-            #if($restR.data.patchLogList.isEmpty())
+            #if($restR.data.pageInfo.list.isEmpty())
                 <div class="text-center">无日志信息!</div>
             #end
+
+            <div style="text-align: center">
+                #set($pager = $restR.data.pageInfo )
+
+                <!-- 分页模板 -->
+                <li #if(!${pager.hasPreviousPage}) class="disabled"#end style="list-style-type: none;display: inline-flex;margin: 10px">
+                    <a href="#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$restR.data.versionInfo.versionName&patchVersion=$restR.data.patchVersion&pageNum=$pager.prePage">上一页</a>
+                </li>
+                <!-- 页码列表 -->
+                #foreach($p in [$!{pager.firstPage}..$!{pager.lastPage}])
+                    <li #if($!{pager.pageNum} == $!{p}) class="active" #end style="list-style-type: none;display: inline-flex;margin: 5px">
+                        <a href="#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$restR.data.versionInfo.versionName&patchVersion=$restR.data.patchVersion&pageNum=$!{p}">$!{p}</a>
+                    </li>
+                #end
+                <li #if(!${pager.hasNextPage}) class="disabled" #end style="list-style-type: none;display: inline-flex;margin: 10px">
+                    <a href="#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$restR.data.versionInfo.versionName&patchVersion=$restR.data.patchVersion&pageNum=$pager.nextPage">下一页</a>
+                </li>
+                <li style="list-style-type: none;display: inline-flex;margin: 10px">
+                    每页 $!{pager.size} 条， 共 $!{pager.total} 条， 共$!{pager.pages}页
+                    &nbsp;&nbsp;&nbsp;<input type="text" placeholder="1" id="tzy" style="width: 50px;text-align: center">
+                    <a href="javascript:var tem=document.getElementById('tzy').value;
+                            var temhref='$!#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$restR.data.versionInfo.versionName&patchVersion=$restR.data.patchVersion&pageNum=${tem}';
+                            window.location.href=temhref;">跳转
+                    </a>
+                </li>
+            </div>
         </div>
     </div>
     <!-- /#page-wrapper -->
@@ -220,16 +249,16 @@
 <script>
     //判断当前字符串是否以str结束
     if (typeof String.prototype.endsWith != 'function') {
-        String.prototype.endsWith = function (str){
+        String.prototype.endsWith = function (str) {
             return this.slice(-str.length) == str;
         };
     }
 
-    function setText(id,value){
-        $("#"+id).text(value);
+    function setText(id, value) {
+        $("#" + id).text(value);
     }
 
-    $(document).ready(function(){
+    $(document).ready(function () {
 
         $('#date1').datetimepicker({
             format: 'YYYY-MM-DD',
@@ -241,21 +270,19 @@
         });
 
 
-        $("#btnSearch").click(function(){
-            var errorCode=$("#errorCode").val()!=null?$("#errorCode").val():"";
-            var model=$("#model").val()!=null?$("#model").val():"";
-            var startDate=$("#startDate").val()!=null?$("#startDate").val():"";
-            var endDate=$("#endDate").val()!=null?$("#endDate").val():"";
-            var appVersion=$("#appVersion").text()!=null?$("#appVersion").text():"";
-            var patchVersion=$("#patchVersion").text().trim()!=null?$("#patchVersion").text().trim():"";
-            if(patchVersion=="全部"){
-                patchVersion="";
+        $("#btnSearch").click(function () {
+            var errorCode = $("#errorCode").val() != null ? $("#errorCode").val() : "";
+            var model = $("#model").val() != null ? $("#model").val() : "";
+            var startDate = $("#startDate").val() != null ? $("#startDate").val() : "";
+            var endDate = $("#endDate").val() != null ? $("#endDate").val() : "";
+            var appVersion = $("#appVersion").text() != null ? $("#appVersion").text() : "";
+            var patchVersion = $("#patchVersion").text().trim() != null ? $("#patchVersion").text().trim() : "";
+            if (patchVersion == "全部") {
+                patchVersion = "";
             }
-            window.location.href="#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion="+appVersion+"&patchVersion="+patchVersion+"&errorCode="+errorCode+"&model="+model+"&startDate="+startDate+"&endDate="+endDate;
+            window.location.href = "#springUrl(
+                        '')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=" + appVersion + "&patchVersion=" + patchVersion + "&errorCode=" + errorCode + "&model=" + model + "&startDate=" + startDate + "&endDate=" + endDate;
         })
-
-
-
     });
 </script>
 </body>

@@ -1,9 +1,9 @@
 package com.dx168.patchserver.core.mapper;
 
 import com.dx168.patchserver.core.domain.PatchLog;
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,6 +12,7 @@ import java.util.Map;
 @Mapper
 public interface PatchLogMapper {
     Integer insert(PatchLog patchLog);
-    List<PatchLog> findList(Map<String, Object> param);
+
+    Page<PatchLog> findByPage(Map<String, Object> param);
 
 }

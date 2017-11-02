@@ -488,7 +488,7 @@ public final class PatchManager {
             context.sendBroadcast(intent);
         } else {
             //加载成功 返回码 0
-            report(patchPath, true);
+            report(patchPath, true, PatchManager.ERROR_CODE_LOAD + 0);
         }
     }
 
@@ -533,42 +533,10 @@ public final class PatchManager {
         }
     }
 
-    /**
-     * 上报成功
-     * @param patchPath
-     * @param result
-     */
-    private void report(String patchPath, final boolean result) {
-        final String patchName = appInfo.getVersionName() + "_" + patchPath;
-        int reportFlag = SPUtils.get(context, patchName, -1);
-        /**
-         * 如果已经上报过成功，不管本次是否修复成功，都不上报
-         * 如果已经上报过失败，且本次修复成功，则上报成功
-         * 如果已经上报过失败，且本次修复失败，则不上报
-         */
-        if (reportFlag == SUCCESS_REPORTED || (!result && reportFlag == FAILURE_REPORTED)) {
-            return;
-        }
-        PatchServer.get()
-                .report(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
-                        appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
-                        appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
-                        appInfo.getSdkVersion(), appInfo.getDeviceId(), getUid(patchPath),
-                        result, new PatchServer.PatchServerCallback() {
-                            @Override
-                            public void onSuccess(int code, byte[] bytes) {
-                                SPUtils.put(context, patchName, result ? SUCCESS_REPORTED : FAILURE_REPORTED);
-                            }
 
-                            @Override
-                            public void onFailure(Exception e) {
-
-                            }
-                        });
-    }
 
     /**
-     * 上报异常
+     * 上报补丁结果
      * @param patchPath
      * @param result
      * @param error
@@ -589,7 +557,7 @@ public final class PatchManager {
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
                         appInfo.getSdkVersion(), appInfo.getDeviceId(), getUid(patchPath),
-                        result, error,new PatchServer.PatchServerCallback() {
+                        result, error, new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 SPUtils.put(context, patchName, result ? SUCCESS_REPORTED : FAILURE_REPORTED);

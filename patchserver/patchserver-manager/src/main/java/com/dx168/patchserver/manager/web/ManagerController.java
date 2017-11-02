@@ -1,21 +1,29 @@
 package com.dx168.patchserver.manager.web;
 
+import com.alibaba.fastjson.JSON;
 import com.dx168.patchserver.core.domain.*;
-import com.dx168.patchserver.manager.service.*;
-import net.glxn.qrgen.javase.QRCode;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.Base64Utils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import com.dx168.patchserver.manager.common.Constants;
-import com.dx168.patchserver.manager.common.RestResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.servlet.ModelAndView;
 import com.dx168.patchserver.core.utils.BizAssert;
 import com.dx168.patchserver.core.utils.BizException;
 import com.dx168.patchserver.core.utils.HttpRequestUtils;
+import com.dx168.patchserver.manager.common.Constants;
+import com.dx168.patchserver.manager.common.RestResponse;
+import com.dx168.patchserver.manager.service.*;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import net.glxn.qrgen.javase.QRCode;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Base64Utils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -28,6 +36,9 @@ import java.util.regex.Pattern;
  */
 @Controller
 public class ManagerController {
+
+    private org.slf4j.Logger logger = LoggerFactory.getLogger(ManagerController.class);
+
     @Autowired
     private AppService appService;
 
@@ -608,6 +619,7 @@ public class ManagerController {
      */
     @RequestMapping(value = "/patch/log", method = RequestMethod.GET)
     public ModelAndView patch_log(HttpServletRequest req) {
+        System.out.print("------>"+req.getQueryString());
         String appUid = req.getParameter("appUid");
         String appVersion = req.getParameter("appVersion");
         String patchVersion = req.getParameter("patchVersion");
@@ -615,6 +627,7 @@ public class ManagerController {
         String model = req.getParameter("model");
         String startDate = req.getParameter("startDate");
         String endDate = req.getParameter("endDate");
+        String pageNo = req.getParameter("pageNum");
         RestResponse restR = new RestResponse();
         BizAssert.notEpmty(appUid, "appUid is null");
         AppInfo appInfo = appService.findByUid(appUid);
@@ -638,8 +651,13 @@ public class ManagerController {
         if (StringUtils.isNotEmpty(endDate)) {
             param.put("endTime", endDate);
         }
-        //加载所有patch Log信息
-        List<PatchLog> patchLogList = patchLogService.findList(param);
+
+        // 分页日志信息
+        if (!StringUtils.isNotEmpty(pageNo)){
+            pageNo = "1";
+        }
+        Page<PatchLog> pages = patchLogService.findByPage(param,Integer.parseInt(pageNo),5);
+        PageInfo<PatchLog> pageInfo = new PageInfo<>(pages);
         //加载所有patch信息
         List<PatchInfo> patchInfoList = patchService.findByUidAndVersionName(appUid, appVersion);
         VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo, appVersion);
@@ -652,7 +670,6 @@ public class ManagerController {
         restR.getData().put("user", basicUser);
         restR.getData().put("appInfo", appInfo);
         restR.getData().put("patchInfoList", patchInfoList);
-        restR.getData().put("patchLogList", patchLogList);
         restR.getData().put("appInfoList", appInfoList);
         restR.getData().put("versionInfo", versionInfo);
         restR.getData().put("versionList", appService.findAllVersion(appInfo));
@@ -662,6 +679,9 @@ public class ManagerController {
         restR.getData().put("startDate", startDate);
         restR.getData().put("endDate", endDate);
         restR.getData().put("maxPatchSize", maxPatchSize);
+        restR.getData().put("pageInfo", pageInfo);
+
+        logger.info(JSON.toJSONString(restR));
         return new ModelAndView("patch_log", "restR", restR);
     }
 
