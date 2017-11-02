@@ -160,5 +160,34 @@ CREATE TABLE `t_childuser_app` (
   PRIMARY KEY (`id`),
   FOREIGN KEY(user_id) REFERENCES t_user(id),
   FOREIGN KEY(app_uid) REFERENCES t_app_info(uid),
-  UNIQUE KEY `APP_UID` (`app_uid`),
+  UNIQUE KEY `APP_UID` (`app_uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/* 错误码 */
+CREATE TABLE `t_error_code` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL COMMENT '错误码',
+  `name` varchar(200) DEFAULT NULL COMMENT '错误对照信息',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+
+/* 错误日志表 */
+CREATE TABLE `t_patch_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `app_uid` varchar(32) NOT NULL COMMENT '应用id',
+  `token` varchar(100) DEFAULT NULL,
+  `version_name` varchar(32) NOT NULL,
+  `patch_uid` varchar(32) DEFAULT NULL,
+  `patch_version` int(11) NOT NULL,
+  `error_code` varchar(50) NOT NULL COMMENT '错误码',
+  `error_msg` varchar(2000) DEFAULT NULL COMMENT '错误对照信息',
+  `tags` varchar(256) DEFAULT NULL,
+  `platform` varchar(32) DEFAULT 'Android' COMMENT '平台 Android/IOS',
+  `os_version` varchar(32) DEFAULT NULL COMMENT '手机系统',
+  `model` varchar(32) DEFAULT NULL COMMENT '手机型号',
+  `channel` varchar(32) DEFAULT NULL COMMENT '渠道号',
+  `device_id` varchar(100) DEFAULT NULL,
+  `sdk_version` varchar(32) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;

@@ -32,7 +32,7 @@ public class SimpleListener implements Listener {
     }
 
     @Override
-    public void onPatchFailure() {
+    public void onPatchFailure(String error) {
 
     }
 
@@ -42,7 +42,7 @@ public class SimpleListener implements Listener {
     }
 
     @Override
-    public void onLoadFailure() {
+    public void onLoadFailure(String error) {
 
     }
 

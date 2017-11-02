@@ -52,6 +52,24 @@ public final class PatchManager {
     private static final int STAGE_DOWNLOAD = 2; //正在下载
     private static final int STAGE_PATCH = 3; //正在修复
 
+    //返回码前缀
+    public static final String ERROR_CODE_LOAD = "LoadError"; //
+    public static final String ERROR_CODE_LOAD_EXCEPTION = "LoadException"; //
+    public static final String ERROR_PACKAGE_CHECK = "PackageCheck"; //
+    public static final String ERROR_CODE_PATCH_LISTENER = "PatchListener"; //
+    public static final String ERROR_CODE_PATCH_RESULT = "PatchResult"; //
+
+    /** 下载补丁时异常 */
+    public static final int ERROR_DOWNLOAD_FAIL = -1;
+    /** 检测下载补丁的签名时异常 */
+    public static final int ERROR_DOWNLOAD_CHECK_FAIL = -2;
+    /** 补丁在patchListener检测时异常 */
+    public static final int ERROR_LISTENER_CHECK_FAIL = -3;
+    /** 补丁合成异常 */
+    public static final int ERROR_PATCH_FAIL = -4;
+    /** 补丁加载异常 */
+    public static final int ERROR_LOAD_FAIL = -5;
+
     private static PatchManager instance;
 
     public static PatchManager getInstance() {
@@ -402,7 +420,7 @@ public final class PatchManager {
         }
     }
 
-    public void onPatchFailure(Context context, String patchPath) {
+    public void onPatchFailure(Context context, String patchPath,String error) {
         SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
@@ -413,10 +431,10 @@ public final class PatchManager {
             intent.putExtra(KEY_RESULT, false);
             context.sendBroadcast(intent);
         } else {
-            report(patchPath, false);
+            report(patchPath, false, error);
         }
         for (Listener listener : listeners) {
-            listener.onPatchFailure();
+            listener.onPatchFailure(error);
         }
     }
 
@@ -425,8 +443,8 @@ public final class PatchManager {
      *
      * @param patchPath
      */
-    public void onPatchFailure(String patchPath) {
-        onPatchFailure(context, patchPath);
+    public void onPatchFailure(String patchPath,String error) {
+        onPatchFailure(context, patchPath, error);
     }
 
     private Queue<Runnable> loadResultQueue = new LinkedList<>();
@@ -469,33 +487,34 @@ public final class PatchManager {
             intent.putExtra(KEY_RESULT, true);
             context.sendBroadcast(intent);
         } else {
-            report(patchPath, true);
+            //加载成功 返回码 0
+            report(patchPath, true, PatchManager.ERROR_CODE_LOAD + 0);
         }
     }
 
     /**
      * 补丁加载失败
      */
-    public void onLoadFailure() {
+    public void onLoadFailure(final String error) {
         if (context == null) {
             loadResultQueue.offer(new Runnable() {
                 @Override
                 public void run() {
-                    onLoadFailureInternal();
+                    onLoadFailureInternal(error);
                 }
             });
         } else {
-            onLoadFailureInternal();
+            onLoadFailureInternal(error);
         }
     }
 
-    private void onLoadFailureInternal() {
+    private void onLoadFailureInternal(String error) {
         if (!PatchUtils.isMainProcess(context)) {
             return;
         }
         for (Listener listener : listeners) {
             try {
-                listener.onLoadFailure();
+                listener.onLoadFailure(error);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -510,11 +529,19 @@ public final class PatchManager {
             intent.putExtra(KEY_RESULT, false);
             context.sendBroadcast(intent);
         } else {
-            report(patchPath, false);
+            report(patchPath, false, error);
         }
     }
 
-    private void report(String patchPath, final boolean result) {
+
+
+    /**
+     * 上报补丁结果
+     * @param patchPath
+     * @param result
+     * @param error
+     */
+    private void report(String patchPath, final boolean result, String error) {
         final String patchName = appInfo.getVersionName() + "_" + patchPath;
         int reportFlag = SPUtils.get(context, patchName, -1);
         /**
@@ -530,7 +557,7 @@ public final class PatchManager {
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
                         appInfo.getSdkVersion(), appInfo.getDeviceId(), getUid(patchPath),
-                        result, new PatchServer.PatchServerCallback() {
+                        result, error, new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 SPUtils.put(context, patchName, result ? SUCCESS_REPORTED : FAILURE_REPORTED);

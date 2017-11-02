@@ -6,15 +6,15 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.2'
-        classpath('com.tencent.tinker:tinker-patch-gradle-plugin:1.7.7')
+        classpath('com.tencent.tinker:tinker-patch-gradle-plugin:1.8.0')
     }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.tencent.tinker:tinker-android-anno:1.7.7'
-    compile 'com.tencent.tinker:tinker-android-lib:1.7.7'
+    compile 'com.tencent.tinker:tinker-android-anno:1.8.0'
+    compile 'com.tencent.tinker:tinker-android-lib:1.8.0'
     compile 'com.android.support:multidex:1.0.1'
     compile project(':patchsdk')
 }
@@ -70,8 +70,8 @@ android {
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 
         applicationId "com.dx168.patchsdk.sample"
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 3
+        versionName "3.0.0"
         /**
          * you can use multiDex and install it in your ApplicationLifeCycle implement
          */
@@ -126,7 +126,7 @@ ext {
     tinkerOldApkPath = "${bakPath}/${getBaseApkPrefix()}.apk"
 
     //proguard mapping file to build patch apk
-    tinkerApplyMappingPath = "${bakPath}/app-debug-1024-14-33-32-mapping.txt"
+    tinkerApplyMappingPath = "${bakPath}/${getBaseApkPrefix()}-mapping.txt"
     //resource R.txt to build patch apk, must input if there is resource changed
     tinkerApplyResourcePath = "${bakPath}/${getBaseApkPrefix()}-R.txt"
 }
@@ -157,7 +157,7 @@ def getTinkerBuildFlavorDirectory() {
 }
 
 def getBaseApkPrefix() {
-    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-0215-17-48-55"
+    return hasProperty("BASE_APK_PREFIX") ? BASE_APK_PREFIX : "sample-debug-1016-14-25-33"
 }
 
 if (buildWithTinker()) {
@@ -234,6 +234,15 @@ if (buildWithTinker()) {
              * open this can reduce the dex diff file size.
              */
             keepDexApply = false
+
+            /**
+             * optional, default 'false'
+             * Whether tinker should treat the base apk as the one being protected by app
+             * protection tools.
+             * If this attribute is true, the generated patch package will contain a
+             * dex including all changed classes instead of any dexdiff patch-info files.
+             */
+            isProtectedApp = false
         }
 
         dex {
@@ -276,7 +285,7 @@ if (buildWithTinker()) {
              * for library in assets, we would just recover them in the patch directory
              * you can get them in TinkerLoadResult with Tinker
              */
-            pattern = ["lib/armeabi/*.so"]
+            pattern = ["lib/*/*.so"]
         }
 
         res {
@@ -324,7 +333,7 @@ if (buildWithTinker()) {
             /**
              * patch version via packageConfig
              */
-            configField("patchVersion", "1.0")
+            configField("patchVersion", "7.0")
         }
         //or you can add config filed outside, or get meta value from old apk
         //project.tinkerPatch.packageConfig.configField("test1", project.tinkerPatch.packageConfig.getMetaDataFromOldApk("Test"))
@@ -338,7 +347,7 @@ if (buildWithTinker()) {
              * optional，default '7za'
              * the 7zip artifact path, it will use the right 7za with your platform
              */
-            zipArtifact = "com.tencent.mm:SevenZip:1.1.10"
+            zipArtifact = "com.tencent.mm:SevenZip:1.2.3"
             /**
              * optional，default '7za'
              * you can specify the 7za path yourself, it will overwrite the zipArtifact value
@@ -352,6 +361,7 @@ if (buildWithTinker()) {
         flavors.add(flavor.name)
     }
     boolean hasFlavors = flavors.size() > 0
+    def date = new Date().format("MMdd-HH-mm-ss")
     /**
      * bak apk and mapping
      */
@@ -360,7 +370,6 @@ if (buildWithTinker()) {
          * task type, you want to bak
          */
         def taskName = variant.name
-        def date = new Date().format("MMdd-HH-mm-ss")
 
         tasks.all {
             if ("assemble${taskName.capitalize()}".equalsIgnoreCase(it.name)) {
