@@ -181,7 +181,7 @@ public class ApiController {
      * @return
      */
     @RequestMapping(value = "/api/full_update",method = {RequestMethod.GET,RequestMethod.POST})
-    public @ResponseBody RestResponse full_update_info(HttpServletRequest req, String appUid, String token, String versionName,String channel, boolean debugMode) {
+    public @ResponseBody RestResponse full_update_info(HttpServletRequest req, String appUid, String token, String versionName,String channel,String sdkVersion, boolean debugMode) {
         requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
