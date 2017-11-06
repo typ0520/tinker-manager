@@ -136,6 +136,31 @@ class PatchServer {
                     if (callback == null) {
                         return;
                     }
+
+                    boolean redirect = false;
+                    if (code != HttpURLConnection.HTTP_OK) {
+                        if (code == HttpURLConnection.HTTP_MOVED_TEMP
+                                || code == HttpURLConnection.HTTP_MOVED_PERM
+                                || code == HttpURLConnection.HTTP_SEE_OTHER)
+                            redirect = true;
+                    }
+
+                    if (redirect) {
+                        // get redirect url from "location" header field
+                        String url = conn.getHeaderField("Location");
+
+                        // get the cookie if need, for login
+                        String cookies = conn.getHeaderField("Set-Cookie");
+
+                        conn = (HttpURLConnection) new URL(url).openConnection();
+                        conn.setRequestMethod("GET");
+                        conn.setConnectTimeout(30 * 1000);
+                        conn.setDoInput(true);
+                        conn.setRequestProperty("Cookie", cookies);
+
+                        code = conn.getResponseCode();
+                    }
+
                     if (code == 200) {
                         inputStream = conn.getInputStream();
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
