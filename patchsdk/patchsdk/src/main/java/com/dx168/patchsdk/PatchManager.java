@@ -7,14 +7,14 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
 import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
 import com.dx168.patchsdk.utils.PatchUtils;
 import com.dx168.patchsdk.utils.SPUtils;
-
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -181,6 +181,10 @@ public final class PatchManager {
     }
 
     public void queryAndPatch() {
+        queryAndPatch(false);
+    }
+
+    public void queryAndPatch(final boolean withFullUpdateInfo) {
         if (context == null) {
             throw new NullPointerException("PatchManager must be init before using");
         }
@@ -212,7 +216,7 @@ public final class PatchManager {
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
-                        appInfo.getSdkVersion(), appInfo.getDeviceId(),true, new PatchServer.PatchServerCallback() {
+                        appInfo.getSdkVersion(), appInfo.getDeviceId(),withFullUpdateInfo, new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 if (bytes == null) {
@@ -231,6 +235,10 @@ public final class PatchManager {
                                     }
                                     return;
                                 }
+                                if (withFullUpdateInfo && fullUpdateHandler != null && patchInfo.getFullUpdateInfo() != null) {
+                                    fullUpdateHandler.handleFullUpdate(context,patchInfo.getFullUpdateInfo());
+                                }
+
                                 int resCode = patchInfo.getCode();
                                 if (resCode != 200) {
                                     SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
@@ -241,9 +249,6 @@ public final class PatchManager {
                                 }
                                 for (Listener listener : listeners) {
                                     listener.onQuerySuccess(patchInfo.toString());
-                                }
-                                if (fullUpdateHandler != null && patchInfo.getFullUpdateInfo() != null) {
-                                    fullUpdateHandler.handlerFullUpdate(context,patchInfo.getFullUpdateInfo());
                                 }
                                 if (patchInfo.getData() == null) {
                                     File versionDir = new File(versionDirPath);
@@ -290,6 +295,55 @@ public final class PatchManager {
                                 SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
                                 for (Listener listener : listeners) {
                                     listener.onQueryFailure(e);
+                                }
+                            }
+                        });
+    }
+
+    public void queryFullUpdateInfo() {
+        if (context == null) {
+            throw new NullPointerException("PatchManager must be init before using");
+        }
+        if (!PatchUtils.isMainProcess(context)) {
+            return;
+        }
+
+        PatchServer.get()
+                .queryFullUpdateInfo(appInfo.getAppId(), appInfo.getToken(),
+                        appInfo.getVersionName(), appInfo.getChannel(),
+                        appInfo.getSdkVersion(), new PatchServer.PatchServerCallback() {
+                            @Override
+                            public void onSuccess(int code, byte[] bytes) {
+                                if (bytes == null) {
+                                    return;
+                                }
+                                String response = new String(bytes);
+                                JSONObject jsonObject = null;
+                                try {
+                                    jsonObject = new JSONObject(response).getJSONObject("data");
+                                    if (jsonObject == null) {
+                                        throw new NullPointerException("full update info == null");
+                                    }
+                                } catch (Throwable e) {
+                                    if (fullUpdateHandler != null) {
+                                        fullUpdateHandler.handleError(e);
+                                    }
+                                    return;
+                                }
+
+                                if (fullUpdateHandler != null) {
+                                    fullUpdateHandler.handleFullUpdate(context,jsonObject);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                if (e != null) {
+                                    e.printStackTrace();
+                                }
+
+                                if (fullUpdateHandler != null) {
+                                    fullUpdateHandler.handleError(e);
                                 }
                             }
                         });
@@ -569,5 +623,4 @@ public final class PatchManager {
                             }
                         });
     }
-
 }

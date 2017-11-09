@@ -71,6 +71,16 @@ class PatchServer {
         request(baseUrl + "api/patch", paramMap, callback);
     }
 
+    public void queryFullUpdateInfo(String appId, String token, String versionName, String channel, String sdkVersion, PatchServerCallback callback) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("appUid", appId);
+        paramMap.put("token", token);
+        paramMap.put("versionName", versionName);
+        paramMap.put("channel", channel);
+        paramMap.put("sdkVersion", sdkVersion);
+        request(baseUrl + "api/full_update", paramMap, callback);
+    }
+
     /**
      * 带有错误码的上报
      * @param appId

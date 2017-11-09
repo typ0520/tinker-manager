@@ -17,7 +17,7 @@ public class FullUpdateHandler {
      * @param context
      * @param obj
      */
-    public void handlerFullUpdate(Context context, JSONObject obj) {
+    public void handleFullUpdate(Context context, JSONObject obj) {
 //        {
 //            "latestVersion": "4.0.0",
 //                "needUpdate": true,
@@ -44,5 +44,9 @@ public class FullUpdateHandler {
         intent.putExtra("lowestSupportVersion",obj.optString("lowestSupportVersion"));
         intent.putExtra("updatedAt",obj.optString("updatedAt"));
         context.startActivity(intent);
+    }
+
+    public void handleError(Throwable e) {
+
     }
 }
