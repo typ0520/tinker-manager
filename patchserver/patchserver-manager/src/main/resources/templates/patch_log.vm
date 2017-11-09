@@ -34,6 +34,11 @@
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap-datetimepicker.min.js')" ></script>
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap-datepicker.zh-CN.js')" ></script>
      -->
+    <style>
+        .page-count.active{
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
@@ -188,6 +193,7 @@
 
             <table class="table table-bordered" style="margin-top: 15px;">
                 <tr>
+                    <th>id</th>
                     <th>补丁版本</th>
                     <th>返回编码码</th>
                     <th>编码命名</th>
@@ -200,6 +206,7 @@
 
                 #foreach($patchLog in $restR.data.pageInfo.list)
                     <tr>
+                        <th>$!patchLog.id</th>
                         <th>$!patchLog.patchVersion</th>
                         <th>$!patchLog.errorCode</th>
                         <th>$!patchLog.errorName</th>
@@ -225,7 +232,7 @@
                 </li>
                 <!-- 页码列表 -->
                 #foreach($p in [$!{pager.firstPage}..$!{pager.lastPage}])
-                    <li #if($!{pager.pageNum} == $!{p}) class="active" #end style="list-style-type: none;display: inline-flex;margin: 5px">
+                    <li #if($!{pager.pageNum} == $!{p}) class="active page-count" #end style="list-style-type: none;display: inline-flex;margin: 5px" class="page-count">
                         <a href="#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$restR.data.versionInfo.versionName&patchVersion=$restR.data.patchVersion&pageNum=$!{p}">$!{p}</a>
                     </li>
                 #end
@@ -236,7 +243,7 @@
                     每页 $!{pager.size} 条， 共 $!{pager.total} 条， 共$!{pager.pages}页
                     &nbsp;&nbsp;&nbsp;<input type="text" placeholder="1" id="tzy" style="width: 50px;text-align: center">
                     <a href="javascript:var tem=document.getElementById('tzy').value;
-                            var temhref='$!#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$restR.data.versionInfo.versionName&patchVersion=$restR.data.patchVersion&pageNum=${tem}';
+                            var temhref='#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$restR.data.versionInfo.versionName&patchVersion=$restR.data.patchVersion&pageNum=' + tem;
                             window.location.href=temhref;">跳转
                     </a>
                 </li>

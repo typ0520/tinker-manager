@@ -6,15 +6,15 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.2'
-        classpath('com.tencent.tinker:tinker-patch-gradle-plugin:1.8.0')
+        classpath('com.tencent.tinker:tinker-patch-gradle-plugin:1.9.1')
     }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.tencent.tinker:tinker-android-anno:1.8.0'
-    compile 'com.tencent.tinker:tinker-android-lib:1.8.0'
+    compile 'com.tencent.tinker:tinker-android-anno:1.9.1'
+    compile 'com.tencent.tinker:tinker-android-lib:1.9.1'
     compile 'com.android.support:multidex:1.0.1'
     compile project(':patchsdk')
 }
@@ -243,6 +243,17 @@ if (buildWithTinker()) {
              * dex including all changed classes instead of any dexdiff patch-info files.
              */
             isProtectedApp = false
+
+            /**
+             * optional, default 'false'
+             * Whether tinker should support component hotplug (add new component dynamically).
+             * If this attribute is true, the component added in new apk will be available after
+             * patch is successfully loaded. Otherwise an error would be announced when generating patch
+             * on compile-time.
+             *
+             * <b>Notice that currently this feature is incubating and only support NON-EXPORTED Activity</b>
+             */
+            supportHotplugComponent = false
         }
 
         dex {

@@ -618,21 +618,28 @@ public class ManagerController {
      * @return
      */
     @RequestMapping(value = "/patch/log", method = RequestMethod.GET)
-    public ModelAndView patch_log(HttpServletRequest req) {
+    public ModelAndView patch_log(HttpServletRequest req,String appUid,String appVersion,String patchVersion,String errorCode,String model,String startDate,String endDate,String pageNum) {
         System.out.print("------>"+req.getQueryString());
-        String appUid = req.getParameter("appUid");
-        String appVersion = req.getParameter("appVersion");
-        String patchVersion = req.getParameter("patchVersion");
-        String errorCode = req.getParameter("errorCode");
-        String model = req.getParameter("model");
-        String startDate = req.getParameter("startDate");
-        String endDate = req.getParameter("endDate");
-        String pageNo = req.getParameter("pageNum");
+
+        // 分页日志信息
+        try {
+            Integer.parseInt(pageNum);
+        } catch (Throwable e) {
+            pageNum = "1";
+        }
+
         RestResponse restR = new RestResponse();
         BizAssert.notEpmty(appUid, "appUid is null");
         AppInfo appInfo = appService.findByUid(appUid);
+
+        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo, appVersion);
+        if (versionInfo == null) {
+            throw new BizException("该版本未找到: " + appVersion);
+        }
+
         Map param = new HashMap();
         param.put("appUid", appUid);
+
         if (StringUtils.isNotEmpty(patchVersion)) {
             param.put("patchVersion", patchVersion);
         }
@@ -652,21 +659,15 @@ public class ManagerController {
             param.put("endTime", endDate);
         }
 
-        // 分页日志信息
-        if (!StringUtils.isNotEmpty(pageNo)){
-            pageNo = "1";
-        }
-        Page<PatchLog> pages = patchLogService.findByPage(param,Integer.parseInt(pageNo),5);
+        Page<PatchLog> pages = patchLogService.findByPage(param,Integer.parseInt(pageNum),5);
+
         PageInfo<PatchLog> pageInfo = new PageInfo<>(pages);
+
         //加载所有patch信息
         List<PatchInfo> patchInfoList = patchService.findByUidAndVersionName(appUid, appVersion);
-        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo, appVersion);
-        if (versionInfo == null) {
-            throw new BizException("该版本未找到: " + appVersion);
-        }
-
         BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
         List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+
         restR.getData().put("user", basicUser);
         restR.getData().put("appInfo", appInfo);
         restR.getData().put("patchInfoList", patchInfoList);
@@ -684,5 +685,4 @@ public class ManagerController {
         logger.info(JSON.toJSONString(restR));
         return new ModelAndView("patch_log", "restR", restR);
     }
-
 }
