@@ -1,24 +1,34 @@
 package com.dx168.patchserver.manager.web;
 
+import com.alibaba.fastjson.JSON;
 import com.dx168.patchserver.core.domain.*;
-import com.dx168.patchserver.manager.service.*;
-import net.glxn.qrgen.javase.QRCode;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.Base64Utils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import com.dx168.patchserver.manager.common.Constants;
-import com.dx168.patchserver.manager.common.RestResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.servlet.ModelAndView;
 import com.dx168.patchserver.core.utils.BizAssert;
 import com.dx168.patchserver.core.utils.BizException;
 import com.dx168.patchserver.core.utils.HttpRequestUtils;
+import com.dx168.patchserver.manager.common.Constants;
+import com.dx168.patchserver.manager.common.RestResponse;
+import com.dx168.patchserver.manager.service.*;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import net.glxn.qrgen.javase.QRCode;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.Base64Utils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -26,6 +36,9 @@ import java.util.regex.Pattern;
  */
 @Controller
 public class ManagerController {
+
+    private org.slf4j.Logger logger = LoggerFactory.getLogger(ManagerController.class);
+
     @Autowired
     private AppService appService;
 
@@ -46,6 +59,9 @@ public class ManagerController {
 
     @Autowired
     private FullUpdateService fullUpdateService;
+
+    @Autowired
+    private PatchLogService patchLogService;
 
     @Value("${spring.http.multipart.max-file-size}")
     private String maxPatchSize;
@@ -592,5 +608,81 @@ public class ManagerController {
         } catch (BizException e) {
             return new ModelAndView("redirect:/full_update?appUid=" + fullUpdateInfo.getAppUid() + "&msg=" + HttpRequestUtils.urlEncode(e.getMessage()));
         }
+    }
+
+
+    /**
+     * 查询Log日志信息
+     *
+     * @param req
+     * @return
+     */
+    @RequestMapping(value = "/patch/log", method = RequestMethod.GET)
+    public ModelAndView patch_log(HttpServletRequest req,String appUid,String appVersion,String patchVersion,String errorCode,String model,String startDate,String endDate,String pageNum) {
+        System.out.print("------>"+req.getQueryString());
+
+        // 分页日志信息
+        try {
+            Integer.parseInt(pageNum);
+        } catch (Throwable e) {
+            pageNum = "1";
+        }
+
+        RestResponse restR = new RestResponse();
+        BizAssert.notEpmty(appUid, "appUid is null");
+        AppInfo appInfo = appService.findByUid(appUid);
+
+        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo, appVersion);
+        if (versionInfo == null) {
+            throw new BizException("该版本未找到: " + appVersion);
+        }
+
+        Map param = new HashMap();
+        param.put("appUid", appUid);
+
+        if (StringUtils.isNotEmpty(patchVersion)) {
+            param.put("patchVersion", patchVersion);
+        }
+        if (StringUtils.isNotEmpty(appVersion)) {
+            param.put("appVersion", appVersion);
+        }
+        if (StringUtils.isNotEmpty(errorCode)) {
+            param.put("errorCode", errorCode);
+        }
+        if (StringUtils.isNotEmpty(model)) {
+            param.put("model", model);
+        }
+        if (StringUtils.isNotEmpty(startDate)) {
+            param.put("startTime", startDate);
+        }
+        if (StringUtils.isNotEmpty(endDate)) {
+            param.put("endTime", endDate);
+        }
+
+        Page<PatchLog> pages = patchLogService.findByPage(param,Integer.parseInt(pageNum),5);
+
+        PageInfo<PatchLog> pageInfo = new PageInfo<>(pages);
+
+        //加载所有patch信息
+        List<PatchInfo> patchInfoList = patchService.findByUidAndVersionName(appUid, appVersion);
+        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+
+        restR.getData().put("user", basicUser);
+        restR.getData().put("appInfo", appInfo);
+        restR.getData().put("patchInfoList", patchInfoList);
+        restR.getData().put("appInfoList", appInfoList);
+        restR.getData().put("versionInfo", versionInfo);
+        restR.getData().put("versionList", appService.findAllVersion(appInfo));
+        restR.getData().put("patchVersion", patchVersion != null ? patchVersion : "");
+        restR.getData().put("errorCode", errorCode);
+        restR.getData().put("model", model);
+        restR.getData().put("startDate", startDate);
+        restR.getData().put("endDate", endDate);
+        restR.getData().put("maxPatchSize", maxPatchSize);
+        restR.getData().put("pageInfo", pageInfo);
+
+        logger.info(JSON.toJSONString(restR));
+        return new ModelAndView("patch_log", "restR", restR);
     }
 }

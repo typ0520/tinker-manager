@@ -2,4 +2,12 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.1.1")
     compile 'mysql:mysql-connector-java:6.0.6'
+
+    compile("com.github.pagehelper:pagehelper-spring-boot-starter:1.2.3")
+    compile("org.springframework.boot:spring-boot-test:1.4.1.RELEASE")
+    compile("org.springframework:spring-test:4.3.3.RELEASE")
+    compile("org.mockito:mockito-all:1.10.19")
+
+    compile 'com.alibaba:fastjson:1.2.39'
+    compile 'junit:junit:4.12'
 }

@@ -34,6 +34,9 @@ public class ApiService {
     private PatchInfoMapper patchInfoMapper;
 
     @Autowired
+    private PatchLogMapper patchLogMapper;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
@@ -250,4 +253,9 @@ public class ApiService {
             }
         }
     }
+
+    public void patchLog(PatchLog patchLog) {
+        patchLogMapper.insert(patchLog);
+    }
+
 }

@@ -229,23 +229,26 @@ public class ApiController {
 
     /**
      * 报告补丁加载结果
-     * @param appUid        app唯一标示
-     * @param token         app的秘钥
-     * @param versionName   应用版本号
-     * @param tag           标记(用于灰度发布)
-     * @param platform      平台(Android|iOS)
-     * @param osVersion     系统的版本号
-     * @param model         手机型号
-     * @param channel       渠道号
-     * @param sdkVersion    sdk版本号
-     * @param deviceId      设备id
-     * @param patchUid      补丁唯一标示
-     * @param applyResult   是否加载成功
+     *
+     * @param appUid      app唯一标示
+     * @param token       app的秘钥
+     * @param versionName 应用版本号
+     * @param tag         标记(用于灰度发布)
+     * @param platform    平台(Android|iOS)
+     * @param osVersion   系统的版本号
+     * @param model       手机型号
+     * @param channel     渠道号
+     * @param sdkVersion  sdk版本号
+     * @param deviceId    设备id
+     * @param patchUid    补丁唯一标示
+     * @param applyResult 是否加载成功
+     * @param code        错误码
+     * @param msg         错误对照信息
      * @return
      */
     @RequestMapping(value = "/api/report",method = {RequestMethod.GET,RequestMethod.POST})
     public @ResponseBody RestResponse report(HttpServletRequest req, String appUid, String token, String versionName, String tag, String platform, String osVersion,
-                                             String model,String channel, String sdkVersion, boolean debugMode,String deviceId,String patchUid,boolean applyResult) throws Exception {
+                                             String model,String channel, String sdkVersion, boolean debugMode,String deviceId,String patchUid,boolean applyResult,String code, String msg) throws Exception {
         requestStatService.increment();
         RestResponse restR = new RestResponse();
         try {
@@ -280,6 +283,25 @@ public class ApiController {
             }
 
             apiService.report(patchInfo,applyResult);
+
+            if (!applyResult) {
+                PatchLog patchLog = new PatchLog();
+                patchLog.setAppUid(appUid);
+                patchLog.setToken(token);
+                patchLog.setVersionName(versionName);
+                patchLog.setPatchUid(patchUid);
+                patchLog.setPlatform(platform);
+                patchLog.setOsVersion(osVersion);
+                patchLog.setModel(model);
+                patchLog.setChannel(channel);
+                patchLog.setSdkVersion(sdkVersion);
+                patchLog.setDeviceId(deviceId);
+                patchLog.setTags(tag);
+                patchLog.setErrorCode(code);
+                patchLog.setErrorMsg(msg);
+                apiService.patchLog(patchLog);
+            }
+
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());

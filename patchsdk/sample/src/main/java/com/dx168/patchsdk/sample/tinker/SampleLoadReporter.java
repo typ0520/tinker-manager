@@ -25,6 +25,7 @@ import com.tencent.tinker.lib.reporter.DefaultLoadReporter;
 import com.tencent.tinker.lib.tinker.Tinker;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
 import com.tencent.tinker.lib.util.TinkerLog;
+import com.tencent.tinker.lib.util.UpgradePatchRetry;
 import com.tencent.tinker.loader.shareutil.ShareConstants;
 import com.tencent.tinker.loader.shareutil.SharePatchFileUtil;
 import com.tencent.tinker.loader.shareutil.ShareTinkerInternals;
@@ -57,13 +58,16 @@ public class SampleLoadReporter extends DefaultLoadReporter {
                 PatchManager.getInstance().onLoadSuccess();
                 SampleTinkerReport.onLoaded(cost);
                 break;
+
             default:
-                PatchManager.getInstance().onLoadFailure();
                 break;
         }
         Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
-            @Override public boolean queueIdle() {
-                UpgradePatchRetry.getInstance(context).onPatchRetryLoad();
+            @Override
+            public boolean queueIdle() {
+                if (UpgradePatchRetry.getInstance(context).onPatchRetryLoad()) {
+                    SampleTinkerReport.onReportRetryPatch();
+                }
                 return false;
             }
         });
@@ -71,18 +75,8 @@ public class SampleLoadReporter extends DefaultLoadReporter {
     @Override
     public void onLoadException(Throwable e, int errorCode) {
         super.onLoadException(e, errorCode);
-        switch (errorCode) {
-            case ShareConstants.ERROR_LOAD_EXCEPTION_UNCAUGHT:
-                String uncaughtString = SharePatchFileUtil.checkTinkerLastUncaughtCrash(context);
-                if (!ShareTinkerInternals.isNullOrNil(uncaughtString)) {
-                    File laseCrashFile = SharePatchFileUtil.getPatchLastCrashFile(context);
-                    SharePatchFileUtil.safeDeleteFile(laseCrashFile);
-                    // found really crash reason
-                    TinkerLog.e(TAG, "tinker uncaught real exception:" + uncaughtString);
-                }
-                break;
-        }
         SampleTinkerReport.onLoadException(e, errorCode);
+        PatchManager.getInstance().onLoadFailure(PatchManager.ERROR_CODE_LOAD_EXCEPTION + PatchManager.ERROR_LOAD_FAIL);
     }
 
     @Override
@@ -129,12 +123,20 @@ public class SampleLoadReporter extends DefaultLoadReporter {
     public void onLoadPackageCheckFail(File patchFile, int errorCode) {
         super.onLoadPackageCheckFail(patchFile, errorCode);
         SampleTinkerReport.onLoadPackageCheckFail(errorCode);
+        // 上报校验异常
+        PatchManager.getInstance().onLoadFailure(PatchManager.ERROR_PACKAGE_CHECK + errorCode);
     }
 
     @Override
     public void onLoadPatchInfoCorrupted(String oldVersion, String newVersion, File patchInfoFile) {
         super.onLoadPatchInfoCorrupted(oldVersion, newVersion, patchInfoFile);
         SampleTinkerReport.onLoadInfoCorrupted();
+    }
+
+    @Override
+    public void onLoadInterpret(int type, Throwable e) {
+        super.onLoadInterpret(type, e);
+        SampleTinkerReport.onLoadInterpretReport(type, e);
     }
 
     @Override

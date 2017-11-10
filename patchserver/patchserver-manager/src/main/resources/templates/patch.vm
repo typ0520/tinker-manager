@@ -179,6 +179,9 @@
                     <span class="t_num2" id="success_scale">
                         $!restR.data.patchInfo.formatApplyScale
                     </span>
+                    &nbsp;&nbsp;&nbsp;
+                    <a href="#springUrl('')/patch/log?appUid=$restR.data.appInfo.uid&appVersion=$!restR.data.patchInfo.versionName&patchVersion=$!restR.data.patchInfo.patchVersion">(日志详情)</a>
+
                 </div>
                 <br />
                 #if($!restR.data.patchInfo.publishType == 0)
@@ -205,7 +208,6 @@
 
                 <input type="button" id="del_patch" value="删除补丁" />
             #end
-
         </div>
     </div>
     <!-- /#page-wrapper -->

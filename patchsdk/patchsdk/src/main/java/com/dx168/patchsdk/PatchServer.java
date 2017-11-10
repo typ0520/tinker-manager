@@ -81,11 +81,30 @@ class PatchServer {
         request(baseUrl + "api/full_update", paramMap, callback);
     }
 
+    /**
+     * 带有错误码的上报
+     * @param appId
+     * @param token
+     * @param tag
+     * @param versionName
+     * @param versionCode
+     * @param platform
+     * @param osVersion
+     * @param model
+     * @param channel
+     * @param sdkVersion
+     * @param deviceId
+     * @param patchUid
+     * @param applyResult
+     * @param code
+     * @param callback
+     */
     public void report(String appId, String token, String tag,
                        String versionName, int versionCode, String platform,
                        String osVersion, String model, String channel,
                        String sdkVersion, String deviceId, String patchUid,
                        boolean applyResult,
+                       String code,
                        PatchServerCallback callback) {
         Map<String, Object> paramMap = new IgnoreNullHashMap<>();
         paramMap.put("appUid", appId);
@@ -101,6 +120,7 @@ class PatchServer {
         paramMap.put("deviceId", deviceId);
         paramMap.put("patchUid", patchUid);
         paramMap.put("applyResult", applyResult);
+        paramMap.put("code", code);
         request(baseUrl + "api/report", paramMap, callback);
     }
 
