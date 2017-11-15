@@ -2,7 +2,7 @@
 
 1、下载部署所需要的文件(war包、配置文件、建库sql文件)  [war包下载](https://pan.baidu.com/s/1minrdgO#list/path=%2Ftinker-manager).
 
-2、在mysql里面建一个数据库,建表sql在patchserver-manager/import.sql中
+2、在mysql(需要5.x版本)里面建数据库,建表sql在patchserver-manager/import.sql中
 
 3、把hotfix-apis.properties和hotfix-console.properties两个配置文件放到/opt/config(*如果是windows部署，放置在tomcat对应的盘符下，假如tomcat在d://tomcat  配置文件放在d://opt/config下})目录下，并且修改里面对应的配置(数据源配置、访问路径配置、补丁存放目录)
 
