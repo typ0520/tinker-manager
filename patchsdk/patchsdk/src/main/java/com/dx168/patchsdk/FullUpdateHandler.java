@@ -32,18 +32,19 @@ public class FullUpdateHandler {
             return;
         }
         Log.d(TAG,"handlerFullUpdate: " + obj.toString());
-
-        Intent intent = new Intent(context,FullUpdateActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("latestVersion",obj.optString("latestVersion"));
-        intent.putExtra("needUpdate",obj.optBoolean("needUpdate",false));
-        intent.putExtra("downloadUrl",obj.optString("downloadUrl"));
-        intent.putExtra("title",obj.optString("title"));
-        intent.putExtra("description",obj.optString("description"));
-        intent.putExtra("forceUpdate",obj.optBoolean("forceUpdate",false));
-        intent.putExtra("lowestSupportVersion",obj.optString("lowestSupportVersion"));
-        intent.putExtra("updatedAt",obj.optString("updatedAt"));
-        context.startActivity(intent);
+        if(obj.optBoolean("needUpdate",false)) {
+            Intent intent = new Intent(context, FullUpdateActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("latestVersion", obj.optString("latestVersion"));
+            intent.putExtra("needUpdate", obj.optBoolean("needUpdate", false));
+            intent.putExtra("downloadUrl", obj.optString("downloadUrl"));
+            intent.putExtra("title", obj.optString("title"));
+            intent.putExtra("description", obj.optString("description"));
+            intent.putExtra("forceUpdate", obj.optBoolean("forceUpdate", false));
+            intent.putExtra("lowestSupportVersion", obj.optString("lowestSupportVersion"));
+            intent.putExtra("updatedAt", obj.optString("updatedAt"));
+            context.startActivity(intent);
+        }
     }
 
     public void handleError(Throwable e) {
