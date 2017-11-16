@@ -32,7 +32,7 @@ public class FullUpdateHandler {
             return;
         }
         Log.d(TAG,"handlerFullUpdate: " + obj.toString());
-        if(obj.optBoolean("needUpdate",false)) {
+        if (obj.optBoolean("needUpdate",false)) {
             Intent intent = new Intent(context, FullUpdateActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("latestVersion", obj.optString("latestVersion"));
