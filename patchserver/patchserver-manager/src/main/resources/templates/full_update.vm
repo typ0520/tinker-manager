@@ -172,8 +172,8 @@
             <div class="form-group">
                 <label for="description" class="col-sm-2 control-label">*更新说明</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="description" name="description"  required="" placeholder="请输入更新说明"
-                           value="$!restR.data.fullUpdateInfo.description">
+                    <textarea type="text" class="form-control" id="description" name="description"  required="" placeholder="请输入更新说明"
+                           value="$!restR.data.fullUpdateInfo.description" > </textarea>
                 </div>
             </div>
 
